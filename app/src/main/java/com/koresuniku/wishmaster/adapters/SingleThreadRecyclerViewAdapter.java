@@ -4,11 +4,18 @@ import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -184,8 +191,14 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         String comment = post.getComment();
         List<Files> files = post.getFiles();
 
-        holder.numberAndTime.setText("№" + number + (name.equals("") ? "" : " "
-                + name) + " " + (trip.equals("") ? "" : " " + trip) + time);
+        SpannableStringBuilder numberAndTimeString = new SpannableStringBuilder("#" + (position + 1) + " ");
+        numberAndTimeString.setSpan(new ForegroundColorSpan(
+                mActivity.getResources().getColor(R.color.post_number_color)),
+                0, numberAndTimeString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        numberAndTimeString.append(Html.fromHtml("№" + number
+                + (name.equals("") ? "" : " " + name) + " "
+                + (trip.equals("") ? "" : " " + trip) + time));
+        holder.numberAndTime.setText(numberAndTimeString);
         if (!boardId.equals("b")) {
             holder.subject.setText(Html.fromHtml(subject));
         } else {

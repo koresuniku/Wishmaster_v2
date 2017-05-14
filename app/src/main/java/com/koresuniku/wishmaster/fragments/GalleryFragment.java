@@ -137,7 +137,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         //Log.d(LOG_TAG, "onCreateView:");
         if (mActivity == null) return rootView;
 
-        Log.d(LOG_TAG, "yooooooba");
         setupImageAnimations();
 
         int v = mFile.getPath().indexOf(".");
