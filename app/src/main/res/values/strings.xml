@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Wishmaster</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_save">Сохранить</string>
+    <string name="action_search_main_activity">Код доски, адрес</string>
+
+    <string name="adult_boards">Взрослым</string>
+    <string name="games_boards">Игры</string>
+    <string name="politics_boards">Политика</string>
+    <string name="users_boards">Пользовательские</string>
+    <string name="different_boards">Разное</string>
+    <string name="creativity_boards">Творчество</string>
+    <string name="subject_boards">Тематика</string>
+    <string name="tech_boards">Техника и софт</string>
+    <string name="japanese_boards">Японская культура</string>
+
+    <string name="additional_text">Дополнительно</string>
+    <string name="page_text">страница</string>
+
+    <string name="sp_cache_size_code">cache size</string>
+    <string name="sp_cache_size_default_value">1024</string>
+</resources>

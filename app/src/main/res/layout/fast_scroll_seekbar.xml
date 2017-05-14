@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@drawable/fastscroll_background"
+    android:focusable="false">
+
+    <com.koresuniku.wishmaster.ui.views.VerticalSeekbar
+        android:id="@+id/scroll_seekBar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+
+        android:layout_gravity="center"
+        android:paddingEnd="35dp"
+        android:paddingStart="35dp"
+        android:progress="50"
+        android:progressDrawable="@drawable/fastscrollseekbar_progress_background"
+        android:rotation="180"
+        android:thumb="@drawable/fastscrollseekbar_thumb"
+        android:visibility="visible" />
+
+</FrameLayout>

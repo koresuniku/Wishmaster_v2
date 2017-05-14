@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fresco="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <!--<com.koresuniku.wishmaster.ui.views.TouchImageView-->
+    <!--android:id="@+id/full_media_imageview"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:clickable="true"-->
+    <!--app:srcCompat="@mipmap/ic_launcher" />-->
+
+    <!--<ImageView-->
+    <!--android:id="@+id/full_media_imageview"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="center"-->
+    <!--android:clickable="true"-->
+    <!--app:srcCompat="@mipmap/ic_launcher" />-->
+
+    <!--<me.relex.photodraweeview.PhotoDraweeView-->
+    <!--android:id="@+id/drawee_view"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:layout_gravity="center"-->
+
+    <!--/>-->
+
+    <!--<com.qozix.tileview.TileView-->
+    <!--android:id="@+id/tile_view"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"></com.qozix.tileview.TileView>-->
+
+    <!--<com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView-->
+    <!--android:id="@+id/subscale_view"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"/>-->
+
+    <!--<WebView-->
+    <!--android:id="@+id/large_image_web_view"-->
+    <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+    <!--android:layout_height="match_parent"></WebView>-->
+
+    <FrameLayout
+        android:id="@+id/big_image_progress_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ProgressBar
+            android:id="@+id/big_image_progress_bar"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/big_image_stub_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true">
+
+    </FrameLayout>
+
+</FrameLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/com.github.piasy/BigImageViewer/1.2.9/1.2.9.iml" filepath="$PROJECT_DIR$/com.github.piasy/BigImageViewer/1.2.9/1.2.9.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.github.piasy/BigImageViewer/BigImageViewer.iml" filepath="$PROJECT_DIR$/com.github.piasy/BigImageViewer/BigImageViewer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Wishmaster.iml" filepath="$PROJECT_DIR$/Wishmaster.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.github.piasy/com.github.piasy.iml" filepath="$PROJECT_DIR$/com.github.piasy/com.github.piasy.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/threads_full_picvid_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:foregroundGravity="top">
+
+    <com.koresuniku.wishmaster.ui.views.HackyViewPager
+        android:id="@+id/threads_full_pic_vid_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true">
+
+    </com.koresuniku.wishmaster.ui.views.HackyViewPager>
+
+    <LinearLayout
+        android:id="@+id/picvid_toolbar_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:background="@color/full_media_tint">
+
+        </FrameLayout>
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/picvid_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/full_media_tint"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/GalaxyZooThemeToolbarDarkOverflow">
+
+            <ImageView
+                android:id="@+id/exit_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="30dp"
+                android:visibility="visible"
+                app:srcCompat="@drawable/ic_close_black_24dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/picvid_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Image title"
+                    android:textColor="@android:color/background_light" />
+
+                <TextView
+                    android:id="@+id/picvid_short_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\???? kb, (?/?)"
+                    android:textColor="@android:color/background_light" />
+            </LinearLayout>
+
+
+        </android.support.v7.widget.Toolbar>
+
+    </LinearLayout>
+
+</FrameLayout>
