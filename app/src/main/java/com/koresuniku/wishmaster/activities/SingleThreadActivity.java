@@ -170,6 +170,8 @@ public class SingleThreadActivity extends AppCompatActivity {
         setupOrientationFeatures();
 
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
+
+        loadData();
     }
 
     @Override
@@ -184,8 +186,8 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (!dataLoaded) {
             loadData();
         } else {
-            if (mPosts != null) setupThreadsRecyclerView();
-            else loadData();
+            //if (mPosts != null) setupThreadsRecyclerView();
+            //else loadData();
         }
     }
 
@@ -536,6 +538,12 @@ public class SingleThreadActivity extends AppCompatActivity {
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
+            if (singleThreadRefreshLayoutTop != null) {
+                singleThreadRefreshLayoutTop.requestLayout();
+            }
+            if (singleThreadRefreshLayoutBottom != null) {
+                singleThreadRefreshLayoutBottom.requestLayout();
+            }
         }
     }
 

@@ -487,7 +487,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     @Override
     public int getItemCount() {
-        return SingleThreadActivity.mPosts.size();
+      return SingleThreadActivity.mPosts.size();
     }
 
     @Override

@@ -93,7 +93,7 @@
                 <!--app:fastScrollAutoHide="true"-->
                 <!--app:fastScrollAutoHideDelay="200" />-->
 
-                <!--<com.koresuniku.wishmaster.ui.views.AbsoluteScrollableRecyclerView-->
+                <!--<com.koresuniku.wishmaster.ui.views.luteScrollableRecyclerView-->
                 <!--android:id="@+id/threads_recycler_view"-->
                 <!--android:layout_width="match_parent"-->
                 <!--android:layout_height="match_parent">-->
