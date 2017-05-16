@@ -8,17 +8,17 @@ import android.view.MotionEvent;
 import android.widget.SeekBar;
 
 @SuppressLint("AppCompatCustomView")
-public class VerticalSeekbar extends SeekBar {
+public class VerticalSeekBar extends SeekBar {
 
-    public VerticalSeekbar(Context context) {
+    public VerticalSeekBar(Context context) {
         super(context);
     }
 
-    public VerticalSeekbar(Context context, AttributeSet attrs, int defStyle) {
+    public VerticalSeekBar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    public VerticalSeekbar(Context context, AttributeSet attrs) {
+    public VerticalSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

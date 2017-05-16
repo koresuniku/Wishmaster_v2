@@ -4,13 +4,12 @@
     android:id="@+id/post_item_no_images_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="5dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginTop="5dp"
+    android:background="@color/common_background_color"
     android:orientation="vertical"
-    android:paddingLeft="2dp"
-    android:paddingRight="2dp">
+    android:paddingBottom="6dp"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:paddingTop="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -44,5 +43,12 @@
         android:cursorVisible="false"
         android:text="comment"
         android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <com.koresuniku.wishmaster.ui.views.NoScrollTextView
+        android:id="@+id/answers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Answers: 1488666, 2284247"
+        android:textSize="13sp" />
 
 </LinearLayout>

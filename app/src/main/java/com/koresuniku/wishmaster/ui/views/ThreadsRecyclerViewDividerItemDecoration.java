@@ -1,8 +1,10 @@
 package com.koresuniku.wishmaster.ui.views;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -13,8 +15,10 @@ import com.koresuniku.wishmaster.utils.DeviceUtils;
 public class ThreadsRecyclerViewDividerItemDecoration extends RecyclerView.ItemDecoration {
         private Drawable mDivider;
 
-        public ThreadsRecyclerViewDividerItemDecoration(Context context) {
-            mDivider = context.getResources().getDrawable(R.drawable.line_divider);
+        public ThreadsRecyclerViewDividerItemDecoration(Activity activity) {
+            mDivider = activity.getResources().getDrawable(R.drawable.line_divider);
+//            mDivider.setColorFilter(activity.getResources().getColor(
+//                    android.R.color.background_light), PorterDuff.Mode.SRC_ATOP);
         }
 
         @Override
@@ -33,9 +37,6 @@ public class ThreadsRecyclerViewDividerItemDecoration extends RecyclerView.ItemD
 
                 mDivider.setBounds(left, top, right, bottom);
 
-//                if (i == childCount - 1) {
-//                    mDivider.setBounds(left, top, right, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
-//                }
                 mDivider.draw(c);
             }
         }

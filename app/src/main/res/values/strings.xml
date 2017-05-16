@@ -22,6 +22,7 @@
 
     <string name="additional_text">Дополнительно</string>
     <string name="page_text">страница</string>
+    <string name="answers_text">Ответы: </string>
 
     <string name="sp_cache_size_code">cache size</string>
     <string name="sp_cache_size_default_value">1024</string>

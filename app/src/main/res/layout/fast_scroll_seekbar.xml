@@ -7,7 +7,7 @@
     android:background="@drawable/fastscroll_background"
     android:focusable="false">
 
-    <com.koresuniku.wishmaster.ui.views.VerticalSeekbar
+    <com.koresuniku.wishmaster.ui.views.VerticalSeekBar
         android:id="@+id/scroll_seekBar"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

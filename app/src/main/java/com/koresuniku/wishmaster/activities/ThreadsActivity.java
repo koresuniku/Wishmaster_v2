@@ -5,8 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,7 +51,7 @@ import com.koresuniku.wishmaster.ui.views.FixedRecyclerView;
 import com.koresuniku.wishmaster.ui.views.HackyViewPager;
 import com.koresuniku.wishmaster.ui.views.SpeedyLinearLayoutManager;
 import com.koresuniku.wishmaster.ui.views.ThreadsRecyclerViewDividerItemDecoration;
-import com.koresuniku.wishmaster.ui.views.VerticalSeekbar;
+import com.koresuniku.wishmaster.ui.views.VerticalSeekBar;
 import com.koresuniku.wishmaster.utils.CacheUtils;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.adapters.ThreadsRecyclerViewAdapter;
@@ -114,7 +112,7 @@ public class ThreadsActivity extends AppCompatActivity {
     public SwipyRefreshLayout threadsRefreshLayoutTop;
     public SwipyRefreshLayout threadsRefreshLayoutBottom;
     public FixedRecyclerView threadsRecyclerView;
-    public VerticalSeekbar mFastScrollSeekbar;
+    public VerticalSeekBar mFastScrollSeekbar;
     public ListView mListView;
     public ThreadsListViewAdapter mListViewAdapter;
     private boolean fastScrollSeekbarTouchedFromUser;
@@ -188,14 +186,12 @@ public class ThreadsActivity extends AppCompatActivity {
         if (!dataLoaded) {
             loadData();
         } else {
-            if (mSchema != null) {
-                //setupThreadsRecyclerView();
-            }
-            else loadData();
+//            if (mSchema != null) {
+//                //setupThreadsRecyclerView();
+//            }
+//            else loadData();
         }
     }
-
-
 
     private void setupOrientationFeatures() {
         if (Constants.API_INT >= 19) {
@@ -385,7 +381,7 @@ public class ThreadsActivity extends AppCompatActivity {
     }
 
     private void setupFastScrollSeekbar() {
-        mFastScrollSeekbar = (VerticalSeekbar) findViewById(R.id.scroll_seekBar);
+        mFastScrollSeekbar = (VerticalSeekBar) findViewById(R.id.scroll_seekBar);
         ScrollbarUtils.setScrollbarSize(mActivity,
                 (FrameLayout) findViewById(R.id.fast_scroll_seekbar_container),
                 getResources().getConfiguration());

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,11 +17,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -51,7 +52,7 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.ui.views.FixedRecyclerView;
 import com.koresuniku.wishmaster.ui.views.HackyViewPager;
 import com.koresuniku.wishmaster.ui.views.ThreadsRecyclerViewDividerItemDecoration;
-import com.koresuniku.wishmaster.ui.views.VerticalSeekbar;
+import com.koresuniku.wishmaster.ui.views.VerticalSeekBar;
 import com.koresuniku.wishmaster.utils.CacheUtils;
 import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
@@ -61,13 +62,11 @@ import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
 import com.koresuniku.wishmaster.utils.listeners.SingleThreadViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nshmura.snappysmoothscroller.SnapType;
-import com.nshmura.snappysmoothscroller.SnappyLinearLayoutManager;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +78,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.view.View.GONE;
 
 public class SingleThreadActivity extends AppCompatActivity {
     private final String LOG_TAG = SingleThreadActivity.class.getSimpleName();
@@ -112,10 +113,10 @@ public class SingleThreadActivity extends AppCompatActivity {
     public SwipyRefreshLayout singleThreadRefreshLayoutTop;
     public SwipyRefreshLayout singleThreadRefreshLayoutBottom;
     public FixedRecyclerView singleThreadRecyclerView;
-    private VerticalSeekbar mFastScrollSeekbar;
+    private VerticalSeekBar mFastScrollSeekbar;
     private boolean fastScrollSeekbarTouchedFromUser;
     private Parcelable singleThreadRecyclerViewState;
-    private SingleThreadRecyclerViewAdapter adapter;
+    public SingleThreadRecyclerViewAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
     public static List<Files> files;
     public static List<String> thumbnails;
@@ -128,6 +129,9 @@ public class SingleThreadActivity extends AppCompatActivity {
     public HackyViewPager picVidPager;
     public PicVidPagerAdapter picVidPagerAdapter;
     public SingleThreadViewPagerOnPageChangeListener singleThreadViewPagerOnPageChangeListener;
+
+    public List<View> mAnswerViews;
+    public boolean answerOpened;
 
     public boolean dataLoaded = false;
     public boolean fullPicVidOpened = false;
@@ -168,6 +172,8 @@ public class SingleThreadActivity extends AppCompatActivity {
         setupSwipeRefreshLayout();
         setupFullscreenMode();
         setupOrientationFeatures();
+        setupAnswers();
+        setupAnswersLayoutContainer(getResources().getConfiguration());
 
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
 
@@ -222,6 +228,8 @@ public class SingleThreadActivity extends AppCompatActivity {
 
         fixCoordinatorLayout(newConfig);
         fixRefreshLayoutOnOrientation();
+        setupAnswersLayoutContainer(newConfig);
+
         if (adapter != null) adapter.notifyDataSetChanged();
         if (singleThreadRefreshLayoutTop.isEnabled())
             singleThreadRefreshLayoutTop.setRefreshing(false);
@@ -289,7 +297,7 @@ public class SingleThreadActivity extends AppCompatActivity {
         picVidToolbar.inflateMenu(R.menu.picvid_toolbar_menu);
         UIUtils.tintMenuIcons(this, picVidToolbar.getMenu());
         fullPicVidContainer = (FrameLayout) findViewById(R.id.threads_full_picvid_container);
-        fullPicVidContainer.setVisibility(View.GONE);
+        fullPicVidContainer.setVisibility(GONE);
         UIUtils.setupToolbarForNavigationBar(this, picVidToolbar);
         picVidToolbarExitImageView = ((ImageView) picVidToolbar.findViewById(R.id.exit_icon));
         picVidToolbarExitImageView.setImageResource(R.drawable.ic_arrow_back_black_24dp);
@@ -341,13 +349,13 @@ public class SingleThreadActivity extends AppCompatActivity {
 
     }
 
-    private void setupFastScrollSeekbar() {
-        mFastScrollSeekbar = (VerticalSeekbar) findViewById(R.id.scroll_seekBar);
+    private void setupFastScrollSeekBar() {
+        mFastScrollSeekbar = (VerticalSeekBar) findViewById(R.id.scroll_seekBar);
         ScrollbarUtils.setScrollbarSize(mActivity,
                 (FrameLayout) findViewById(R.id.fast_scroll_seekbar_container),
                 getResources().getConfiguration());
         mFastScrollSeekbar.setMax(adapter.getItemCount() - 1);
-        findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.GONE);
+        findViewById(R.id.fast_scroll_seekbar_container).setVisibility(GONE);
         mFastScrollSeekbar.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -359,7 +367,7 @@ public class SingleThreadActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeOut);
-                            findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.GONE);
+                            findViewById(R.id.fast_scroll_seekbar_container).setVisibility(GONE);
                         }
                     }, 750);
                 }
@@ -420,7 +428,7 @@ public class SingleThreadActivity extends AppCompatActivity {
                 if (!fastScrollSeekbarTouchedFromUser) {
                     if (newState != 0) {
                         touchedAgain[0] = true;
-                        if (findViewById(R.id.fast_scroll_seekbar_container).getVisibility() == View.GONE) {
+                        if (findViewById(R.id.fast_scroll_seekbar_container).getVisibility() == GONE) {
                             findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.VISIBLE);
                             findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeIn);
                         }
@@ -432,7 +440,7 @@ public class SingleThreadActivity extends AppCompatActivity {
                                 public void run() {
                                     if (!fastScrollSeekbarTouchedFromUser && !touchedAgain[0]) {
                                         findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeOut);
-                                        findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.GONE);
+                                        findViewById(R.id.fast_scroll_seekbar_container).setVisibility(GONE);
                                     }
                                 }
                             }, 750);
@@ -465,7 +473,7 @@ public class SingleThreadActivity extends AppCompatActivity {
         fixCoordinatorLayout(null);
 
 
-        setupFastScrollSeekbar();
+        setupFastScrollSeekBar();
     }
 
     private void setupFullscreenMode() {
@@ -479,8 +487,8 @@ public class SingleThreadActivity extends AppCompatActivity {
     private void defineIfNeedToEnableRefreshLayout() {
         if (singleThreadRecyclerView != null) {
             //((LinearLayoutManager)singleThreadRecyclerView.getLayoutManager()).visi
-            Log.d(LOG_TAG, "canScrollUpwards: " + singleThreadRecyclerView.canScrollVertically(-1));
-            Log.d(LOG_TAG, "canScrollDownwards: " + singleThreadRecyclerView.canScrollVertically(1));
+            //Log.d(LOG_TAG, "canScrollUpwards: " + singleThreadRecyclerView.canScrollVertically(-1));
+            //Log.d(LOG_TAG, "canScrollDownwards: " + singleThreadRecyclerView.canScrollVertically(1));
             if (((LinearLayoutManager)singleThreadRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition() == -1
                     && ((LinearLayoutManager)singleThreadRecyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition() == -1) {
                 if (!singleThreadRecyclerView.canScrollVertically(-1) && appBarVerticalOffSet == 0) {
@@ -512,20 +520,20 @@ public class SingleThreadActivity extends AppCompatActivity {
             if (appBarVerticalOffSet == 0
                     && ((LinearLayoutManager)singleThreadRecyclerView.getLayoutManager())
                     .findFirstCompletelyVisibleItemPosition() == 0) {
-                Log.d(LOG_TAG, "enabling top");
+                //Log.d(LOG_TAG, "enabling top");
                 singleThreadRefreshLayoutBottom.setEnabled(false);
                 singleThreadRefreshLayoutTop.setEnabled(true);
                 return;
             }
             if ((appBarVerticalOffSet * - 1) == appBarLayout.getTotalScrollRange()
                     && ViewCompat.canScrollVertically(singleThreadRecyclerView, -1)) {
-                Log.d(LOG_TAG, "enabling bottom");
+                //Log.d(LOG_TAG, "enabling bottom");
                 singleThreadRefreshLayoutBottom.setEnabled(true);
                 singleThreadRefreshLayoutTop.setEnabled(false);
                 return;
             }
 
-            Log.d(LOG_TAG, "disabling refresh layouts");
+            //Log.d(LOG_TAG, "disabling refresh layouts");
             singleThreadRefreshLayoutTop.setEnabled(false);
             singleThreadRefreshLayoutBottom.setEnabled(false);
 
@@ -599,7 +607,12 @@ public class SingleThreadActivity extends AppCompatActivity {
                                 int afterCount = mPosts.size();
                                 adapter.notifyDataSetChanged();
                                 adapter.notifyNewPosts(beforeCount, afterCount);
-                                linearLayoutManager.scrollToPositionWithOffset(beforeCount, 0);
+                                mFastScrollSeekbar.setMax(adapter.getItemCount());
+                                mFastScrollSeekbar.updateThumb();
+                                if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
+                                        == adapter.getItemCount() - 1) {
+                                    linearLayoutManager.scrollToPositionWithOffset(beforeCount, 0);
+                                }
 
                             }
                         });
@@ -627,8 +640,12 @@ public class SingleThreadActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "onBackPressed: ");
 
         if (fullPicVidContainer.getVisibility() == View.VISIBLE) {
-            fullPicVidContainer.setVisibility(View.GONE);
+            fullPicVidContainer.setVisibility(GONE);
             fullPicVidOpened = false;
+
+            if (answerOpened) {
+                if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
+            }
 
             picVidPagerAdapter.stopAndReleasePlayers(true, true);
             if (imageCachePaths != null) {
@@ -667,7 +684,12 @@ public class SingleThreadActivity extends AppCompatActivity {
             return;
         }
 
-        imageLoader.clearMemoryCache();
+        if (answerOpened) {
+            showPreviousAnswer();
+            return;
+        }
+
+        if (imageLoader != null) imageLoader.clearMemoryCache();
         super.onBackPressed();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             overridePendingTransition(R.anim.slide_in_back, R.anim.slide_out_back);
@@ -694,6 +716,73 @@ public class SingleThreadActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "onSaveInstanceState: ");
         singleThreadRecyclerViewState = singleThreadRecyclerView.getLayoutManager().onSaveInstanceState();
         super.onSaveInstanceState(outState);
+    }
+
+    private void setupAnswers() {
+        mAnswerViews = new ArrayList<>();
+        answerOpened = false;
+    }
+
+    private void setupAnswersLayoutContainer(Configuration configuration) {
+        findViewById(R.id.answer_layout_container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPreviousAnswer();
+            }
+        });
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            if (DeviceUtils.getApiInt() >= 19) {
+                findViewById(R.id.answer_layout_container).setPadding(
+                        0, DeviceUtils.apiIs20OrHigher() ? 48 : 24, 0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
+            }
+        } else {
+            if (DeviceUtils.getApiInt() >= 19) {
+                findViewById(R.id.answer_layout_container).setPadding(
+                        0, DeviceUtils.apiIs20OrHigher() ? 48 : 24, 0, 0);
+            }
+        }
+    }
+
+    public void showAnswer(String postNumber) {
+        answerOpened = true;
+        if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
+        int position = -1;
+        for (Post post : mPosts) {
+            if (post.getNum().equals(postNumber)) {
+                position = mPosts.indexOf(post);
+                break;
+            }
+        }
+        Log.d(LOG_TAG, "getting child for position: " + position);
+        View answerView = adapter.getViewForPosition(position);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        ((FrameLayout)findViewById(R.id.answer_layout)).setLayoutParams(params);
+        mAnswerViews.add(answerView);
+        ((FrameLayout)findViewById(R.id.answer_layout)).removeAllViews();
+        ((FrameLayout)findViewById(R.id.answer_layout)).addView(answerView);
+        findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
+    }
+
+    private void showPreviousAnswer() {
+        ((FrameLayout)findViewById(R.id.answer_layout)).removeAllViews();
+        if (mAnswerViews.size() <= 1) {
+            closeAnswerViews();
+            return;
+        }
+        mAnswerViews.remove(mAnswerViews.size() - 1);
+        ((FrameLayout)findViewById(R.id.answer_layout)).addView(mAnswerViews.get(mAnswerViews.size() - 1));
+    }
+
+    private void closeAnswerViews() {
+        answerOpened = false;
+        if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, false);
+        //if (DeviceUtils.getApiInt() >= 19) UIUtils.setBarsTranslucent(mActivity, false);
+        mAnswerViews = new ArrayList<>();
+        ((FrameLayout)findViewById(R.id.answer_layout)).removeAllViews();
+        //((FrameLayout)findViewById(R.id.answer_layout)).setBackgroundColor(0);
+        findViewById(R.id.answer_layout_container).setVisibility(GONE);
     }
 
 }
