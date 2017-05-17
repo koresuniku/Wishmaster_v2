@@ -661,21 +661,22 @@ public class SingleThreadActivity extends AppCompatActivity {
             App.fixLeakCanary696(getApplicationContext());
             System.gc();
 
-            UIUtils.setBarsTranslucent(this, false);
-            if (appBarVerticalOffSet != -mActivity.appBarLayout.getHeight()) {
-                Log.d(LOG_TAG, "!=");
-                //appBarLayout.startAnimation(animExpandActionBar);
-            } else Log.d(LOG_TAG, "==");
-
-            if (!UIUtils.barsAreShown) {
-                if (Constants.API_INT >= 19) {
-                    Log.d(LOG_TAG, "im here, bars arent shown");
-                    UIUtils.showSystemUI(mActivity);
-                    mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
-                    //appBarLayout.startAnimation(animExpandActionBar);
-                }
+            if (Constants.API_INT >= 19) {
+                UIUtils.showSystemUI(mActivity);
                 UIUtils.barsAreShown = true;
+                mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
+                UIUtils.setBarsTranslucent(this, false);
             }
+
+
+//            if (!UIUtils.barsAreShown) {
+//                if (Constants.API_INT >= 19) {
+//                    Log.d(LOG_TAG, "im here, bars arent shown");
+//                    UIUtils.showSystemUI(mActivity);
+//                    mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
+//                UIUtils.barsAreShown = true;
+//            }
+
 
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {

@@ -864,11 +864,10 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private void showFullPicVid(Files file) {
         if (DeviceUtils.getApiInt() >= 19) UIUtils.showSystemUI(mActivity);
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setBarsTranslucent(mActivity, true);
-
+        mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
+        //mActivity.picVidToolbarContainer.startAnimation(mActivity.animExpandActionBar);
+        mActivity.picVidToolbarContainer.setVisibility(View.VISIBLE);
         mActivity.fullPicVidOpened = true;
-
-        Log.d(LOG_TAG, "appbar offset: " + mActivity.appBarVerticalOffSet);
-        Log.d(LOG_TAG, "appbar height: " + mActivity.appBarLayout.getHeight());
 
         SingleThreadActivity.imageCachePaths = new ArrayList<>();
         SingleThreadActivity.galleryFragments = new HashMap<>();
@@ -898,7 +897,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             mActivity.picVidToolbarTitleTextView.setText("noname.hz");
         } else {
             mActivity.picVidToolbarTitleTextView.setText(displayName);
-
         }
         mActivity.picVidToolbarTitleTextView.setTypeface(Typeface.DEFAULT_BOLD);
         mActivity.picVidToolbarTitleTextView.setTextSize(16.0f);

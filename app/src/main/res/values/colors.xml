@@ -8,7 +8,7 @@
     <color name="background_dark_color">#000000</color>
     <color name="subject_color">#212e60</color>
     <color name="full_media_tint">#f01d1d1d</color>
-    <color name="light_tint_answer">#641d1d1d</color>
+    <color name="light_tint_answer">#7d1d1d1d</color>
     <color name="white_semi_transparent">#64ffffff</color>
     <color name="light_grey">#285e5e5e</color>
     <color name="dark_grey">#64151515</color>

@@ -83,6 +83,12 @@ public class AnswersLinkMovementMethod extends LinkMovementMethod {
             }
         }
 
+        if (action == MotionEvent.ACTION_CANCEL) {
+            buffer.removeSpan(mActivity.adapter.foregroundColorSpan);
+            mActivity.adapter.mAnswersSpansLocations.remove(mPosition);
+            mActivity.adapter.mAnswersSpansLocations.add(mPosition, new ArrayList<Integer>());
+        }
+
         return super.onTouchEvent(widget, buffer, event);
     }
 

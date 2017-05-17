@@ -48,6 +48,7 @@
         android:id="@+id/answers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:lineSpacingExtra="2sp"
         android:text="Answers: 1488666, 2284247"
         android:textSize="13sp" />
 

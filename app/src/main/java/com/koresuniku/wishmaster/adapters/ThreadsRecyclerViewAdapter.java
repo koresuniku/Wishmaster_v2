@@ -461,15 +461,12 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
 
     private void showFullPicVid(final int threadPosition, final int thumbnailPosition) {
-        if(DeviceUtils.getApiInt() >= 19) UIUtils.showSystemUI(mActivity);
-        mActivity.fullPicVidOpened = true;
+        if (DeviceUtils.getApiInt() >= 19) UIUtils.showSystemUI(mActivity);
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setBarsTranslucent(mActivity, true);
-
-        Log.d(LOG_TAG, "appbar offset: " + mActivity.appBarVerticalOffSet);
-        Log.d(LOG_TAG, "appbar height: " + mActivity.appBarLayout.getHeight());
-        if (mActivity.appBarVerticalOffSet != -mActivity.appBarLayout.getHeight()) {
-            //mActivity.appBarLayout.startAnimation(mActivity.animCollapseActionBar);
-        }
+        mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
+        //mActivity.picVidToolbarContainer.startAnimation(mActivity.animExpandActionBar);
+        mActivity.picVidToolbarContainer.setVisibility(View.VISIBLE);
+        mActivity.fullPicVidOpened = true;
 
         ThreadsActivity.files = mActivity.mSchema.getThreads().get(threadPosition).getFiles();
         ThreadsActivity.imageCachePaths = new ArrayList<>();
@@ -506,12 +503,11 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
     private void setImageViewWidthDependingOnOrientation(
             Configuration configuration, ImageView imageView) {
-        //Log.d(LOG_TAG, "setImageViewWidthDependingOnOrientation:");
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            imageView.getLayoutParams().width = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 160 : 80;
+            imageView.getLayoutParams().width = DeviceUtils.apiIs20OrHigher() ? 160 : 80;
             imageView.requestLayout();
         } else {
-            imageView.getLayoutParams().width = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 200 : 100;
+            imageView.getLayoutParams().width = DeviceUtils.apiIs20OrHigher() ? 200 : 100;
             imageView.requestLayout();
         }
     }
