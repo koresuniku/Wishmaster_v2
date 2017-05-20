@@ -63,8 +63,8 @@
                     android:id="@+id/threads_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    >
+                    android:background="@color/common_background_color"
+                    android:clipToPadding="false">
 
                 </com.koresuniku.wishmaster.ui.views.FixedRecyclerView>
 

@@ -29,7 +29,7 @@
             android:id="@+id/picvid_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/full_media_tint"
+            android:background="@color/light_tint_answer"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/GalaxyZooThemeToolbarDarkOverflow">
 

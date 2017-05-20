@@ -97,7 +97,8 @@
                 android:clickable="false"
                 android:contextClickable="false"
                 android:cursorVisible="false"
-                android:text="TextView"
+                android:fontFamily="sans-serif"
+                android:text="Post comment"
                 android:textAppearance="@style/TextAppearance.AppCompat" />
         </LinearLayout>
 

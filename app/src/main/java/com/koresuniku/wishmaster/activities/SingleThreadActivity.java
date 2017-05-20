@@ -13,9 +13,11 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -33,6 +35,7 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,8 +52,12 @@ import com.koresuniku.wishmaster.http.single_thread_api.SingleThreadApiService;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
 import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.ui.text.AnswersLinkMovementMethod;
+import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.views.FixedRecyclerView;
 import com.koresuniku.wishmaster.ui.views.HackyViewPager;
+import com.koresuniku.wishmaster.ui.views.NoScrollTextView;
+import com.koresuniku.wishmaster.ui.views.SaveStateScrollView;
 import com.koresuniku.wishmaster.ui.views.ThreadsRecyclerViewDividerItemDecoration;
 import com.koresuniku.wishmaster.ui.views.VerticalSeekBar;
 import com.koresuniku.wishmaster.utils.CacheUtils;
@@ -113,8 +120,8 @@ public class SingleThreadActivity extends AppCompatActivity {
     public SwipyRefreshLayout singleThreadRefreshLayoutTop;
     public SwipyRefreshLayout singleThreadRefreshLayoutBottom;
     public FixedRecyclerView singleThreadRecyclerView;
-    private VerticalSeekBar mFastScrollSeekbar;
-    private boolean fastScrollSeekbarTouchedFromUser;
+    private VerticalSeekBar mFastScrollSeekBar;
+    private boolean fastScrollSeekBarTouchedFromUser;
     private Parcelable singleThreadRecyclerViewState;
     public SingleThreadRecyclerViewAdapter adapter;
     private LinearLayoutManager linearLayoutManager;
@@ -130,6 +137,7 @@ public class SingleThreadActivity extends AppCompatActivity {
     public PicVidPagerAdapter picVidPagerAdapter;
     public SingleThreadViewPagerOnPageChangeListener singleThreadViewPagerOnPageChangeListener;
 
+    private CardView mAnswerLayout;
     public List<View> mAnswerViews;
     public boolean answerOpened;
 
@@ -350,17 +358,17 @@ public class SingleThreadActivity extends AppCompatActivity {
     }
 
     private void setupFastScrollSeekBar() {
-        mFastScrollSeekbar = (VerticalSeekBar) findViewById(R.id.scroll_seekBar);
+        mFastScrollSeekBar = (VerticalSeekBar) findViewById(R.id.scroll_seekBar);
         ScrollbarUtils.setScrollbarSize(mActivity,
                 (FrameLayout) findViewById(R.id.fast_scroll_seekbar_container),
                 getResources().getConfiguration());
-        mFastScrollSeekbar.setMax(adapter.getItemCount() - 1);
+        mFastScrollSeekBar.setMax(adapter.getItemCount() - 1);
         findViewById(R.id.fast_scroll_seekbar_container).setVisibility(GONE);
-        mFastScrollSeekbar.setOnTouchListener(new View.OnTouchListener() {
+        mFastScrollSeekBar.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d(LOG_TAG, "onTouchSeekbar: ");
-                fastScrollSeekbarTouchedFromUser = true;
+                fastScrollSeekBarTouchedFromUser = true;
                 findViewById(R.id.fast_scroll_seekbar_container).clearAnimation();
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     new Handler().postDelayed(new Runnable() {
@@ -374,16 +382,16 @@ public class SingleThreadActivity extends AppCompatActivity {
                 return false;
             }
         });
-        mFastScrollSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        mFastScrollSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 Log.d(LOG_TAG, "onProgressChanged: progress: " + progress);
                 Log.d(LOG_TAG, "adapter count: " + adapter.getItemCount());
-                if (fastScrollSeekbarTouchedFromUser) {
+                if (fastScrollSeekBarTouchedFromUser) {
                     if (progress == adapter.getItemCount())
                         linearLayoutManager.scrollToPositionWithOffset(progress, Integer.MAX_VALUE);
                     else linearLayoutManager.scrollToPositionWithOffset(progress, 0);
-                    mFastScrollSeekbar.updateThumb();
+                    mFastScrollSeekBar.updateThumb();
                 }
             }
 
@@ -425,7 +433,7 @@ public class SingleThreadActivity extends AppCompatActivity {
                 } else {
                     imageLoader.resume();
                 }
-                if (!fastScrollSeekbarTouchedFromUser) {
+                if (!fastScrollSeekBarTouchedFromUser) {
                     if (newState != 0) {
                         touchedAgain[0] = true;
                         if (findViewById(R.id.fast_scroll_seekbar_container).getVisibility() == GONE) {
@@ -438,7 +446,7 @@ public class SingleThreadActivity extends AppCompatActivity {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (!fastScrollSeekbarTouchedFromUser && !touchedAgain[0]) {
+                                    if (!fastScrollSeekBarTouchedFromUser && !touchedAgain[0]) {
                                         findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeOut);
                                         findViewById(R.id.fast_scroll_seekbar_container).setVisibility(GONE);
                                     }
@@ -453,11 +461,11 @@ public class SingleThreadActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
                         == adapter.getItemCount() - 1) {
-                    mFastScrollSeekbar.setProgress(linearLayoutManager.findLastCompletelyVisibleItemPosition());
+                    mFastScrollSeekBar.setProgress(linearLayoutManager.findLastCompletelyVisibleItemPosition());
                 } else {
-                    mFastScrollSeekbar.setProgress(linearLayoutManager.findFirstVisibleItemPosition());
+                    mFastScrollSeekBar.setProgress(linearLayoutManager.findFirstVisibleItemPosition());
                 }
-                mFastScrollSeekbar.updateThumb();
+                mFastScrollSeekBar.updateThumb();
 
             }
         });
@@ -465,7 +473,7 @@ public class SingleThreadActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 defineIfNeedToEnableRefreshLayout();
-                fastScrollSeekbarTouchedFromUser = false;
+                fastScrollSeekBarTouchedFromUser = false;
                 return false;
             }
         });
@@ -607,11 +615,14 @@ public class SingleThreadActivity extends AppCompatActivity {
                                 int afterCount = mPosts.size();
                                 adapter.notifyDataSetChanged();
                                 adapter.notifyNewPosts(beforeCount, afterCount);
-                                mFastScrollSeekbar.setMax(adapter.getItemCount());
-                                mFastScrollSeekbar.updateThumb();
+                                adapter.onAdapterChanges();
+                                mFastScrollSeekBar.setMax(adapter.getItemCount());
+                                mFastScrollSeekBar.updateThumb();
                                 if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
-                                        == adapter.getItemCount() - 1) {
+                                        == beforeCount - 1) {
                                     linearLayoutManager.scrollToPositionWithOffset(beforeCount, 0);
+                                } else {
+                                    Log.d(LOG_TAG, "");
                                 }
 
                             }
@@ -643,10 +654,6 @@ public class SingleThreadActivity extends AppCompatActivity {
             fullPicVidContainer.setVisibility(GONE);
             fullPicVidOpened = false;
 
-            if (answerOpened) {
-                if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
-            }
-
             picVidPagerAdapter.stopAndReleasePlayers(true, true);
             if (imageCachePaths != null) {
                 Log.d(LOG_TAG, "imageCachePAths: " + imageCachePaths.size());
@@ -665,18 +672,11 @@ public class SingleThreadActivity extends AppCompatActivity {
                 UIUtils.showSystemUI(mActivity);
                 UIUtils.barsAreShown = true;
                 mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
-                UIUtils.setBarsTranslucent(this, false);
+                if (answerOpened) {
+                    UIUtils.setStatusBarTranslucent(this, true);
+                    UIUtils.setNavigationBarTranslucent(this, false);
+                } else UIUtils.setBarsTranslucent(this, false);
             }
-
-
-//            if (!UIUtils.barsAreShown) {
-//                if (Constants.API_INT >= 19) {
-//                    Log.d(LOG_TAG, "im here, bars arent shown");
-//                    UIUtils.showSystemUI(mActivity);
-//                    mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
-//                UIUtils.barsAreShown = true;
-//            }
-
 
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
@@ -721,6 +721,7 @@ public class SingleThreadActivity extends AppCompatActivity {
 
     private void setupAnswers() {
         mAnswerViews = new ArrayList<>();
+        mAnswerLayout = (CardView) findViewById(R.id.answer_layout);
         answerOpened = false;
     }
 
@@ -734,56 +735,103 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (DeviceUtils.getApiInt() >= 19) {
                 findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.apiIs20OrHigher() ? 48 : 24, 0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
+                        0, DeviceUtils.apiIs20OrHigher() ? 48 : 24,
+                        0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
+
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.gravity = Gravity.CENTER;
+                params.setMargins(
+                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
+                        DeviceUtils.apiIs20OrHigher() ? 50 : 24,
+                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
+                        DeviceUtils.apiIs20OrHigher() ? 50 : 25);
+                mAnswerLayout.setLayoutParams(params);
+                mAnswerLayout.requestLayout();
             }
         } else {
             if (DeviceUtils.getApiInt() >= 19) {
                 findViewById(R.id.answer_layout_container).setPadding(
                         0, DeviceUtils.apiIs20OrHigher() ? 48 : 24, 0, 0);
+
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.gravity = Gravity.CENTER;
+                params.setMargins(
+                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
+                        DeviceUtils.apiIs20OrHigher() ? 50 : 25,
+                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
+                        DeviceUtils.apiIs20OrHigher() ? 50 : 25);
+                mAnswerLayout.setLayoutParams(params);
+                mAnswerLayout.requestLayout();
             }
         }
     }
 
-    public void showAnswer(String postNumber) {
+    public void showAnswer(String postNumberToGo, String postNumberFrom) {
         answerOpened = true;
+        adapter.notifySingleView = true;
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
         int position = -1;
         for (Post post : mPosts) {
-            if (post.getNum().equals(postNumber)) {
+            if (post.getNum().equals(postNumberToGo)) {
                 position = mPosts.indexOf(post);
                 break;
             }
         }
         Log.d(LOG_TAG, "getting child for position: " + position);
         View answerView = adapter.getViewForPosition(position);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER;
-        ((FrameLayout)findViewById(R.id.answer_layout)).setLayoutParams(params);
+        if (postNumberFrom != null) {
+            if (((TextView)answerView.findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+                ((CommentLinkMovementMethod) ((TextView) answerView.findViewById(R.id.post_comment)).getMovementMethod())
+                        .setForegroundSpanForParticularLocation(postNumberFrom);
+            }
+            if (((TextView)answerView.findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
+                ((AnswersLinkMovementMethod) ((TextView) answerView.findViewById(R.id.answers)).getMovementMethod())
+                        .setForegroundSpanForParticularLocation(postNumberFrom);
+            }
+        }
+        setupAnswersLayoutContainer(getResources().getConfiguration());
+        setupCommentTextViewForRecyclerView(position);
         mAnswerViews.add(answerView);
-        ((FrameLayout)findViewById(R.id.answer_layout)).removeAllViews();
-        ((FrameLayout)findViewById(R.id.answer_layout)).addView(answerView);
+        mAnswerLayout.removeAllViews();
+        mAnswerLayout.addView(answerView);
         findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
     }
 
     private void showPreviousAnswer() {
-        ((FrameLayout)findViewById(R.id.answer_layout)).removeAllViews();
+
+        mAnswerLayout.removeAllViews();
         if (mAnswerViews.size() <= 1) {
             closeAnswerViews();
             return;
         }
         mAnswerViews.remove(mAnswerViews.size() - 1);
-        ((FrameLayout)findViewById(R.id.answer_layout)).addView(mAnswerViews.get(mAnswerViews.size() - 1));
+        if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+                .findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
+            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+                    .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
+        } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+                .findViewById(R.id.answers)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+                    .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
+        }
+
+        mAnswerLayout.addView(mAnswerViews.get(mAnswerViews.size() - 1));
+        ((SaveStateScrollView)mAnswerLayout.getChildAt(0)).scrollToSavedState();
     }
 
     private void closeAnswerViews() {
         answerOpened = false;
+        adapter.notifySingleView = false;
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, false);
-        //if (DeviceUtils.getApiInt() >= 19) UIUtils.setBarsTranslucent(mActivity, false);
         mAnswerViews = new ArrayList<>();
-        ((FrameLayout)findViewById(R.id.answer_layout)).removeAllViews();
-        //((FrameLayout)findViewById(R.id.answer_layout)).setBackgroundColor(0);
+        mAnswerLayout.removeAllViews();
         findViewById(R.id.answer_layout_container).setVisibility(GONE);
+    }
+
+    private void setupCommentTextViewForRecyclerView(int position) {
+        adapter.notifyItemChanged(position);
     }
 
 }

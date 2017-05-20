@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -33,18 +35,22 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.ui.text.AnswersLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.views.NoScrollTextView;
+import com.koresuniku.wishmaster.ui.views.SaveStateScrollView;
 import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Formats;
 import com.koresuniku.wishmaster.utils.StringUtils;
 import com.koresuniku.wishmaster.utils.listeners.SingleThreadViewPagerOnPageChangeListener;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<SingleThreadRecyclerViewAdapter.ViewHolder> {
     private final String LOG_TAG = SingleThreadRecyclerViewAdapter.class.getSimpleName();
@@ -53,10 +59,14 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private SingleThreadActivity mActivity;
     private Map<String, List<String>> mAnswers;
     public List<List<Integer>> mAnswersSpansLocations;
+    public List<List<Integer>> mCommentAnswersSpansLocations;
     public BackgroundColorSpan backgroundColorSpan;
     public ForegroundColorSpan foregroundColorSpan;
     private String boardId;
     private int mViewType;
+    private SaveStateScrollView singleViewContainer;
+    private View singleView;
+    public boolean notifySingleView = false;
 
     public SingleThreadRecyclerViewAdapter(SingleThreadActivity activity, String board) {
         mActivity = activity;
@@ -103,7 +113,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         private TextView summary2;
         private TextView summary3;
         private TextView summary4;
-        private TextView comment;
+        private NoScrollTextView comment;
         private NoScrollTextView answers;
         private Bitmap webmBitmap;
 
@@ -152,7 +162,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 threadItemContainer =
                         (LinearLayout) itemView.findViewById(R.id.post_item_no_images_container);
             }
-            comment = (TextView) itemView.findViewById(R.id.post_comment);
+            comment = (NoScrollTextView) itemView.findViewById(R.id.post_comment);
             answers = (NoScrollTextView) itemView.findViewById(R.id.answers);
             webmBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.webm);
             setIsRecyclable(true);
@@ -222,22 +232,20 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     }
 
     private void getAnswersForPost() {
-        Pattern p = Pattern.compile("href=\"(.*?)\"");
+        long startMIllis = System.currentTimeMillis();
         List<String> postAnswers;
         for (Post post : SingleThreadActivity.mPosts) {
-            Matcher m = p.matcher(post.getComment());
-            if (m.find()) {
-                //postAnswers = new ArrayList<>();
-                Log.d(LOG_TAG, "groupCount: " + m.groupCount());
-                String answer;
-                String rawAnswer;
-                for (int i = 0; i < m.groupCount(); i++) {
-                    rawAnswer = m.group(i);
-                    Log.d(LOG_TAG, "rawAnswer: " + rawAnswer);
-                    if (rawAnswer.contains("http")) {
-                        continue;
-                    }
-                    answer = rawAnswer.substring(rawAnswer.indexOf('#') + 1, rawAnswer.length() - 1);
+            Document doc = Jsoup.parse(post.getComment());
+            Elements links = doc.select("a[href]");
+            String answer, rawAnswer;
+            Element link;
+            for (int i = 0; i < links.size(); i++) {
+                link = links.get(i);
+                Log.d(LOG_TAG, "link: " + link.toString());
+                rawAnswer = link.attr("href");
+                if (!rawAnswer.contains("http") && !rawAnswer.contains("ftp")) {
+                    //answer = rawAnswer.substring(rawAnswer.indexOf('#') + 1, rawAnswer.length());
+                    answer = link.attr("data-num");
                     if (mAnswers.get(answer) == null) {
                         postAnswers = new ArrayList<>();
                         postAnswers.add(post.getNum());
@@ -248,33 +256,58 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                         mAnswers.put(answer, postAnswers);
                     }
                 }
-                //mAnswers.put(SingleThreadActivity.mPosts.indexOf(post), postAnswers);
-
-            } else {
-                //Log.d(LOG_TAG, "nothing found");
             }
-
-
         }
+        Log.d(LOG_TAG, "jsoup: " + (System.currentTimeMillis() - startMIllis));
     }
+
+
 
     private void setupLocationsList() {
         mAnswersSpansLocations = new ArrayList<>();
         for (int i = 0; i < getItemCount(); i++) {
             mAnswersSpansLocations.add(i, new ArrayList<Integer>());
         }
+        mCommentAnswersSpansLocations = new ArrayList<>();
+        for (int i = 0; i < getItemCount(); i++) {
+            mCommentAnswersSpansLocations.add(i, new ArrayList<Integer>());
+        }
     }
 
     private SpannableString setAnswersBackgroundSpansIfNeeded(
             SpannableString spannableAnswersString, int position) {
-        List<Integer> spansLocations = mAnswersSpansLocations.get(position);
-        Log.d(LOG_TAG, "spansLocations: " + spansLocations);
-        if (spansLocations.size() != 0) {
+        List<Integer> spansAnswers = mAnswersSpansLocations.get(position);
+        Log.d(LOG_TAG, "spansLocations: " + spansAnswers);
+        if (spansAnswers.size() != 0) {
             spannableAnswersString.setSpan(foregroundColorSpan,
-                    spansLocations.get(0), spansLocations.get(1),
+                    spansAnswers.get(0), spansAnswers.get(1),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return spannableAnswersString;
+    }
+
+    private SpannableString setCommentAnswersBackgroundSpansIfNeeded(
+            SpannableString spannableAnswersString, int position) {
+        List<Integer> spansCommentLocations = mCommentAnswersSpansLocations.get(position);
+        if (spansCommentLocations.size() != 0) {
+            spannableAnswersString.setSpan(foregroundColorSpan,
+                    spansCommentLocations.get(0), spansCommentLocations.get(1),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return spannableAnswersString;
+    }
+
+    public void onAdapterChanges() {
+        for (int i = mAnswersSpansLocations.size() - 1; i < thisAdapter.getItemCount(); i++) {
+            mAnswersSpansLocations.add(new ArrayList<Integer>());
+            mCommentAnswersSpansLocations.add(new ArrayList<Integer>());
+        }
+    }
+
+
+    public Spannable getCorrectSpannableForCommentTextView(String comment, int position) {
+        SpannableString spannableCommentAnswerString = new SpannableString(Html.fromHtml(comment));
+        return setCommentAnswersBackgroundSpansIfNeeded(spannableCommentAnswerString, position);
     }
 
     @Override
@@ -305,12 +338,10 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         }
         if (subject.equals("")) holder.subject.setVisibility(View.GONE);
 
-        holder.comment.setText(Html.fromHtml(comment));
-        holder.comment.setMovementMethod(CommentLinkMovementMethod.getInstance());
+        holder.comment.setText(getCorrectSpannableForCommentTextView(comment, position));
+        holder.comment.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
 
-        if (position == 0) {
-            Log.d(LOG_TAG, "mAnswers for 0 position: " + mAnswers.get(number));
-        }
+           // Log.d(LOG_TAG, "mAnswers for " + position + " position: " + mAnswers.get(number));
 
 
         if (mAnswers.containsKey(number)) {
@@ -336,11 +367,12 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             SpannableString spannableAnswersString = SpannableString.valueOf(
                     answerStringBuilder.delete(answerStringBuilder.length() - 2, answerStringBuilder.length()));
             spannableAnswersString = setAnswersBackgroundSpansIfNeeded(spannableAnswersString, position);
+           // holder.answers.setMSpannable(spannableAnswersString);
 
             holder.answers.setText(spannableAnswersString);
             holder.answers.setMovementMethod(AnswersLinkMovementMethod.getInstance(mActivity, position));
         } else {
-            Log.d(LOG_TAG, "no answers for position " + position);
+            //Log.d(LOG_TAG, "no answers for position " + position);
             holder.answers.setVisibility(View.GONE);
         }
         if (position == 0) {
@@ -543,12 +575,18 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     }
 
+    public AnswersLinkMovementMethod getViewAnswersLinkMovementMethod() {
+        return (AnswersLinkMovementMethod)
+                ((TextView) singleView.findViewById(R.id.answers)).getMovementMethod();
+    }
+
     public View getViewForPosition(final int position) {
-        View rootView = inflateProperView(getItemViewType(position));
-        TextView numberAndTimeTextView = (TextView) rootView.findViewById(R.id.post_number_and_time_info);
-        TextView subjectTextView = (TextView) rootView.findViewById(R.id.post_subject);
-        TextView commentTextView = (TextView) rootView.findViewById(R.id.post_comment);
-        TextView answersTextView = (TextView) rootView.findViewById(R.id.answers);
+        singleViewContainer = new SaveStateScrollView(mActivity);
+        singleView = inflateProperView(getItemViewType(position));
+        TextView numberAndTimeTextView = (TextView) singleView.findViewById(R.id.post_number_and_time_info);
+        TextView subjectTextView = (TextView) singleView.findViewById(R.id.post_subject);
+        TextView commentTextView = (TextView) singleView.findViewById(R.id.post_comment);
+        TextView answersTextView = (TextView) singleView.findViewById(R.id.answers);
         LinearLayout imageAndSummaryContainer1 = null;
         LinearLayout imageAndSummaryContainer2 = null;
         LinearLayout imageAndSummaryContainer3 = null;
@@ -569,27 +607,27 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         TextView summary3 = null;
         TextView summary4 = null;
         if (getItemViewType(position) == Constants.ITEM_SINGLE_IMAGE) {
-            image = (ImageView) rootView.findViewById(R.id.post_image);
-            webmImageView = (ImageView) rootView.findViewById(R.id.webm_imageview);
-            summary = (TextView) rootView.findViewById(R.id.image_summary);
+            image = (ImageView) singleView.findViewById(R.id.post_image);
+            webmImageView = (ImageView) singleView.findViewById(R.id.webm_imageview);
+            summary = (TextView) singleView.findViewById(R.id.image_summary);
         }
         if (getItemViewType(position) == Constants.ITEM_MULTIPLE_IMAGES) {
-            imageAndSummaryContainer1 = (LinearLayout) rootView.findViewById(R.id.image_with_summary_container_1);
-            imageAndSummaryContainer2 = (LinearLayout) rootView.findViewById(R.id.image_with_summary_container_2);
-            imageAndSummaryContainer3 = (LinearLayout) rootView.findViewById(R.id.image_with_summary_container_3);
-            imageAndSummaryContainer4 = (LinearLayout) rootView.findViewById(R.id.image_with_summary_container_4);
-            image1 = (ImageView) rootView.findViewById(R.id.post_image_1);
-            webmImageView1 = (ImageView) rootView.findViewById(R.id.webm_imageview_1);
-            image2 = (ImageView) rootView.findViewById(R.id.post_image_2);
-            webmImageView2 = (ImageView) rootView.findViewById(R.id.webm_imageview_2);
-            image3 = (ImageView) rootView.findViewById(R.id.post_image_3);
-            webmImageView3 = (ImageView) rootView.findViewById(R.id.webm_imageview_3);
-            image4 = (ImageView) rootView.findViewById(R.id.post_image_4);
-            webmImageView4 = (ImageView) rootView.findViewById(R.id.webm_imageview_4);
-            summary1 = (TextView) rootView.findViewById(R.id.image_summary_1);
-            summary2 = (TextView) rootView.findViewById(R.id.image_summary_2);
-            summary3 = (TextView) rootView.findViewById(R.id.image_summary_3);
-            summary4 = (TextView) rootView.findViewById(R.id.image_summary_4);
+            imageAndSummaryContainer1 = (LinearLayout) singleView.findViewById(R.id.image_with_summary_container_1);
+            imageAndSummaryContainer2 = (LinearLayout) singleView.findViewById(R.id.image_with_summary_container_2);
+            imageAndSummaryContainer3 = (LinearLayout) singleView.findViewById(R.id.image_with_summary_container_3);
+            imageAndSummaryContainer4 = (LinearLayout) singleView.findViewById(R.id.image_with_summary_container_4);
+            image1 = (ImageView) singleView.findViewById(R.id.post_image_1);
+            webmImageView1 = (ImageView) singleView.findViewById(R.id.webm_imageview_1);
+            image2 = (ImageView) singleView.findViewById(R.id.post_image_2);
+            webmImageView2 = (ImageView) singleView.findViewById(R.id.webm_imageview_2);
+            image3 = (ImageView) singleView.findViewById(R.id.post_image_3);
+            webmImageView3 = (ImageView) singleView.findViewById(R.id.webm_imageview_3);
+            image4 = (ImageView) singleView.findViewById(R.id.post_image_4);
+            webmImageView4 = (ImageView) singleView.findViewById(R.id.webm_imageview_4);
+            summary1 = (TextView) singleView.findViewById(R.id.image_summary_1);
+            summary2 = (TextView) singleView.findViewById(R.id.image_summary_2);
+            summary3 = (TextView) singleView.findViewById(R.id.image_summary_3);
+            summary4 = (TextView) singleView.findViewById(R.id.image_summary_4);
         }
 
 
@@ -620,13 +658,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         }
         if (subject.equals("")) subjectTextView.setVisibility(View.GONE);
 
-        commentTextView.setText(Html.fromHtml(comment));
-        commentTextView.setMovementMethod(CommentLinkMovementMethod.getInstance());
-
         if (position == 0) {
             Log.d(LOG_TAG, "mAnswers for 0 position: " + mAnswers.get(number));
         }
-
 
         if (mAnswers.containsKey(number)) {
             answersTextView.setVisibility(View.VISIBLE);
@@ -665,6 +699,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(subject);
             }
         }
+
+        commentTextView.setText(Html.fromHtml(comment));
+        commentTextView.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
 
         String width;
         String height;
@@ -856,7 +893,8 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             }
         }
 
-        return rootView;
+        singleViewContainer.addView(singleView);
+        return singleViewContainer;
 
     }
 
@@ -865,7 +903,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         if (DeviceUtils.getApiInt() >= 19) UIUtils.showSystemUI(mActivity);
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setBarsTranslucent(mActivity, true);
         mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
-        //mActivity.picVidToolbarContainer.startAnimation(mActivity.animExpandActionBar);
         mActivity.picVidToolbarContainer.setVisibility(View.VISIBLE);
         mActivity.fullPicVidOpened = true;
 
@@ -889,6 +926,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         mActivity.picVidPager.setCurrentItem(currentPosition);
         mActivity.picVidOpenedPosition = currentPosition;
         mActivity.fullPicVidContainer.setVisibility(View.VISIBLE);
+        //mActivity.fullPicVidContainer.bringToFront();
         mActivity.singleThreadViewPagerOnPageChangeListener = new SingleThreadViewPagerOnPageChangeListener(mActivity);
         mActivity.picVidPager.addOnPageChangeListener(mActivity.singleThreadViewPagerOnPageChangeListener);
 

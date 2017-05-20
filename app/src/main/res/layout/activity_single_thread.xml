@@ -66,6 +66,7 @@
                 android:id="@+id/single_thread_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/common_background_color"
                 android:clipToPadding="false">
 
             </com.koresuniku.wishmaster.ui.views.FixedRecyclerView>
@@ -74,10 +75,6 @@
 
 
     </android.support.design.widget.CoordinatorLayout>
-
-    <include
-        layout="@layout/gallery_fragment"
-        android:visibility="visible"></include>
 
     <FrameLayout
         android:id="@+id/fast_scroll_seekbar_container"
@@ -115,5 +112,39 @@
 
 
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/answer_layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@color/light_tint_answer"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/answer_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="12dp" />
+
+        <!--<com.koresuniku.wishmaster.ui.views.RoundedCornerLayout-->
+        <!--android:id="@+id/answer_layout"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_gravity="center"-->
+
+        <!--android:elevation="16dp"-->
+        <!--android:outlineProvider="bounds">-->
+
+        <!--</com.koresuniku.wishmaster.ui.views.RoundedCornerLayout>-->
+    </FrameLayout>
+
+    <include
+        layout="@layout/gallery_fragment"
+        android:visibility="visible"></include>
+
 
 </FrameLayout>
