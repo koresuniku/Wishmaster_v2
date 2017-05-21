@@ -60,7 +60,7 @@ public class AnswersLinkMovementMethod extends LinkMovementMethod {
             locateAnswersToBeColored(buffer);
 
             for (List<Integer> locations : mLocations) {
-                if (off >= locations.get(0) - 2 && off <= locations.get(1)) {
+                if (off >= locations.get(0) - 2 && off <= locations.get(1) - 1) {
                     begin = locations.get(0) + 2;
                     end = locations.get(1);
                     buffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
@@ -82,6 +82,7 @@ public class AnswersLinkMovementMethod extends LinkMovementMethod {
                 allowActionCancel = false;
                 mActivity.showAnswer(String.valueOf(buffer.subSequence(begin, end)),
                         SingleThreadActivity.mPosts.get(mPosition).getNum());
+                //mActivity.showAnswerList(SingleThreadActivity.mPosts.get(mPosition).getNum());
             }
         }
 
@@ -98,29 +99,31 @@ public class AnswersLinkMovementMethod extends LinkMovementMethod {
     }
 
     public void setForegroundSpanForParticularLocation(String number) {
-        locateAnswersToBeColored(mBuffer);
-        Log.d(TAG, "setForegroundSpanForParticularLocation: mBuffer: " + mBuffer.toString());
-        Log.d(TAG, "setForegroundSpanForParticularLocation: mLocations: " + mLocations);
-        for (List<Integer> locations : mLocations) {
-            int end = locations.get(1);
+
+            locateAnswersToBeColored(mBuffer);
+            Log.d(TAG, "setForegroundSpanForParticularLocation: mBuffer: " + mBuffer.toString());
+            Log.d(TAG, "setForegroundSpanForParticularLocation: mLocations: " + mLocations);
+            for (List<Integer> locations : mLocations) {
+                int end = locations.get(1);
 //            if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).contains("(OP)")) {
 //                end -= 5;
 //            }
-            if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).equals(number)) {
-                Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen");
-                mBuffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
-                        locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                List<Integer> locationsToAdd;
-                locationsToAdd = mActivity.adapter.mAnswersSpansLocations.get(mPosition);
-                mActivity.adapter.mAnswersSpansLocations.remove(mPosition);
-                locationsToAdd.clear();
-                locationsToAdd.add(locations.get(0));
-                locationsToAdd.add(locations.get(1));
-                mActivity.adapter.mAnswersSpansLocations.add(mPosition, locationsToAdd);
-            } else {
-                Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
+                if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).equals(number)) {
+                    Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen");
+                    mBuffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
+                            locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    List<Integer> locationsToAdd;
+                    locationsToAdd = mActivity.adapter.mAnswersSpansLocations.get(mPosition);
+                    mActivity.adapter.mAnswersSpansLocations.remove(mPosition);
+                    locationsToAdd.clear();
+                    locationsToAdd.add(locations.get(0));
+                    locationsToAdd.add(locations.get(1));
+                    mActivity.adapter.mAnswersSpansLocations.add(mPosition, locationsToAdd);
+                } else {
+                    Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
+                }
             }
-        }
+
     }
 
     private void locateAnswersToBeColored(Spannable buffer) {

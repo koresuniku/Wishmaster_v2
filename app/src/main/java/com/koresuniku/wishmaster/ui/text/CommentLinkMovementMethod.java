@@ -39,6 +39,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
 
     int begin = -1, end = -1;
     List<Integer> locationsToAdd;
+    int off = 0;
     @Override
     public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
         // Get the event action
@@ -56,7 +57,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
             // Locate the URL text
             Layout layout = widget.getLayout();
             int line = layout.getLineForVertical(y);
-            int off = layout.getOffsetForHorizontal(line, x);
+            off = layout.getOffsetForHorizontal(line, x);
 
             // Find the URL that was pressed
             URLSpan[] link = buffer.getSpans(off, off, URLSpan.class);
@@ -64,7 +65,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
                 locateAnswersToBeColored(buffer);
                 Log.d(TAG, "mLocations: " + mLocations);
                 for (List<Integer> locations : mLocations) {
-                    if (off >= locations.get(0) - 2 && off <= locations.get(1)) {
+                    if (off >= locations.get(0) - 2 && off <= locations.get(1) - 1) {
                         begin = locations.get(0) + 2;
                         end = locations.get(1);
                         buffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
@@ -98,11 +99,20 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
 
         if (action == MotionEvent.ACTION_CANCEL) {
             Log.d(TAG, "actioncancel:");
-            if (allowActionCancel) {
-                buffer.removeSpan(mActivity.adapter.foregroundColorSpan);
-                mActivity.adapter.mCommentAnswersSpansLocations.remove(mPosition);
-                mActivity.adapter.mCommentAnswersSpansLocations.add(mPosition, new ArrayList<Integer>());
+            URLSpan[] link = buffer.getSpans(off, off, URLSpan.class);
+            if (link.length != 0) {
+                locateAnswersToBeColored(buffer);
+                for (List<Integer> locations : mLocations) {
+                    if (off >= locations.get(0) - 2 && off <= locations.get(1) - 1) {
+                        if (allowActionCancel) {
+                            buffer.removeSpan(mActivity.adapter.foregroundColorSpan);
+                            mActivity.adapter.mCommentAnswersSpansLocations.remove(mPosition);
+                            mActivity.adapter.mCommentAnswersSpansLocations.add(mPosition, new ArrayList<Integer>());
+                        }
+                    }
+                }
             }
+
         }
 
         return super.onTouchEvent(widget, buffer, event);
@@ -154,26 +164,28 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
         Log.d(TAG, "setForegroundSpanForParticularLocation: mBuffer: " + mBuffer.toString());
         Log.d(TAG, "setForegroundSpanForParticularLocation: mLocations: " + mLocations);
 
-        for (List<Integer> locations : mLocations) {
-            int end = locations.get(1);
-            if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).contains("(OP)")) {
-                end -= 5;
+
+            for (List<Integer> locations : mLocations) {
+                int end = locations.get(1);
+                if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).contains("(OP)")) {
+                    end -= 5;
+                }
+                if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).equals(number)) {
+                    Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen " + locations.get(0) + ", " + locations.get(1));
+                    mBuffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
+                            locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    List<Integer> locationsToAdd;
+                    locationsToAdd = mActivity.adapter.mCommentAnswersSpansLocations.get(mPosition);
+                    mActivity.adapter.mCommentAnswersSpansLocations.remove(mPosition);
+                    locationsToAdd.clear();
+                    locationsToAdd.add(locations.get(0));
+                    locationsToAdd.add(locations.get(1));
+                    mActivity.adapter.mCommentAnswersSpansLocations.add(mPosition, locationsToAdd);
+                } else {
+                    Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
+                }
             }
-            if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).equals(number)) {
-                Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen " + locations.get(0) + ", " + locations.get(1));
-                mBuffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
-                        locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                List<Integer> locationsToAdd;
-                locationsToAdd = mActivity.adapter.mCommentAnswersSpansLocations.get(mPosition);
-                mActivity.adapter.mCommentAnswersSpansLocations.remove(mPosition);
-                locationsToAdd.clear();
-                locationsToAdd.add(locations.get(0));
-                locationsToAdd.add(locations.get(1));
-                mActivity.adapter.mCommentAnswersSpansLocations.add(mPosition, locationsToAdd);
-            } else {
-                Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
-            }
-        }
+
     }
 
     @Override

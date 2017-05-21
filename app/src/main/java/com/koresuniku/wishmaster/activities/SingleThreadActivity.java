@@ -74,6 +74,8 @@ import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirec
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +140,9 @@ public class SingleThreadActivity extends AppCompatActivity {
     public SingleThreadViewPagerOnPageChangeListener singleThreadViewPagerOnPageChangeListener;
 
     private CardView mAnswerLayout;
-    public List<View> mAnswerViews;
+    public List<List<View>> mAnswerViews;
+    private LinearLayout mAnswerList;
+    private List<Integer> mAnswersScrollStates;
     public boolean answerOpened;
 
     public boolean dataLoaded = false;
@@ -613,9 +617,9 @@ public class SingleThreadActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 int afterCount = mPosts.size();
+                                adapter.onAdapterChanges();
                                 adapter.notifyDataSetChanged();
                                 adapter.notifyNewPosts(beforeCount, afterCount);
-                                adapter.onAdapterChanges();
                                 mFastScrollSeekBar.setMax(adapter.getItemCount());
                                 mFastScrollSeekBar.updateThumb();
                                 if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
@@ -722,6 +726,8 @@ public class SingleThreadActivity extends AppCompatActivity {
     private void setupAnswers() {
         mAnswerViews = new ArrayList<>();
         mAnswerLayout = (CardView) findViewById(R.id.answer_layout);
+        mAnswerList = (LinearLayout) findViewById(R.id.answer_layout_list);
+        mAnswersScrollStates = new ArrayList<>();
         answerOpened = false;
     }
 
@@ -768,10 +774,13 @@ public class SingleThreadActivity extends AppCompatActivity {
         }
     }
 
+    public void writeInAnswerScrollState() {
+        mAnswersScrollStates.add(mAnswerLayout.findViewById(R.id.answer_layout_scrollview).getScrollY());
+    }
+
     public void showAnswer(String postNumberToGo, String postNumberFrom) {
-        answerOpened = true;
-        adapter.notifySingleView = true;
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
+
         int position = -1;
         for (Post post : mPosts) {
             if (post.getNum().equals(postNumberToGo)) {
@@ -792,33 +801,112 @@ public class SingleThreadActivity extends AppCompatActivity {
             }
         }
         setupAnswersLayoutContainer(getResources().getConfiguration());
-        setupCommentTextViewForRecyclerView(position);
-        mAnswerViews.add(answerView);
-        mAnswerLayout.removeAllViews();
-        mAnswerLayout.addView(answerView);
+        //setupCommentTextViewForRecyclerView(position);
+        mAnswerViews.add(new ArrayList<>(Collections.singletonList(answerView)));
+        //mAnswerLayout.removeAllViews();
+        mAnswerList.removeAllViews();
+        //mAnswerLayout.addView(answerView);
+        mAnswerList.addView(answerView);
+        if (answerOpened) {
+            writeInAnswerScrollState();
+        }
         findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
+        answerOpened = true;
+        adapter.notifySingleView = true;
+    }
+
+    public void showAnswerList(String postNumberFrom) {
+
+        if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
+
+        List<String> answersNumbers = adapter.mAnswers.get(postNumberFrom);
+        List<Integer> answersPositions = new ArrayList<>();
+
+        Post post;
+        for (int i = 0; i < mPosts.size(); i++) {
+            post = mPosts.get(i);
+            if (answersNumbers.contains(post.getNum())) {
+                answersPositions.add(mPosts.indexOf(post));
+            }
+        }
+        View answerView;
+        mAnswerViews.add(new ArrayList<View>());
+        for (Integer answerPosition : answersPositions) {
+            answerView = adapter.getViewForPosition(answerPosition);
+            if (((TextView)answerView.findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+                ((CommentLinkMovementMethod) ((TextView) answerView.findViewById(R.id.post_comment)).getMovementMethod())
+                        .setForegroundSpanForParticularLocation(postNumberFrom);
+            }
+            if (((TextView)answerView.findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
+                ((AnswersLinkMovementMethod) ((TextView) answerView.findViewById(R.id.answers)).getMovementMethod())
+                        .setForegroundSpanForParticularLocation(postNumberFrom);
+            }
+            //setupCommentTextViewForRecyclerView(answerPosition);
+            mAnswerViews.get(mAnswerViews.size() - 1).addAll(Collections.singletonList(answerView));
+        }
+        setupAnswersLayoutContainer(getResources().getConfiguration());
+
+        //mAnswerLayout.removeAllViews();
+        mAnswerList.removeAllViews();
+        //mAnswerLayout.addView(answerView);
+        ImageView lineDivider;
+        for (View view : mAnswerViews.get(mAnswerViews.size() - 1)) {
+            mAnswerList.addView(view);
+            lineDivider = new ImageView(mActivity);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.height = DeviceUtils.apiIs20OrHigher() ? 2 : 1;
+            lineDivider.setLayoutParams(params);
+            lineDivider.setPadding(DeviceUtils.apiIs20OrHigher() ? 16 : 8, 0,
+                    DeviceUtils.apiIs20OrHigher() ? 16 : 8, 0);
+            lineDivider.setImageResource(android.R.color.darker_gray);
+            lineDivider.setBackgroundColor(getResources().getColor(R.color.common_background_color));
+            mAnswerList.addView(lineDivider);
+        }
+        mAnswerList.removeViewAt(mAnswerList.getChildCount() - 1);
+        if (answerOpened) {
+            writeInAnswerScrollState();
+        }
+        findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
+        answerOpened = true;
+        adapter.notifySingleView = true;
     }
 
     private void showPreviousAnswer() {
 
-        mAnswerLayout.removeAllViews();
+       // mAnswerLayout.removeAllViews();
+        mAnswerList.removeAllViews();
         if (mAnswerViews.size() <= 1) {
             closeAnswerViews();
             return;
         }
         mAnswerViews.remove(mAnswerViews.size() - 1);
-        if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+        if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
                 .findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
-            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
                     .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
-        } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+        } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(mAnswerViews.size() - 1)
                 .findViewById(R.id.answers)).getMovementMethod() instanceof CommentLinkMovementMethod) {
-            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1)
+            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
                     .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
         }
 
-        mAnswerLayout.addView(mAnswerViews.get(mAnswerViews.size() - 1));
-        ((SaveStateScrollView)mAnswerLayout.getChildAt(0)).scrollToSavedState();
+        //mAnswerLayout.addView(mAnswerViews.get(mAnswerViews.size() - 1));
+        mAnswerList.addView(mAnswerViews.get(mAnswerViews.size() - 1).get(0));
+        //((SaveStateScrollView)mAnswerLayout.getChildAt(0)).scrollToSavedState();
+        Log.d(LOG_TAG, "scroll states: " + mAnswersScrollStates.size());
+//        mAnswerLayout.findViewById(R.id.answer_layout_scrollview).post(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                mAnswerLayout.findViewById(R.id.answer_layout_scrollview)
+//                        .scrollTo(0, mAnswersScrollStates.get(mAnswersScrollStates.size() - 1));
+//            }
+//        });
+        ((SaveStateScrollView)mAnswerLayout.findViewById(R.id.answer_layout_scrollview))
+                .scrollToWithGuarantees(0, mAnswersScrollStates.get(mAnswersScrollStates.size() - 1));
+
+        mAnswersScrollStates.remove(mAnswerViews.size() - 1);
     }
 
     private void closeAnswerViews() {
@@ -826,7 +914,9 @@ public class SingleThreadActivity extends AppCompatActivity {
         adapter.notifySingleView = false;
         if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, false);
         mAnswerViews = new ArrayList<>();
-        mAnswerLayout.removeAllViews();
+        //mAnswerLayout.removeAllViews();
+        mAnswersScrollStates = new ArrayList<>();
+        mAnswerList.removeAllViews();
         findViewById(R.id.answer_layout_container).setVisibility(GONE);
     }
 

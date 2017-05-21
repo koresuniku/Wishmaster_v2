@@ -57,14 +57,14 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     private SingleThreadRecyclerViewAdapter thisAdapter = this;
     private SingleThreadActivity mActivity;
-    private Map<String, List<String>> mAnswers;
+    public Map<String, List<String>> mAnswers;
     public List<List<Integer>> mAnswersSpansLocations;
     public List<List<Integer>> mCommentAnswersSpansLocations;
     public BackgroundColorSpan backgroundColorSpan;
-    public ForegroundColorSpan foregroundColorSpan;
+    public StyleSpan foregroundColorSpan;
     private String boardId;
     private int mViewType;
-    private SaveStateScrollView singleViewContainer;
+    private FrameLayout singleViewContainer;
     private View singleView;
     public boolean notifySingleView = false;
 
@@ -72,7 +72,8 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         mActivity = activity;
         mAnswers = new HashMap<>();
         backgroundColorSpan = new BackgroundColorSpan(mActivity.getResources().getColor(R.color.link_background));
-        foregroundColorSpan = new ForegroundColorSpan(mActivity.getResources().getColor(R.color.link_background));
+        //foregroundColorSpan = new ForegroundColorSpan(mActivity.getResources().getColor(R.color.link_background));
+        foregroundColorSpan = new StyleSpan(android.graphics.Typeface.BOLD);
         boardId = board;
         getAnswersForPost();
         setupLocationsList();
@@ -232,8 +233,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     }
 
     private void getAnswersForPost() {
-        long startMIllis = System.currentTimeMillis();
+        long startMillis = System.currentTimeMillis();
         List<String> postAnswers;
+        mAnswers = new HashMap<>();
         for (Post post : SingleThreadActivity.mPosts) {
             Document doc = Jsoup.parse(post.getComment());
             Elements links = doc.select("a[href]");
@@ -241,10 +243,8 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             Element link;
             for (int i = 0; i < links.size(); i++) {
                 link = links.get(i);
-                Log.d(LOG_TAG, "link: " + link.toString());
                 rawAnswer = link.attr("href");
                 if (!rawAnswer.contains("http") && !rawAnswer.contains("ftp")) {
-                    //answer = rawAnswer.substring(rawAnswer.indexOf('#') + 1, rawAnswer.length());
                     answer = link.attr("data-num");
                     if (mAnswers.get(answer) == null) {
                         postAnswers = new ArrayList<>();
@@ -258,7 +258,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 }
             }
         }
-        Log.d(LOG_TAG, "jsoup: " + (System.currentTimeMillis() - startMIllis));
+        Log.d(LOG_TAG, "jsoup: " + (System.currentTimeMillis() - startMillis));
     }
 
 
@@ -276,24 +276,24 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     private SpannableString setAnswersBackgroundSpansIfNeeded(
             SpannableString spannableAnswersString, int position) {
-        List<Integer> spansAnswers = mAnswersSpansLocations.get(position);
-        Log.d(LOG_TAG, "spansLocations: " + spansAnswers);
-        if (spansAnswers.size() != 0) {
-            spannableAnswersString.setSpan(foregroundColorSpan,
-                    spansAnswers.get(0), spansAnswers.get(1),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+//        List<Integer> spansAnswers = mAnswersSpansLocations.get(position);
+//        Log.d(LOG_TAG, "spansLocations: " + spansAnswers);
+//        if (spansAnswers.size() != 0) {
+//            spannableAnswersString.setSpan(foregroundColorSpan,
+//                    spansAnswers.get(0), spansAnswers.get(1),
+//                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        }
         return spannableAnswersString;
     }
 
     private SpannableString setCommentAnswersBackgroundSpansIfNeeded(
             SpannableString spannableAnswersString, int position) {
-        List<Integer> spansCommentLocations = mCommentAnswersSpansLocations.get(position);
-        if (spansCommentLocations.size() != 0) {
-            spannableAnswersString.setSpan(foregroundColorSpan,
-                    spansCommentLocations.get(0), spansCommentLocations.get(1),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+//        List<Integer> spansCommentLocations = mCommentAnswersSpansLocations.get(position);
+//        if (spansCommentLocations.size() != 0) {
+//            spannableAnswersString.setSpan(foregroundColorSpan,
+//                    spansCommentLocations.get(0), spansCommentLocations.get(1),
+//                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        }
         return spannableAnswersString;
     }
 
@@ -301,6 +301,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         for (int i = mAnswersSpansLocations.size() - 1; i < thisAdapter.getItemCount(); i++) {
             mAnswersSpansLocations.add(new ArrayList<Integer>());
             mCommentAnswersSpansLocations.add(new ArrayList<Integer>());
+            getAnswersForPost();
         }
     }
 
@@ -581,7 +582,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     }
 
     public View getViewForPosition(final int position) {
-        singleViewContainer = new SaveStateScrollView(mActivity);
+        singleViewContainer = new FrameLayout(mActivity);
         singleView = inflateProperView(getItemViewType(position));
         TextView numberAndTimeTextView = (TextView) singleView.findViewById(R.id.post_number_and_time_info);
         TextView subjectTextView = (TextView) singleView.findViewById(R.id.post_subject);
