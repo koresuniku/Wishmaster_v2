@@ -37,7 +37,7 @@ public class ThreadsViewPagerOnPageChangeListener implements ViewPager.OnPageCha
 
         GalleryFragment fragment = ThreadsActivity.galleryFragments.get(mActivity.picVidOpenedPosition);
         if (fragment != null && fragment.videoView != null) {
-            fragment.pauseVideoView();
+            fragment.startVideoView();
         }
 
         mActivity.picVidOpenedPosition = position;

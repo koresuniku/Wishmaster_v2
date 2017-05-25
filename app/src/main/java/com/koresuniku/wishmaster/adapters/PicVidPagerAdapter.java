@@ -49,17 +49,11 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         Log.d(LOG_TAG, "position: " + position);
         if (mActivity instanceof ThreadsActivity) {
-//            ThreadsActivity.galleryFragments[position] = GalleryFragment.getInstance(
-//                    mActivity, mFiles.get(position), mediaClickedPosition, mediaClickedPosition == position);
-//            return ThreadsActivity.galleryFragments[position];
             ThreadsActivity.galleryFragments.put(position, GalleryFragment.getInstance(
                     mActivity, mFiles.get(position), mediaClickedPosition, mediaClickedPosition == position));
             return ThreadsActivity.galleryFragments.get(position);
         }
         if (mActivity instanceof SingleThreadActivity) {
-//            SingleThreadActivity.galleryFragments[position] = GalleryFragment.getInstance(
-//                    mActivity, mFiles.get(position), mediaClickedPosition, mediaClickedPosition == position);
-//            return SingleThreadActivity.galleryFragments[position];
             SingleThreadActivity.galleryFragments.put(position, GalleryFragment.getInstance(
                     mActivity, mFiles.get(position), mediaClickedPosition, mediaClickedPosition == position));
             return SingleThreadActivity.galleryFragments.get(position);
@@ -89,7 +83,9 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
             for (GalleryFragment fragment : ThreadsActivity.galleryFragments.values()) {
                 if (fragment != null && fragment.videoView != null) {
                     if (pause) fragment.pauseVideoView();
-                    if (release) fragment.releaseVideoView();
+                    if (release) {
+                        fragment.releaseVideoView();
+                    }
                     fragment.onActivityStop = true;
                 }
             }
@@ -98,7 +94,9 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
             for (GalleryFragment fragment : SingleThreadActivity.galleryFragments.values()) {
                 if (fragment != null && fragment.videoView != null) {
                     if (pause) fragment.pauseVideoView();
-                    if (release) fragment.releaseVideoView();
+                    if (release) {
+                        fragment.releaseVideoView();
+                    }
                     fragment.onActivityStop = true;
                 }
             }

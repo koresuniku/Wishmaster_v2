@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
@@ -27,6 +28,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.SingleThreadActivity;
 import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
@@ -452,9 +457,10 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
                 if (files.size() == 1) {
 
-                    mActivity.imageLoader.clearMemoryCache();
-
-                    mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image);
+//                    mActivity.imageLoader.clearMemoryCache();
+//
+//                    mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image);
+                    loadThumbnailPreview(thumbnail, holder.image);
                     setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.image);
                     //setImageViewContainerWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.imageAndSummaryContainer);
 
@@ -478,8 +484,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 } else if (files.size() <= 4) {
                     switch (i) {
                         case 0: {
-                            mActivity.imageLoader.clearMemoryCache();
-                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image1);
+//                            mActivity.imageLoader.clearMemoryCache();
+//                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image1);
+                            loadThumbnailPreview(thumbnail, holder.image1);
                             setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.image1);
                             //setImageViewContainerWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.imageAndSummaryContainer1);
                             if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
@@ -501,8 +508,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                             break;
                         }
                         case 1: {
-                            mActivity.imageLoader.clearMemoryCache();
-                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image2);
+//                            mActivity.imageLoader.clearMemoryCache();
+//                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image2);
+                            loadThumbnailPreview(thumbnail, holder.image2);
                             setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.image2);
                             //setImageViewContainerWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.imageAndSummaryContainer2);
                             if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
@@ -524,8 +532,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                             break;
                         }
                         case 2: {
-                            mActivity.imageLoader.clearMemoryCache();
-                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image3);
+//                            mActivity.imageLoader.clearMemoryCache();
+//                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image3);
+                            loadThumbnailPreview(thumbnail, holder.image3);
                             setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.image3);
                             //setImageViewContainerWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.imageAndSummaryContainer3);
                             if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
@@ -547,8 +556,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                             break;
                         }
                         case 3: {
-                            mActivity.imageLoader.clearMemoryCache();
-                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image4);
+//                            mActivity.imageLoader.clearMemoryCache();
+//                            mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, holder.image4);
+                            loadThumbnailPreview(thumbnail, holder.image4);
                             //setImageViewContainerWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.imageAndSummaryContainer4);
                             setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), holder.image4);
                             if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
@@ -576,10 +586,27 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     }
 
-    public AnswersLinkMovementMethod getViewAnswersLinkMovementMethod() {
-        return (AnswersLinkMovementMethod)
-                ((TextView) singleView.findViewById(R.id.answers)).getMovementMethod();
+    private void loadThumbnailPreview(String thumbnail, ImageView image) {
+        Glide.with(mActivity).load(Uri.parse(Constants.DVACH_BASE_URL + thumbnail)).asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Uri, Bitmap>() {
+            @Override
+            public boolean onException(Exception e, Uri model, Target<Bitmap> target,
+                                       boolean isFirstResource) {
+                Log.d(LOG_TAG, "onException:");
+                e.printStackTrace();
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Bitmap resource, Uri model,
+                                           Target<Bitmap> target, boolean isFromMemoryCache,
+                                           boolean isFirstResource) {
+                Log.d(LOG_TAG, "onResourceReady:");
+                return false;
+            }
+        }).into(image);
     }
+
 
     public View getViewForPosition(final int position) {
         singleViewContainer = new FrameLayout(mActivity);

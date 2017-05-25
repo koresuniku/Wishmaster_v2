@@ -40,6 +40,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.koresuniku.wishmaster.App;
@@ -69,10 +72,14 @@ import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
 import com.koresuniku.wishmaster.utils.listeners.SingleThreadViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import java.io.File;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -150,8 +157,9 @@ public class SingleThreadActivity extends AppCompatActivity {
     public boolean fullPicVidOpenedAndFullScreenModeIsOn = false;
     public int picVidOpenedPosition = -1;
 
-    OkHttpClient client = new OkHttpClient.Builder()
+    public OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10000, TimeUnit.SECONDS)
+            .proxy(setProxy())
             .readTimeout(10000, TimeUnit.SECONDS).build();
     public Gson gson = new GsonBuilder().create();
     public Retrofit retrofit = new Retrofit.Builder()
@@ -190,6 +198,10 @@ public class SingleThreadActivity extends AppCompatActivity {
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
 
         loadData();
+    }
+
+    private Proxy setProxy() {
+        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
     }
 
     @Override
@@ -415,9 +427,11 @@ public class SingleThreadActivity extends AppCompatActivity {
 
     private void setupThreadsRecyclerView() {
         singleThreadRecyclerView = (FixedRecyclerView) findViewById(R.id.single_thread_recycler_view);
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mActivity).build();
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mActivity)
+                .imageDownloader(new BaseImageDownloader(mActivity, 50 * 1000, 200 * 1000)).build();
         ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
+        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
         singleThreadRecyclerView.setItemViewCacheSize(0);
         singleThreadRecyclerView.addItemDecoration(new ThreadsRecyclerViewDividerItemDecoration(this));
         linearLayoutManager = new LinearLayoutManager(this);

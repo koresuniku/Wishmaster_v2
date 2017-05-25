@@ -51,6 +51,11 @@ import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -72,10 +77,15 @@ public class MainActivity extends AppCompatActivity
     public Menu mMenu;
     public boolean searchIsShown = false;
 
+    OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10000, TimeUnit.SECONDS)
+            .proxy(setProxy())
+            .readTimeout(10000, TimeUnit.SECONDS).build();
     public Gson gson = new GsonBuilder().create();
     public Retrofit retrofit = new Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
             .baseUrl(Constants.DVACH_BASE_URL)
+            .client(client)
             .build();
     BoardsApiService service = retrofit.create(BoardsApiService.class);
     private BoardsJsonSchema mSchema;
@@ -93,6 +103,10 @@ public class MainActivity extends AppCompatActivity
 
         setupDefaultPreferences();
         collectBoardsData();
+    }
+
+    private Proxy setProxy() {
+       return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
     }
 
     @Override
@@ -309,6 +323,7 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager
                 = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -376,7 +391,8 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onFailure(Call<BoardsJsonSchema> call, Throwable t) {
-
+                Log.d(LOG_TAG, "onFailure: ");
+                t.printStackTrace();
             }
         });
     }

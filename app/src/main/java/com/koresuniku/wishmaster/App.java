@@ -18,10 +18,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 
 public class App extends Application {
 
     static final String TAG = "BIV-App";
+
+    public OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(10000, TimeUnit.SECONDS)
+            .proxy(setProxy())
+            .readTimeout(10000, TimeUnit.SECONDS).build();
+
+    private Proxy setProxy() {
+        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
+    }
 
 
     public static void fixLeakCanary696(Context context) {
@@ -84,7 +98,7 @@ public class App extends Application {
         LeakCanary.install(this);
 
         Log.d("Application: ", "App");
-        BigImageViewer.initialize(FrescoImageLoader.with(this));
+        BigImageViewer.initialize(GlideImageLoader.with(this));
     }
 }
 
