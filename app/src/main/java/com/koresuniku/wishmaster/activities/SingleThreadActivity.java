@@ -69,6 +69,7 @@ import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.IOUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
+import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
 import com.koresuniku.wishmaster.utils.listeners.SingleThreadViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -158,14 +159,14 @@ public class SingleThreadActivity extends AppCompatActivity {
     public int picVidOpenedPosition = -1;
 
     public OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(10000, TimeUnit.SECONDS)
-            .proxy(setProxy())
+            .connectTimeout(5000, TimeUnit.SECONDS)
+            //.proxy(setProxy())
             .readTimeout(10000, TimeUnit.SECONDS).build();
     public Gson gson = new GsonBuilder().create();
     public Retrofit retrofit = new Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
             .baseUrl(Constants.DVACH_BASE_URL)
-            .client(client)
+            //.client(client)
             .build();
 
     SingleThreadApiService service = retrofit.create(SingleThreadApiService.class);
@@ -201,13 +202,14 @@ public class SingleThreadActivity extends AppCompatActivity {
     }
 
     private Proxy setProxy() {
-        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
+        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("188.165.243.106", 9050));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (adapter != null) adapter.notifyDataSetChanged();
+        //if (adapter != null) adapter.notifyDataSetChanged();
+        App.mSettingsContentObserver.switchActivity(this);
     }
 
     @Override
@@ -639,6 +641,7 @@ public class SingleThreadActivity extends AppCompatActivity {
                                 if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
                                         == beforeCount - 1) {
                                     linearLayoutManager.scrollToPositionWithOffset(beforeCount, 0);
+                                    singleThreadRefreshLayoutBottom.requestLayout();
                                 } else {
                                     Log.d(LOG_TAG, "");
                                 }
@@ -900,9 +903,9 @@ public class SingleThreadActivity extends AppCompatActivity {
             ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
                     .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
         } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(mAnswerViews.size() - 1)
-                .findViewById(R.id.answers)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+                .findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
             ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
-                    .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
+                    .findViewById(R.id.post_comment)).getMovementMethod()).allowActionCancel = true;
         }
 
         //mAnswerLayout.addView(mAnswerViews.get(mAnswerViews.size() - 1));
@@ -937,5 +940,7 @@ public class SingleThreadActivity extends AppCompatActivity {
     private void setupCommentTextViewForRecyclerView(int position) {
         adapter.notifyItemChanged(position);
     }
+
+
 
 }

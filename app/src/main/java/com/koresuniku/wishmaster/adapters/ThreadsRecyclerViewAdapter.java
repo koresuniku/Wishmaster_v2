@@ -468,7 +468,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             public boolean onResourceReady(Bitmap resource, Uri model,
                                            Target<Bitmap> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
-                Log.d(LOG_TAG, "onResourceReady:");
+                //Log.d(LOG_TAG, "onResourceReady:");
                 return false;
             }
         }).into(image);

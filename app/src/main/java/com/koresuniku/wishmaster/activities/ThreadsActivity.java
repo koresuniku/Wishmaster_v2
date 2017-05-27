@@ -65,6 +65,7 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.utils.IOUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
+import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
 import com.koresuniku.wishmaster.utils.listeners.ThreadsViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -138,14 +139,16 @@ public class ThreadsActivity extends AppCompatActivity {
     public PicVidPagerAdapter picVidPagerAdapter;
     public ThreadsViewPagerOnPageChangeListener threadsViewPagerOnPageChangeListener;
 
+
+
     public boolean dataLoaded = false;
     public boolean fullPicVidOpened = false;
     public boolean fullPicVidOpenedAndFullScreenModeIsOn = false;
     public int picVidOpenedPosition = -1;
 
     public OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(10000, TimeUnit.SECONDS)
-            .proxy(setProxy())
+            .connectTimeout(5000, TimeUnit.SECONDS)
+            //.proxy(setProxy())
             .readTimeout(10000, TimeUnit.SECONDS).build();
     public Gson gson = new GsonBuilder().create();
     public Retrofit retrofit = new Retrofit.Builder()
@@ -179,17 +182,19 @@ public class ThreadsActivity extends AppCompatActivity {
         setupFullscreenMode();
         setupOrientationFeatures();
 
+
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
     }
 
     private Proxy setProxy() {
-        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
+        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("188.165.243.106", 9050));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (adapter != null) adapter.notifyDataSetChanged();
+        //if (adapter != null) adapter.notifyDataSetChanged();
+        App.mSettingsContentObserver.switchActivity(this);
     }
 
     @Override
@@ -204,6 +209,9 @@ public class ThreadsActivity extends AppCompatActivity {
 //            else loadData();
         }
     }
+
+
+
 
     private void setupOrientationFeatures() {
         if (Constants.API_INT >= 19) {
@@ -389,10 +397,10 @@ public class ThreadsActivity extends AppCompatActivity {
                 }
             }
         });
-        setupFastScrollSeekbar();
+        setupFastScrollSeekBar();
     }
 
-    private void setupFastScrollSeekbar() {
+    private void setupFastScrollSeekBar() {
         mFastScrollSeekbar = (VerticalSeekBar) findViewById(R.id.scroll_seekBar);
         ScrollbarUtils.setScrollbarSize(mActivity,
                 (FrameLayout) findViewById(R.id.fast_scroll_seekbar_container),
@@ -526,10 +534,9 @@ public class ThreadsActivity extends AppCompatActivity {
         onRestoreInstanceState(null);
         fixCoordinatorLayout(null);
 
-        setupFastScrollSeekbar();
+        setupFastScrollSeekBar();
 
     }
-
 
     private void setupFullscreenMode() {
         if (Constants.API_INT >= 19) UIUtils.showSystemUI(this);
@@ -612,6 +619,8 @@ public class ThreadsActivity extends AppCompatActivity {
 
         dataLoaded = true;
 
+        Log.d(LOG_TAG, "sending request...");
+
         if (boardId.equals("d") || boardId.equals("d")) {
             new ThreadsForPagesAsynktask(this, boardId).execute();
         } else {
@@ -627,7 +636,8 @@ public class ThreadsActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<ThreadsJsonSchema> call, Throwable t) {
-
+                    Log.d(LOG_TAG, "onFailure: ");
+                    t.printStackTrace();
                 }
             });
         }
@@ -753,7 +763,8 @@ public class ThreadsActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(LOG_TAG, "onSaveInstanceState: ");
-        threadsRecyclerViewState = threadsRecyclerView.getLayoutManager().onSaveInstanceState();
+        if (threadsRecyclerView != null)
+            threadsRecyclerViewState = threadsRecyclerView.getLayoutManager().onSaveInstanceState();
         super.onSaveInstanceState(outState);
     }
 

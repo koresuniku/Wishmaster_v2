@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
@@ -10,9 +11,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        jackOptions {
-            enabled true
-        }
+        vectorDrawables.useSupportLibrary = true
+
     }
     buildTypes {
         release {
@@ -21,31 +21,31 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        targetCompatibility 1.7
+        sourceCompatibility 1.7
     }
 }
 
 dependencies {
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'in.srain.cube:ultra-ptr:1.0.11'
     compile 'com.google.android.exoplayer:exoplayer:r2.3.1'
     compile 'com.google.android.exoplayer:extension-okhttp:r2.0.1'
     compile 'com.facebook.fresco:fresco:1.0.1'
-
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.6.0'
-    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.github.piasy:FrescoImageLoader:1.2.9'
     compile 'com.github.piasy:BigImageViewer:1.2.9'
     compile 'com.github.piasy:GlideImageLoader:1.2.9'
@@ -53,37 +53,33 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
     compile 'com.squareup.leakcanary:leakcanary-android:1.5'
     compile 'com.devbrackets.android:exomedia:4.0.2'
-
-
     compile 'net.protyposis.android.mediaplayer:mediaplayer:4.3.0'
     compile 'net.protyposis.android.mediaplayer:mediaplayer-dash:4.3.0'
-
     compile 'com.chanven.lib:cptr:1.1.0'
     compile 'com.github.omadahealth:swipy:1.2.3@aar'
     compile 'com.github.claudiodegio:MsvSearch:1.0.0'
     compile 'com.simplecityapps:recyclerview-fastscroll:1.0.16'
-
     compile 'com.l4digital.fastscroll:fastscroll:1.0.3'
     compile 'xyz.danoz:recyclerviewfastscroller:0.1.3'
     compile 'com.futuremind.recyclerfastscroll:fastscroll:0.2.5'
-
-    compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.nshmura:snappysmoothscroller:1.0.0'
-
-    testCompile 'junit:junit:4.12'
     compile 'org.jetbrains:annotations-java5:15.0'
     compile 'com.android.support:cardview-v7:25.3.1'
     compile 'org.jsoup:jsoup:1.8.3'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-vector-drawable:25.3.1'
+    testCompile 'junit:junit:4.12'
 
 }
 allprojects {
     repositories {
         jcenter()
         maven {
-            url  "http://dl.bintray.com/piasy/maven"
+            url "http://dl.bintray.com/piasy/maven"
         }
         maven {
             url 'https://jitpack.io'
         }
     }
 }
+

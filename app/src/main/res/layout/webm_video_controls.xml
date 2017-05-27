@@ -71,16 +71,32 @@
                 android:orientation="horizontal">
 
                 <FrameLayout
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="top|center"
                     android:layout_weight="1">
+
+                    <FrameLayout
+                        android:id="@+id/sound_switcher_container"
+                        android:layout_width="100dp"
+                        android:layout_height="50dp"
+                        android:layout_marginLeft="16dp"
+                        android:background="@drawable/play_pause_background_selector">
+
+                        <ImageView
+                            android:id="@+id/sound_switcher"
+                            android:layout_width="100dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="left|center"
+                            app:srcCompat="@drawable/ic_volume_up_black_24dp" />
+                    </FrameLayout>
 
                     <FrameLayout
                         android:id="@+id/play_pause_container"
                         android:layout_width="100dp"
                         android:layout_height="50dp"
-                        android:layout_gravity="center">
+                        android:layout_gravity="center"
+                        android:background="@drawable/play_pause_background_selector">
 
                         <ImageView
                             android:id="@+id/play_pause"

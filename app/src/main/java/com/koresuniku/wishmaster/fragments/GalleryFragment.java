@@ -2,7 +2,9 @@ package com.koresuniku.wishmaster.fragments;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -31,6 +33,7 @@ import com.bumptech.glide.request.target.Target;
 
 
 import com.devbrackets.android.exomedia.ExoMedia;
+import com.devbrackets.android.exomedia.core.listener.MetadataListener;
 import com.devbrackets.android.exomedia.listener.OnBufferUpdateListener;
 import com.devbrackets.android.exomedia.listener.OnCompletionListener;
 import com.devbrackets.android.exomedia.listener.OnPreparedListener;
@@ -50,6 +53,7 @@ import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -64,6 +68,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.SingleThreadActivity;
 import com.koresuniku.wishmaster.activities.ThreadsActivity;
@@ -75,7 +80,11 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
 import com.koresuniku.wishmaster.utils.listeners.OnImageEventListener;
+import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
+
 import java.util.concurrent.TimeUnit;
+
+import static android.content.Context.AUDIO_SERVICE;
 
 public class GalleryFragment extends android.support.v4.app.Fragment implements View.OnClickListener, OnPreparedListener {
     private final String LOG_TAG = GalleryFragment.class.getSimpleName();
@@ -89,6 +98,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     public boolean onActivityStop;
     private boolean isCompleted = false;
     private long seekToMillis;
+    private int volume = 1;
 
     private FrameLayout layoutContainer;
     private ScaleAnimation animCollapseActionBar;
@@ -107,8 +117,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     public SimpleExoPlayer player;
     public com.devbrackets.android.exomedia.ui.widget.VideoView videoView;
 
-
-
     public View controlView;
     public ImageView playPause;
     public FrameLayout controlViewContainer;
@@ -117,6 +125,8 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private TextView overallDuration;
     private Handler mHandler;
     private View playPauseContainer;
+    private View soundSwitcherContainer;
+    private ImageView soundSwitcher;
     private View loading;
     private ImageView exitImageView;
 
@@ -202,7 +212,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             rootView = inflater.inflate(R.layout.gallery_video_layout, container, false);
             rootView.findViewById(R.id.video_progress_bar).bringToFront();
             createVideoView(path);
-            //createVideoViewExo(Constants.DVACH_BASE_URL + path);
             createControlView(true);
             setupVideoAnimations();
         }
@@ -219,6 +228,23 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             setPlayPauseImage(false);
             playPauseContainer.setEnabled(true);
             playPauseContainer.setClickable(true);
+            playPauseContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    changePlayPauseImage();
+                }
+            });
+            soundSwitcherContainer.setEnabled(true);
+            soundSwitcherContainer.setClickable(true);
+            soundSwitcherContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+            playPauseContainer.bringToFront();
+            soundSwitcherContainer.bringToFront();
+            controlView.requestLayout();
             seekbar.setEnabled(true);
             updateControlView();
             videoView.setOnBufferUpdateListener(new OnBufferUpdateListener() {
@@ -272,6 +298,15 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             public void onCompletion() {
                 isCompleted = true;
                 completeVideoView();
+            }
+        });
+        videoView.setId3MetadataListener(new MetadataListener() {
+            @Override
+            public void onMetadata(Metadata metadata) {
+                Log.d(LOG_TAG, "metadata: ");
+                for (int i = 0; i < metadata.length(); i++) {
+                    Log.d(LOG_TAG, metadata.get(i).toString() + " ");
+                }
             }
         });
 
@@ -390,27 +425,28 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
 //    }
 
     private void createControlView(boolean firstTime) {
-        controlViewContainer = (FrameLayout) mActivity.getLayoutInflater().inflate(R.layout.webm_video_controls, null, false);
+        if (mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            controlViewContainer = (FrameLayout) mActivity.getLayoutInflater().inflate(R.layout.webm_video_controls_redesign, null, false);
+        } else  controlViewContainer = (FrameLayout) mActivity.getLayoutInflater().inflate(R.layout.webm_video_controls, null, false);
+
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM;
         controlViewContainer.setLayoutParams(params);
         layoutContainer.addView(controlViewContainer);
-        controlView = controlViewContainer.findViewById(R.id.webm_video_control_inner);
+
+        controlView = controlViewContainer.findViewById(R.id.control_view);
         if (DeviceUtils.deviceHasNavigationBar(mActivity) && Build.VERSION.SDK_INT >= 19) {
             if (mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 Log.d(LOG_TAG, "controlView is null: " + (controlView == null));
                 controlViewContainer.setPadding(0, 0, 0, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 96 : 48);
-                controlView.findViewById(R.id.webm_video_control_inner).setPadding(0, 0, 0, 0);
             } else {
                 if (DeviceUtils.deviceHasNavigationBar(mActivity)) {
-                    controlView.findViewById(R.id.webm_video_control_inner).setPadding(
+                    controlView.findViewById(R.id.control_view).setPadding(
                             0, 0, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 96 : 48, 0);
-                    controlViewContainer.setPadding(0, 0, 0, 0);
                 } else {
-                    controlView.findViewById(R.id.webm_video_control_inner).setPadding(0, 0, 0, 0);
-                    controlViewContainer.setPadding(0, 0, 0, 0);
+                    controlView.findViewById(R.id.control_view).setPadding(0, 0, 0, 0);
                 }
             }
         }
@@ -422,8 +458,11 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     }
 
     public void pauseVideoView() {
+        Log.d(LOG_TAG, "pauseVideoView: " + mediaClickedPosition);
         videoView.pause();
         setPlayPauseImage(false);
+        videoView.requestLayout();
+
     }
 
 
@@ -443,6 +482,45 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         });
     }
 
+    public void switchSound(int volume) {
+        Log.d(LOG_TAG, "switching sound:");
+        if (videoView == null) return;
+
+        AudioManager audio = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
+
+        //videoView.setVolume((float)(volume / audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)));
+        Log.d(LOG_TAG, "setting volume " + volume);
+        audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
+        if (volume == 0) {
+            soundSwitcher.setImageResource(R.drawable.ic_volume_off_black_24dp);
+        } else {
+            soundSwitcher.setImageResource(R.drawable.ic_volume_up_black_24dp);
+        }
+    }
+
+
+
+    private View.OnClickListener switchSoundOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            AudioManager audio = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
+            if (audio.getStreamVolume(AudioManager.STREAM_MUSIC) != 0) {
+                Log.d(LOG_TAG, "stream volume != 0");
+                thisFragment.volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+                App.mSettingsContentObserver.onChange(true);
+                soundSwitcher.setImageResource(R.drawable.ic_volume_off_black_24dp);
+            } else {
+                Log.d(LOG_TAG, "stream volume is 0");
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, thisFragment.volume, 0);
+
+                App.mSettingsContentObserver.onChange(true);
+                Log.d(LOG_TAG, "stream volume after " + audio.getStreamVolume(AudioManager.STREAM_MUSIC));
+                soundSwitcher.setImageResource(R.drawable.ic_volume_up_black_24dp);
+            }
+        }
+    };
+
 
     public void restartVideoView() {
         videoView.restart();
@@ -452,9 +530,14 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
 
 
     public void startVideoView() {
+        Log.d(LOG_TAG, "startVideoView: " + mediaClickedPosition);
         videoView.start();
         setPlayPauseImage(false);
         updateControlView();
+        videoView.requestLayout();
+        soundSwitcherContainer.requestLayout();
+        soundSwitcherContainer.bringToFront();
+        soundSwitcherContainer.setOnClickListener(switchSoundOnClickListener);
     }
 
 
@@ -485,6 +568,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     }
 
     private void initControlChildViews(boolean firstTime) {
+        Log.d(LOG_TAG, "control view is null " + (controlView == null));
         seekbar = (SeekBar) controlView.findViewById(R.id.video_progress);
         progressTime = (TextView) controlView.findViewById(R.id.progress_time);
         overallDuration = (TextView) controlView.findViewById(R.id.overall_duration);
@@ -512,14 +596,13 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             }
         });
         playPauseContainer.setOnClickListener(null);
-        playPauseContainer.setBackground(
-                mActivity.getResources().getDrawable(R.drawable.play_pause_background_selector));
-
         setPlayPauseImage(firstTime);
         seekbar.setEnabled(false);
-        playPauseContainer.setEnabled(false);
-        playPauseContainer.setClickable(false);
-
+        soundSwitcher = (ImageView) controlView.findViewById(R.id.sound_switcher);
+        soundSwitcherContainer = controlView.findViewById(R.id.sound_switcher_container);
+        soundSwitcherContainer.requestLayout();
+        soundSwitcherContainer.setOnClickListener(null);
+        switchSound(App.soundVolume);
     }
 
     private void setupImageAnimations() {
@@ -688,9 +771,31 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     public void onPrepared() {
         Log.d(LOG_TAG, "video prepared");
         rootView.findViewById(R.id.video_progress_bar).setVisibility(View.GONE);
-        playPauseContainer.setOnClickListener(v -> changePlayPauseImage());
-        playPauseContainer.setEnabled(true);
-        playPauseContainer.setClickable(true);
+
+        playPauseContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                playPauseContainer.setEnabled(true);
+                playPauseContainer.setClickable(true);
+                playPauseContainer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        changePlayPauseImage();
+                    }
+                });
+            }
+        });
+
+        soundSwitcherContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                soundSwitcherContainer.setEnabled(true);
+                soundSwitcherContainer.setClickable(true);
+                soundSwitcherContainer.setOnClickListener(switchSoundOnClickListener);
+
+            }
+        });
+
         seekbar.setEnabled(true);
         if (isCompleted) {
             isCompleted = false;
@@ -754,6 +859,8 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             progressTime.setText(getFormattedProgressString(videoView.getCurrentPosition()));
             if (videoView.getCurrentPosition() != 0) {
                 seekbar.setProgress((int) (videoView.getCurrentPosition() * 100 / videoView.getDuration()));
+                soundSwitcherContainer.bringToFront();
+                soundSwitcherContainer.requestFocusFromTouch();
                 overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
                 if (videoView.getCurrentPosition() == videoView.getDuration()) {
                     completeVideoView();

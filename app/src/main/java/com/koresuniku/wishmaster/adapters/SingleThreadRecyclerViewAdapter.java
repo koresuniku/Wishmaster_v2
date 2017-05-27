@@ -266,8 +266,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         Log.d(LOG_TAG, "jsoup: " + (System.currentTimeMillis() - startMillis));
     }
 
-
-
     private void setupLocationsList() {
         mAnswersSpansLocations = new ArrayList<>();
         for (int i = 0; i < getItemCount(); i++) {
@@ -601,7 +599,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             public boolean onResourceReady(Bitmap resource, Uri model,
                                            Target<Bitmap> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
-                Log.d(LOG_TAG, "onResourceReady:");
+                //Log.d(LOG_TAG, "onResourceReady:");
                 return false;
             }
         }).into(image);

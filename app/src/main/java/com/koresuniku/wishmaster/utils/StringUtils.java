@@ -108,8 +108,11 @@ public class StringUtils {
             signsCount = String.valueOf(count).length();
             lastNumber = Integer.parseInt(String.valueOf(count).substring(signsCount -1 , signsCount));
         }
+        if (count >= 10 && count <= 20) {
+            return " новых постов";
+        }
         if (lastNumber == 1) {
-            if (count >= 10 && String.valueOf(count).substring(signsCount -1 , signsCount).equals("11")) {
+            if (count >= 10 && String.valueOf(count).substring(signsCount - 1, signsCount).equals("11")) {
                 return count + " новых постов";
             }
             return count + " новый пост";

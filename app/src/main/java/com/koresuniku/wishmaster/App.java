@@ -2,14 +2,14 @@ package com.koresuniku.wishmaster;
 
 import android.app.Application;
 import android.content.Context;
+import android.media.AudioManager;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 
 import com.github.piasy.biv.BigImageViewer;
-import com.github.piasy.biv.loader.fresco.FrescoImageLoader;
 import com.github.piasy.biv.loader.glide.GlideImageLoader;
+import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
 import com.squareup.leakcanary.LeakCanary;
 
 import org.apache.commons.io.IOUtils;
@@ -26,7 +26,9 @@ import okhttp3.OkHttpClient;
 
 public class App extends Application {
 
-    static final String TAG = "BIV-App";
+    static final String LOG_TAG = App.class.getSimpleName();
+    public static int soundVolume;
+    public static SettingsContentObserver mSettingsContentObserver;
 
     public OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(10000, TimeUnit.SECONDS)
@@ -40,12 +42,12 @@ public class App extends Application {
 
     public static void fixLeakCanary696(Context context) {
         if (!isEmui()) {
-            Log.w(TAG, "not emui");
+            Log.w(LOG_TAG, "not emui");
             return;
         }
         try {
             Class clazz = Class.forName("android.gestureboost.GestureBoostManager");
-            Log.w(TAG, "clazz " + clazz);
+            Log.w(LOG_TAG, "clazz " + clazz);
 
             Field _sGestureBoostManager = clazz.getDeclaredField("sGestureBoostManager");
             _sGestureBoostManager.setAccessible(true);
@@ -74,7 +76,7 @@ public class App extends Application {
             line = input.readLine();
             input.close();
         } catch (IOException ex) {
-            Log.w(TAG, "Unable to read sysprop " + propName, ex);
+            Log.w(LOG_TAG, "Unable to read sysprop " + propName, ex);
             return null;
         } finally {
             IOUtils.closeQuietly(input);
@@ -99,6 +101,23 @@ public class App extends Application {
 
         Log.d("Application: ", "App");
         BigImageViewer.initialize(GlideImageLoader.with(this));
+        AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        App.soundVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+        setupContentObserver();
+
+    }
+
+    private void setupContentObserver() {
+        mSettingsContentObserver = new SettingsContentObserver(this.getBaseContext(), new Handler());
+        getApplicationContext().getContentResolver().registerContentObserver(
+                android.provider.Settings.System.CONTENT_URI, true, mSettingsContentObserver);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        Log.d(LOG_TAG, "onTerminate:");
+        getApplicationContext().getContentResolver().unregisterContentObserver(mSettingsContentObserver);
     }
 }
 

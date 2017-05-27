@@ -72,12 +72,6 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
         return null;
     }
 
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        //Log.d(LOG_TAG, "instantiateItem: position: " + position);
-        return super.instantiateItem(container, position);
-    }
-
     public void stopAndReleasePlayers(boolean pause, boolean release) {
         if (mActivity instanceof ThreadsActivity) {
             for (GalleryFragment fragment : ThreadsActivity.galleryFragments.values()) {

@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity
     public boolean searchIsShown = false;
 
     OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(10000, TimeUnit.SECONDS)
-            .proxy(setProxy())
+            .connectTimeout(5000, TimeUnit.SECONDS)
+            //.proxy(setProxy())
             .readTimeout(10000, TimeUnit.SECONDS).build();
     public Gson gson = new GsonBuilder().create();
     public Retrofit retrofit = new Retrofit.Builder()
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private Proxy setProxy() {
-       return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
+        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("188.165.243.106", 9050));
     }
 
     @Override
