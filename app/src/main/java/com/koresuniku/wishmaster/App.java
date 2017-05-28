@@ -38,66 +38,65 @@ public class App extends Application {
     private Proxy setProxy() {
         return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
     }
-
-
-    public static void fixLeakCanary696(Context context) {
-        if (!isEmui()) {
-            Log.w(LOG_TAG, "not emui");
-            return;
-        }
-        try {
-            Class clazz = Class.forName("android.gestureboost.GestureBoostManager");
-            Log.w(LOG_TAG, "clazz " + clazz);
-
-            Field _sGestureBoostManager = clazz.getDeclaredField("sGestureBoostManager");
-            _sGestureBoostManager.setAccessible(true);
-            Field _mContext = clazz.getDeclaredField("mContext");
-            _mContext.setAccessible(true);
-
-            Object sGestureBoostManager = _sGestureBoostManager.get(null);
-            if (sGestureBoostManager != null) {
-                _mContext.set(sGestureBoostManager, context);
-            }
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-        }
-    }
-
-    static boolean isEmui() {
-        return !TextUtils.isEmpty(getSystemProperty("ro.build.version.emui"));
-    }
-
-    static String getSystemProperty(String propName) {
-        String line;
-        BufferedReader input = null;
-        try {
-            Process p = Runtime.getRuntime().exec("getprop " + propName);
-            input = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"), 1024);
-            line = input.readLine();
-            input.close();
-        } catch (IOException ex) {
-            Log.w(LOG_TAG, "Unable to read sysprop " + propName, ex);
-            return null;
-        } finally {
-            IOUtils.closeQuietly(input);
-            try {
-                input.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return line;
-    }
+//
+//    public static void fixLeakCanary696(Context context) {
+//        if (!isEmui()) {
+//            Log.w(LOG_TAG, "not emui");
+//            return;
+//        }
+//        try {
+//            Class clazz = Class.forName("android.gestureboost.GestureBoostManager");
+//            Log.w(LOG_TAG, "clazz " + clazz);
+//
+//            Field _sGestureBoostManager = clazz.getDeclaredField("sGestureBoostManager");
+//            _sGestureBoostManager.setAccessible(true);
+//            Field _mContext = clazz.getDeclaredField("mContext");
+//            _mContext.setAccessible(true);
+//
+//            Object sGestureBoostManager = _sGestureBoostManager.get(null);
+//            if (sGestureBoostManager != null) {
+//                _mContext.set(sGestureBoostManager, context);
+//            }
+//        } catch (Exception ignored) {
+//            ignored.printStackTrace();
+//        }
+//    }
+//
+//    static boolean isEmui() {
+//        return !TextUtils.isEmpty(getSystemProperty("ro.build.version.emui"));
+//    }
+//
+//    static String getSystemProperty(String propName) {
+//        String line;
+//        BufferedReader input = null;
+//        try {
+//            Process p = Runtime.getRuntime().exec("getprop " + propName);
+//            input = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"), 1024);
+//            line = input.readLine();
+//            input.close();
+//        } catch (IOException ex) {
+//            Log.w(LOG_TAG, "Unable to read sysprop " + propName, ex);
+//            return null;
+//        } finally {
+//            IOUtils.closeQuietly(input);
+//            try {
+//                input.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return line;
+//    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            // This process is dedicated to LeakCanary for heap analysis.
-            // You should not init your app in this process.
-            return;
-        }
-        LeakCanary.install(this);
+//        if (LeakCanary.isInAnalyzerProcess(this)) {
+//            // This process is dedicated to LeakCanary for heap analysis.
+//            // You should not init your app in this process.
+//            return;
+//        }
+//        LeakCanary.install(this);
 
         Log.d("Application: ", "App");
         BigImageViewer.initialize(GlideImageLoader.with(this));
@@ -106,6 +105,7 @@ public class App extends Application {
         setupContentObserver();
 
     }
+
 
     private void setupContentObserver() {
         mSettingsContentObserver = new SettingsContentObserver(this.getBaseContext(), new Handler());

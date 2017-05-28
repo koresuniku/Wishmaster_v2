@@ -527,8 +527,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         startVideoView();
     }
 
-
-
     public void startVideoView() {
         Log.d(LOG_TAG, "startVideoView: " + mediaClickedPosition);
         videoView.start();
@@ -539,8 +537,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         soundSwitcherContainer.bringToFront();
         soundSwitcherContainer.setOnClickListener(switchSoundOnClickListener);
     }
-
-
 
     private void changePlayPauseImage() {
         if (videoView.isPlaying()) {
@@ -695,6 +691,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private void executeHideBars() {
         if (Constants.API_INT >= 19) {
             Log.i(LOG_TAG, "picvid view clicked: ");
+
             if (player == null) {
                 UIUtils.hideSystemUI(mActivity);
                 if (mActivity instanceof ThreadsActivity) {
