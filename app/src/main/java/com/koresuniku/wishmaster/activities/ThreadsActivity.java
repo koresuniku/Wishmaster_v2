@@ -584,7 +584,7 @@ public class ThreadsActivity extends AppCompatActivity {
             files = null;
             thumbnails = null;
             galleryFragments = new HashMap<>();
-            App.fixLeakCanary696(getApplicationContext());
+            //App.fixLeakCanary696(getApplicationContext());
             System.gc();
 
             UIUtils.setBarsTranslucent(this, false);

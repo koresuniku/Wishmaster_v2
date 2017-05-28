@@ -686,7 +686,7 @@ public class SingleThreadActivity extends AppCompatActivity {
 
             thumbnails = null;
             galleryFragments = new HashMap<>();
-            App.fixLeakCanary696(getApplicationContext());
+           // App.fixLeakCanary696(getApplicationContext());
             System.gc();
 
             if (Constants.API_INT >= 19) {
