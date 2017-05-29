@@ -182,7 +182,6 @@ public class ThreadsActivity extends AppCompatActivity {
         setupFullscreenMode();
         setupOrientationFeatures();
 
-
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
     }
 

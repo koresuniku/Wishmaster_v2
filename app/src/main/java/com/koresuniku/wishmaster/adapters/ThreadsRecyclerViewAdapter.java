@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +35,6 @@ import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.Formats;
 import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.utils.listeners.ThreadsViewPagerOnPageChangeListener;
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,6 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     private ThreadsRecyclerViewAdapter thisAdapter = this;
     private ThreadsActivity mActivity;
     private String boardId;
-    private int displayWidth;
     private int mViewType;
     private Bitmap webmBitmap;
 
@@ -56,17 +55,13 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        //private FrameLayout headerContainer;
-        private LinearLayout threadItemContainer;
+        private RelativeLayout threadItemContainer;
         private TextView numberAndTime;
         private TextView subject;
-//        private LinearLayout imagiesAndSummariesOver4ImagesContainer;
-//        private LinearLayout imagiesAndSummariesContainer;
-//        private LinearLayout imageAndSummaryContainer;
-        private LinearLayout imageAndSummaryContainer1;
-        private LinearLayout imageAndSummaryContainer2;
-        private LinearLayout imageAndSummaryContainer3;
-        private LinearLayout imageAndSummaryContainer4;
+        private RelativeLayout imageAndSummaryContainer1;
+        private RelativeLayout imageAndSummaryContainer2;
+        private RelativeLayout imageAndSummaryContainer3;
+        private RelativeLayout imageAndSummaryContainer4;
         private ImageView image;
         private ImageView image1;
         private ImageView image2;
@@ -91,32 +86,23 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         public ViewHolder(View itemView) {
             super(itemView);
 
+            threadItemContainer = (RelativeLayout) itemView.findViewById(R.id.thread_item_container);
             numberAndTime = (TextView) itemView.findViewById(R.id.thread_number_and_time_info);
             subject = (TextView) itemView.findViewById(R.id.thread_subject);
             if (mViewType == Constants.ITEM_SINGLE_IMAGE) {
-                threadItemContainer =
-                        (LinearLayout) itemView.findViewById(R.id.thread_item_single_image_container);
-//                imageAndSummaryContainer =
-//                        (LinearLayout) itemView.findViewById(R.id.image_with_summary_container);
                 image = (ImageView) itemView.findViewById(R.id.thread_image);
                 webmImageView = (ImageView) itemView.findViewById(R.id.webm_imageview);
                 summary = (TextView) itemView.findViewById(R.id.image_summary);
-            } else if (mViewType == Constants.ITEM_MULTIPLE_IMAGES) {
-                threadItemContainer =
-                        (LinearLayout) itemView.findViewById(R.id.thread_item_multiple_image_container);
-//                imagiesAndSummariesContainer =
-//                        (LinearLayout) itemView.findViewById(R.id.images_with_summaries_container);
-//                imagiesAndSummariesOver4ImagesContainer =
-//                        (LinearLayout) itemView
-//                                .findViewById(R.id.imagies_and_summaries_over_4_images_container);
+            }
+            if (mViewType == Constants.ITEM_MULTIPLE_IMAGES) {
                 imageAndSummaryContainer1 =
-                        (LinearLayout) itemView.findViewById(R.id.image_with_summary_container_1);
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_1);
                 imageAndSummaryContainer2 =
-                        (LinearLayout) itemView.findViewById(R.id.image_with_summary_container_2);
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_2);
                 imageAndSummaryContainer3 =
-                        (LinearLayout) itemView.findViewById(R.id.image_with_summary_container_3);
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_3);
                 imageAndSummaryContainer4 =
-                        (LinearLayout) itemView.findViewById(R.id.image_with_summary_container_4);
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_4);
                 image1 = (ImageView) itemView.findViewById(R.id.thread_image_1);
                 webmImageView1 = (ImageView) itemView.findViewById(R.id.webm_imageview_1);
                 image2 = (ImageView) itemView.findViewById(R.id.thread_image_2);
@@ -150,18 +136,25 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
         switch (viewType) {
+            case Constants.ITEM_NO_IMAGES: {
+                mViewType = viewType;
+                view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.thread_item_no_imagies, parent, false);
+                return new ViewHolder(view);
+            }
             case Constants.ITEM_SINGLE_IMAGE: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.thread_item_single_image, parent, false);
+                        .inflate(R.layout.thread_item_single_image_redesign, parent, false);
                 return new ViewHolder(view);
             }
             case Constants.ITEM_MULTIPLE_IMAGES: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.thread_item_multiple_images, parent, false);
+                        .inflate(R.layout.thread_item_multiple_images_redesign, parent, false);
                 return new ViewHolder(view);
             }
         }
@@ -468,7 +461,6 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             public boolean onResourceReady(Bitmap resource, Uri model,
                                            Target<Bitmap> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
-                //Log.d(LOG_TAG, "onResourceReady:");
                 return false;
             }
         }).into(image);
@@ -481,14 +473,19 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
     @Override
     public int getItemViewType(int position) {
-        if ((mActivity.mSchema.getThreads().get(position).getFiles() != null)
-                && (mActivity.mSchema.getThreads().get(position).getFiles().size() == 1)) {
-            return Constants.ITEM_SINGLE_IMAGE;
-        } else if (((mActivity.mSchema.getThreads().get(position).getFiles() != null)
-                && (mActivity.mSchema.getThreads().get(position).getFiles().size() > 1))){
-            return Constants.ITEM_MULTIPLE_IMAGES;
+        List<Files> files = mActivity.mSchema.getThreads().get(position).getFiles();
+        if (files != null) {
+            if (files.size() == 0) {
+                return Constants.ITEM_NO_IMAGES;
+            }
+            if (files.size() == 1) {
+                return Constants.ITEM_SINGLE_IMAGE;
+            }
+            if (files.size() > 1) {
+                return Constants.ITEM_MULTIPLE_IMAGES;
+            }
         }
-        return Constants.ITEM_SINGLE_IMAGE;
+        return -1;
     }
 
 

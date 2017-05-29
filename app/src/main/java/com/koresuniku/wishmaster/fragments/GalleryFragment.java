@@ -15,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -32,42 +31,24 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 
-import com.devbrackets.android.exomedia.ExoMedia;
 import com.devbrackets.android.exomedia.core.listener.MetadataListener;
 import com.devbrackets.android.exomedia.listener.OnBufferUpdateListener;
 import com.devbrackets.android.exomedia.listener.OnCompletionListener;
 import com.devbrackets.android.exomedia.listener.OnPreparedListener;
 import com.devbrackets.android.exomedia.ui.widget.VideoView;
 import com.github.piasy.biv.view.BigImageView;
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSourceFactory;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.SingleThreadActivity;
@@ -80,11 +61,8 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
 import com.koresuniku.wishmaster.utils.listeners.OnImageEventListener;
-import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
 
 import java.util.concurrent.TimeUnit;
-
-import static android.content.Context.AUDIO_SERVICE;
 
 public class GalleryFragment extends android.support.v4.app.Fragment implements View.OnClickListener, OnPreparedListener {
     private final String LOG_TAG = GalleryFragment.class.getSimpleName();
@@ -127,7 +105,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private View playPauseContainer;
     private View soundSwitcherContainer;
     private ImageView soundSwitcher;
-    private View loading;
     private ImageView exitImageView;
 
 
@@ -669,11 +646,11 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             }
         }
 
-        if (UIUtils.barsAreShown) executeHideBars();
-        else executeShowBars();
+        if (UIUtils.barsAreShown) performHideBars();
+        else performShowBars();
     }
 
-    private void executeShowBars() {
+    private void performShowBars() {
         if (Constants.API_INT >= 19) {
             UIUtils.showSystemUI(mActivity);
             if (mActivity instanceof ThreadsActivity) {
@@ -688,7 +665,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         UIUtils.barsAreShown = true;
     }
 
-    private void executeHideBars() {
+    private void performHideBars() {
         if (Constants.API_INT >= 19) {
             Log.i(LOG_TAG, "picvid view clicked: ");
 
@@ -850,6 +827,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         return minutesString + ":" + secondsString;
     }
 
+    long previousProgress = 0L;
     private Runnable updateProgress = new Runnable() {
         @Override
         public void run() {
@@ -858,6 +836,10 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 seekbar.setProgress((int) (videoView.getCurrentPosition() * 100 / videoView.getDuration()));
                 soundSwitcherContainer.bringToFront();
                 soundSwitcherContainer.requestFocusFromTouch();
+                if (previousProgress == videoView.getCurrentPosition()) {
+                    rootView.findViewById(R.id.video_progress_bar).setVisibility(View.VISIBLE);
+                } else rootView.findViewById(R.id.video_progress_bar).setVisibility(View.GONE);
+                previousProgress = videoView.getCurrentPosition();
                 overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
                 if (videoView.getCurrentPosition() == videoView.getDuration()) {
                     completeVideoView();
