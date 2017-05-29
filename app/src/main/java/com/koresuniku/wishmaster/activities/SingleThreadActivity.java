@@ -17,7 +17,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -35,7 +34,6 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,7 +57,6 @@ import com.koresuniku.wishmaster.ui.text.AnswersLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.views.FixedRecyclerView;
 import com.koresuniku.wishmaster.ui.views.HackyViewPager;
-import com.koresuniku.wishmaster.ui.views.NoScrollTextView;
 import com.koresuniku.wishmaster.ui.views.SaveStateScrollView;
 import com.koresuniku.wishmaster.ui.views.ThreadsRecyclerViewDividerItemDecoration;
 import com.koresuniku.wishmaster.ui.views.VerticalSeekBar;
@@ -69,7 +66,6 @@ import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.IOUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
-import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
 import com.koresuniku.wishmaster.utils.listeners.SingleThreadViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -82,7 +78,6 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -572,7 +567,7 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
+                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48);
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
             if (singleThreadRefreshLayoutTop != null) {
                 singleThreadRefreshLayoutTop.requestLayout();
@@ -758,33 +753,33 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (DeviceUtils.getApiInt() >= 19) {
                 findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.apiIs20OrHigher() ? 48 : 24,
-                        0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
+                        0, DeviceUtils.apiIsLollipopOrHigher() ? 48 : 24,
+                        0, DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48);
 
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.CENTER;
                 params.setMargins(
-                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
-                        DeviceUtils.apiIs20OrHigher() ? 50 : 24,
-                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
-                        DeviceUtils.apiIs20OrHigher() ? 50 : 25);
+                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 24,
+                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 25);
                 mAnswerLayout.setLayoutParams(params);
                 mAnswerLayout.requestLayout();
             }
         } else {
             if (DeviceUtils.getApiInt() >= 19) {
                 findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.apiIs20OrHigher() ? 48 : 24, 0, 0);
+                        0, DeviceUtils.apiIsLollipopOrHigher() ? 48 : 24, 0, 0);
 
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.CENTER;
                 params.setMargins(
-                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
-                        DeviceUtils.apiIs20OrHigher() ? 50 : 25,
-                        DeviceUtils.apiIs20OrHigher() ? 24 : 12,
-                        DeviceUtils.apiIs20OrHigher() ? 50 : 25);
+                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 25,
+                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 25);
                 mAnswerLayout.setLayoutParams(params);
                 mAnswerLayout.requestLayout();
             }
@@ -872,10 +867,10 @@ public class SingleThreadActivity extends AppCompatActivity {
             lineDivider = new ImageView(mActivity);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.height = DeviceUtils.apiIs20OrHigher() ? 2 : 1;
+            params.height = DeviceUtils.apiIsLollipopOrHigher() ? 2 : 1;
             lineDivider.setLayoutParams(params);
-            lineDivider.setPadding(DeviceUtils.apiIs20OrHigher() ? 16 : 8, 0,
-                    DeviceUtils.apiIs20OrHigher() ? 16 : 8, 0);
+            lineDivider.setPadding(DeviceUtils.apiIsLollipopOrHigher() ? 16 : 8, 0,
+                    DeviceUtils.apiIsLollipopOrHigher() ? 16 : 8, 0);
             lineDivider.setImageResource(android.R.color.darker_gray);
             lineDivider.setBackgroundColor(getResources().getColor(R.color.common_background_color));
             mAnswerList.addView(lineDivider);

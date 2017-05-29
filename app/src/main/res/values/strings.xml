@@ -23,10 +23,11 @@
     <string name="additional_text">Дополнительно</string>
     <string name="page_text">страница</string>
     <string name="answers_text">Ответы: </string>
-
+    <string name="kilobytes_shortened">Кб</string>
     <string name="sp_cache_size_code">cache size</string>
     <string name="sp_cache_size_default_value">1024</string>
     <string name="title_activity_settings">Settings</string>
+
 
     <!-- Strings related to Settings -->
 

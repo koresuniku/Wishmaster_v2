@@ -116,19 +116,6 @@ public class UIUtils {
     }
 
     public static void setBarsTranslucent(Activity activity, boolean translucent) {
-//        if (translucent) {
-//            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-////            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-////            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-//            setStatusBarTranslucent(activity, translucent);
-//            setNavigationBarTranslucent(activity, translucent);
-//        } else {
-//            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-////            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-////            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-//
-//        }
-        //activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         setStatusBarTranslucent(activity, translucent);
         setNavigationBarTranslucent(activity, translucent);
     }
@@ -153,52 +140,6 @@ public class UIUtils {
         }
     }
 
-    public static Animation expand(final View v, final boolean expand) {
-        try {
-            Method m = v.getClass().getDeclaredMethod("onMeasure", int.class, int.class);
-            m.setAccessible(true);
-            m.invoke(
-                    v,
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(((View)v.getParent()).getMeasuredWidth(), View.MeasureSpec.AT_MOST)
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        final int initialHeight = v.getMeasuredHeight();
-
-        if (expand) {
-            v.getLayoutParams().height = 0;
-        }
-        else {
-            v.getLayoutParams().height = initialHeight;
-        }
-        v.setVisibility(View.VISIBLE);
-
-        Animation a = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                int newHeight = 0;
-                if (expand) {
-                    newHeight = (int) (initialHeight * interpolatedTime);
-                } else {
-                    newHeight = (int) (initialHeight * (1 - interpolatedTime));
-                }
-                v.getLayoutParams().height = newHeight;
-                v.requestLayout();
-
-                if (interpolatedTime == 1 && !expand)
-                    v.setVisibility(View.GONE);
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-        a.setDuration(250);
-        return a;
-    }
 
 }

@@ -1,7 +1,11 @@
 package com.koresuniku.wishmaster.utils;
 
+import android.content.Context;
+
+import com.koresuniku.wishmaster.R;
+
 public class StringUtils {
-    public static String correctPostsAndFilesString(String posts, String files) {
+    public static String getCorrectPostsAndFilesString(String posts, String files) {
         String result = "Пропущено ";
 
         Integer postsLastNumeral =
@@ -97,7 +101,7 @@ public class StringUtils {
         return result;
     }
 
-    public static String correctNotifyNewPostsString(int count) {
+    public static String getCorrectNotifyNewPostsString(int count) {
         if (count == 0) return "Новых постов нет";
 
         int lastNumber;
@@ -121,5 +125,32 @@ public class StringUtils {
             return count + " новых поста";
         }
         return count + " новых постов";
+    }
+
+    public static String getNumberAndTimeString(String number, String name, String trip, String time) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("№");
+        builder.append(number);
+        builder.append(name.equals("") ? "" : " " + name);
+        builder.append(" ");
+        builder.append(trip.equals("") ? "" : " " + trip);
+        builder.append(" ");
+        builder.append(time);
+
+        return builder.toString();
+    }
+
+    public static String getSummaryString(Context context, String size, String width, String height) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(size);
+        builder.append(context.getString(R.string.kilobytes_shortened));
+        builder.append(", ");
+        builder.append(width);
+        builder.append("x");
+        builder.append(height);
+
+        return builder.toString();
     }
 }

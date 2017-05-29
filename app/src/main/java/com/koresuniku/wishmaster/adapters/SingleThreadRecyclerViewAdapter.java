@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spannable;
@@ -40,7 +39,6 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.ui.text.AnswersLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.views.NoScrollTextView;
-import com.koresuniku.wishmaster.ui.views.SaveStateScrollView;
 import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Formats;
@@ -973,17 +971,17 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private void setImageViewWidthDependingOnOrientation(Configuration configuration, ImageView imageView) {
         //Log.d(LOG_TAG, "setImageViewWidthDependingOnOrientation:");
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            imageView.getLayoutParams().width = DeviceUtils.apiIs20OrHigher() ? 160 : 80;
+            imageView.getLayoutParams().width = DeviceUtils.apiIsLollipopOrHigher() ? 160 : 80;
             imageView.requestLayout();
         } else {
             //Log.d(LOG_TAG, "landscape width");
-            imageView.getLayoutParams().width = DeviceUtils.apiIs20OrHigher() ? 200 : 100;
+            imageView.getLayoutParams().width = DeviceUtils.apiIsLollipopOrHigher() ? 200 : 100;
             imageView.requestLayout();
         }
     }
 
     public void notifyNewPosts(int before, int after) {
-        String toShow = StringUtils.correctNotifyNewPostsString(after - before);
+        String toShow = StringUtils.getCorrectNotifyNewPostsString(after - before);
         if (mActivity.mNewPostsNotifierToast != null) mActivity.mNewPostsNotifierToast.cancel();
         mActivity.mNewPostsNotifierToast = Toast.makeText(mActivity, toShow, Toast.LENGTH_SHORT);
         mActivity.mNewPostsNotifierToast.show();

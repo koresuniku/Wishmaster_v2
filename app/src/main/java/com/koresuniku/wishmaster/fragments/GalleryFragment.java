@@ -810,7 +810,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         Log.d(LOG_TAG, "udpateControlView()");
         mHandler = new Handler();
         overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
-        mHandler.postDelayed(updateProgress, 100);
+        mHandler.postDelayed(updateProgress, 200);
     }
 
     private long minutes;
@@ -836,21 +836,22 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 seekbar.setProgress((int) (videoView.getCurrentPosition() * 100 / videoView.getDuration()));
                 soundSwitcherContainer.bringToFront();
                 soundSwitcherContainer.requestFocusFromTouch();
-                if (previousProgress == videoView.getCurrentPosition()) {
+                if (previousProgress == videoView.getCurrentPosition() && videoView.isPlaying()) {
                     rootView.findViewById(R.id.video_progress_bar).setVisibility(View.VISIBLE);
                 } else rootView.findViewById(R.id.video_progress_bar).setVisibility(View.GONE);
-                previousProgress = videoView.getCurrentPosition();
                 overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
                 if (videoView.getCurrentPosition() == videoView.getDuration()) {
                     completeVideoView();
                 }
+                previousProgress = videoView.getCurrentPosition();
             }
-            if (!onActivityStop) mHandler.postDelayed(this, 100);
+            if (!onActivityStop) mHandler.postDelayed(this, 200);
             if (onActivityStop) {
                 mHandler.removeCallbacks(this);
                 pauseVideoView();
             }
         }
     };
+
 
 }

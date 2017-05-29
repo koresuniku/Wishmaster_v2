@@ -37,10 +37,9 @@
                 android:id="@+id/thread_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left|center"
+                android:layout_gravity="center"
                 android:adjustViewBounds="true"
-                android:maxHeight="150dp"
-                app:srcCompat="@mipmap/ic_launcher" />
+                app:srcCompat="@color/dark_gray" />
 
             <ImageView
                 android:id="@+id/webm_imageview"
@@ -101,8 +100,19 @@
         android:textSize="12sp" />
 
 
-    <include
-        android:id="@+id/threads_page_indicator_view"
-        layout="@layout/threads_page_indicator"
-        android:visibility="gone"></include>
+    <FrameLayout
+        android:id="@+id/page_indicator_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/posts_and_files_info"
+        android:layout_marginTop="@dimen/thread_item_margin_content_divider">
+
+        <include
+            android:id="@+id/threads_page_indicator_view"
+            layout="@layout/threads_page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"></include>
+    </FrameLayout>
+
 </RelativeLayout>

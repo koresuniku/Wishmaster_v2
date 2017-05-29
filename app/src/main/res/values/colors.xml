@@ -11,7 +11,7 @@
     <color name="light_tint_answer">#641d1d1d</color>
     <color name="white_semi_transparent">#64ffffff</color>
     <color name="light_grey">#285e5e5e</color>
-    <color name="dark_grey">#64151515</color>
+    <color name="dark_gray">#64151515</color>
     <color name="post_number_color">#037c03</color>
     <color name="link_background">#2a5bfd</color>
 </resources>

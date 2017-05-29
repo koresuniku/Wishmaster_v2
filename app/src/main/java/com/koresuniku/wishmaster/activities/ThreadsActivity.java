@@ -65,7 +65,6 @@ import com.koresuniku.wishmaster.ui.UIUtils;
 import com.koresuniku.wishmaster.utils.IOUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
-import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
 import com.koresuniku.wishmaster.utils.listeners.ThreadsViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -482,9 +481,11 @@ public class ThreadsActivity extends AppCompatActivity {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    imageLoader.pause();
+                    //imageLoader.pause();
+                    if (mActivity != null) Glide.with(mActivity).pauseRequests();
                 } else {
-                    imageLoader.resume();
+                    //imageLoader.resume();
+                    if (mActivity != null) Glide.with(mActivity).resumeRequests();
                 }
                 if (!fastScrollSeekbarTouchedFromUser) {
                     if (newState != 0) {
@@ -685,7 +686,7 @@ public class ThreadsActivity extends AppCompatActivity {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIs20OrHigher() ? 96 : 48);
+                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48);
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
         }
     }

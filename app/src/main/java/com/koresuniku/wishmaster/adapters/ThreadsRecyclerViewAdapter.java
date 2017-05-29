@@ -5,9 +5,9 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -15,8 +15,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.target.Target;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.SingleThreadActivity;
@@ -34,13 +37,15 @@ import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.Formats;
 import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.utils.StringUtils;
 import com.koresuniku.wishmaster.utils.listeners.ThreadsViewPagerOnPageChangeListener;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecyclerViewAdapter.ViewHolder> {
     private final String LOG_TAG = ThreadsRecyclerViewAdapter.class.getSimpleName();
 
     private ThreadsRecyclerViewAdapter thisAdapter = this;
@@ -131,16 +136,15 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         webmBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.webm);
     }
 
-
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
         switch (viewType) {
             case Constants.ITEM_NO_IMAGES: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.thread_item_no_imagies, parent, false);
+                        .inflate(R.layout.thread_item_no_images, parent, false);
                 return new ViewHolder(view);
             }
             case Constants.ITEM_SINGLE_IMAGE: {
@@ -162,20 +166,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     @Override
-    public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
-        //Log.d(LOG_TAG, "onViewDetachedFromWindow: ");
-
-        System.gc();
-    }
-
-    private void ornutVGolosinu() {
-        Toast toast = Toast.makeText(mActivity, "GIFKA!!!!!!", Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        System.gc();
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         Thread thread = mActivity.mSchema.getThreads().get(position);
 
         final String number = thread.getNum();
@@ -188,17 +179,13 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         String filesCount = thread.getFilesCount();
         List<Files> files = thread.getFiles();
 
-        ((ViewHolder)holder).numberAndTime.setText("№" + number + (name.equals("") ? "" : " "
-                + name) + " " + (trip.equals("") ? "" : " " + trip) + time);
-        if (!boardId.equals("b")) {
-            ((ViewHolder)holder).subject.setText(Html.fromHtml(subject));
-        } else {
-            ((ViewHolder)holder).subject.setVisibility(View.GONE);
-        }
-        if (subject.equals("")) ((ViewHolder)holder).subject.setVisibility(View.GONE);
-        ((ViewHolder)holder).comment.setText(Html.fromHtml(comment));
-        ((ViewHolder)holder).comment.setMovementMethod(LinkMovementMethod.getInstance());
-        ((ViewHolder)holder).postsAndFiles.setText(correctPostsAndFilesString(postsCount, filesCount));
+        holder.numberAndTime.setText(StringUtils.getNumberAndTimeString(number, name, trip, time));
+        if (!boardId.equals("b")) holder.subject.setText(Html.fromHtml(subject));
+        else holder.subject.setVisibility(View.GONE);
+        if (subject.equals("")) holder.subject.setVisibility(View.GONE);
+        holder.comment.setText(Html.fromHtml(comment));
+        holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
+        holder.postsAndFiles.setText(correctPostsAndFilesString(postsCount, filesCount));
 
         String width;
         String height;
@@ -206,54 +193,9 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         String size;
 
         int filesSize = files.size();
-            switch (filesSize) {
-                case 1: {
-                    if (((ViewHolder)holder).imageAndSummaryContainer1 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer1.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer2 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer2.setVisibility(View.GONE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer3 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer3.setVisibility(View.GONE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer4 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer4.setVisibility(View.GONE);
-                    break;
-                }
-                case 2: {
-                    if (((ViewHolder)holder).imageAndSummaryContainer1 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer1.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer2 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer2.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer3 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer3.setVisibility(View.GONE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer4 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer4.setVisibility(View.GONE);
-                    break;
-                }
-                case 3: {
-                    if (((ViewHolder)holder).imageAndSummaryContainer1 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer1.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer2 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer2.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer3 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer3.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer4 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer4.setVisibility(View.GONE);
-                    break;
-                }
-                case 4: {
-                    if (((ViewHolder)holder).imageAndSummaryContainer1 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer1.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer2 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer2.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer3 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer3.setVisibility(View.VISIBLE);
-                    if (((ViewHolder)holder).imageAndSummaryContainer4 != null)
-                        ((ViewHolder)holder).imageAndSummaryContainer4.setVisibility(View.VISIBLE);
-                    break;
-                }
-            }
+        switchImagesVisibility(holder, filesSize);
 
-        for (int i = 0; i < files.size(); i++) {
+        for (int i = 0; i < filesSize; i++) {
             Files file = files.get(i);
 
             width = file.getWidth();
@@ -261,141 +203,32 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             thumbnail = file.getThumbnail();
             size = file.getSize();
 
-            if (file.getPath().substring(file.getPath().length() - 3, file.getPath().length()).equals("gif")) {
-                ornutVGolosinu();
-            } else //Log.d(LOG_TAG, file.getPath().substring(file.getPath().length() - 3, file.getPath().length()));
-
-
             if (files.size() == 1) {
-                setImageViewWidthDependingOnOrientation(
-                        mActivity.getResources().getConfiguration(), ((ViewHolder)holder).image);
-                //mActivity.imageLoader.clearMemoryCache();
-               // mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, ((ViewHolder)holder).image);
-                loadThumbnailPreview(thumbnail, ((ViewHolder)holder).image);
-
-                if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
-                    ((ViewHolder)holder).webmImageView.setVisibility(View.VISIBLE);
-                    ((ViewHolder)holder).webmImageView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showFullPicVid(position, 0);
-                        }
-                    });
-                } else ((ViewHolder)holder).webmImageView.setVisibility(View.GONE);
-                ((ViewHolder)holder).image.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        showFullPicVid(position, 0);
-                    }
-                });
-
-                ((ViewHolder)holder).summary.setText(size + "Кб, " + width + "x" + height);
-//                ((ViewHolder)holder).summary.setLines(((ViewHolder)holder).summary.getLineCount());
+                setupImageContainer(holder, holder.image, holder.webmImageView, (short) 0, holder.summary,
+                        thumbnail, file, size, width, height);
             } else if (files.size() <= 4) {
                 switch (i) {
                     case 0: {
-//                        mActivity.imageLoader.clearMemoryCache();
-//                        mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, ((ViewHolder)holder).image1);
-                        loadThumbnailPreview(thumbnail, ((ViewHolder)holder).image1);
-                        setImageViewWidthDependingOnOrientation(
-                                mActivity.getResources().getConfiguration(), ((ViewHolder)holder).image1);
-                        if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
-                            ((ViewHolder)holder).webmImageView1.setVisibility(View.VISIBLE);
-                            ((ViewHolder)holder).webmImageView1.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    showFullPicVid(position, 0);
-                                }
-                            });
-                        } else ((ViewHolder)holder).webmImageView1.setVisibility(View.GONE);
-                        ((ViewHolder)holder).image1.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                showFullPicVid(position, 0);
-                            }
-                        });
-                        ((ViewHolder)holder).summary1.setText(size + "Кб, " + width + "x" + height);
-                        break;
+                        setupImageContainer(holder, holder.image1, holder.webmImageView1, (short) 0,
+                                holder.summary1, thumbnail, file, size, width, height); break;
                     }
                     case 1: {
-//                        mActivity.imageLoader.clearMemoryCache();
-//                        mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, ((ViewHolder)holder).image2);
-                        loadThumbnailPreview(thumbnail, ((ViewHolder)holder).image2);
-                        setImageViewWidthDependingOnOrientation(
-                                mActivity.getResources().getConfiguration(), ((ViewHolder)holder).image2);
-                        if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
-                            ((ViewHolder)holder).webmImageView2.setVisibility(View.VISIBLE);
-                            ((ViewHolder)holder).webmImageView2.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    showFullPicVid(position, 1);
-                                }
-                            });
-                        } else ((ViewHolder)holder).webmImageView2.setVisibility(View.GONE);
-                        ((ViewHolder)holder).image2.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                showFullPicVid(position, 1);
-                            }
-                        });
-                        ((ViewHolder)holder).summary2.setText(size + "Кб, " + width + "x" + height);
-                        break;
+                        setupImageContainer(holder, holder.image2, holder.webmImageView2, (short) 1,
+                                holder.summary2, thumbnail, file, size, width, height); break;
                     }
                     case 2: {
-//                        mActivity.imageLoader.clearMemoryCache();
-//                        //mActivity.imageLoader.clearDiskCache();
-//                        mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, ((ViewHolder)holder).image3);
-                        loadThumbnailPreview(thumbnail, ((ViewHolder)holder).image3);
-                        setImageViewWidthDependingOnOrientation(
-                                mActivity.getResources().getConfiguration(), ((ViewHolder)holder).image3);
-                        if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
-                            ((ViewHolder)holder).webmImageView3.setVisibility(View.VISIBLE);
-                            ((ViewHolder)holder).webmImageView3.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    showFullPicVid(position, 2);
-                                }
-                            });
-                        } else ((ViewHolder)holder).webmImageView3.setVisibility(View.GONE);
-                        ((ViewHolder)holder).image3.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                showFullPicVid(position, 2);
-                            }
-                        });
-                        ((ViewHolder)holder).summary3.setText(size + "Кб, " + width + "x" + height);
-                        break;
+                        setupImageContainer(holder, holder.image3, holder.webmImageView3, (short) 2,
+                                holder.summary3, thumbnail, file, size, width, height); break;
                     }
                     case 3: {
-//                        mActivity.imageLoader.clearMemoryCache();
-//                        //mActivity.imageLoader.clearDiskCache();
-//                        mActivity.imageLoader.displayImage(Constants.DVACH_BASE_URL + thumbnail, ((ViewHolder)holder).image4);
-                        loadThumbnailPreview(thumbnail, ((ViewHolder)holder).image4);
-                        setImageViewWidthDependingOnOrientation(
-                                mActivity.getResources().getConfiguration(), ((ViewHolder)holder).image4);
-                        if (file.getPath().substring(file.getPath().length() - 4, file.getPath().length()).equals(Formats.WEBM)) {
-                            ((ViewHolder)holder).webmImageView4.setVisibility(View.VISIBLE);
-                            ((ViewHolder)holder).webmImageView4.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    showFullPicVid(position, 3);
-                                }
-                            });
-                        } else ((ViewHolder)holder).webmImageView4.setVisibility(View.GONE);
-                        ((ViewHolder)holder).image4.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                showFullPicVid(position, 3);
-                            }
-                        });
-                        ((ViewHolder)holder).summary4.setText(size + "Кб, " + width + "x" + height);
-                        break;
+                        setupImageContainer(holder, holder.image4, holder.webmImageView4, (short) 3,
+                                holder.summary4, thumbnail, file, size, width, height); break;
                     }
                 }
             }
         }
 
-        ((ViewHolder)holder).threadItemContainer.setOnClickListener(new View.OnClickListener() {
+        holder.threadItemContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mActivity.imageLoader.clearMemoryCache();
@@ -413,11 +246,9 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             }
         });
 
-        ((ViewHolder)holder).comment.setOnClickListener(new View.OnClickListener() {
+        holder.comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.imageLoader.clearMemoryCache();
-                mActivity.imageLoader.clearDiskCache();
                 Intent intent = new Intent(mActivity, SingleThreadActivity.class);
 
                 intent.putExtra(Constants.BOARD_ID, mActivity.boardId);
@@ -432,21 +263,119 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         });
 
         if ((position + 1) % 21 == 0) {
-
             if (position + 1 != mActivity.mSchema.getThreads().size()) {
-                //Log.d(LOG_TAG, "setting textview");
-                ((ViewHolder)holder).indicatorView.setVisibility(View.VISIBLE);
-                ((ViewHolder)holder).indicatorTextView.setText(((position + 1) / 21) + " " + mActivity.getString(R.string.page_text));
-                ((ViewHolder)holder).indicatorTextView.setTypeface(null, Typeface.BOLD);
-            } else ((ViewHolder)holder).indicatorView.setVisibility(View.GONE);
+
+                        holder.indicatorView.setVisibility(View.VISIBLE);
+                        holder.indicatorTextView.setText(((holder.getAdapterPosition() + 1) / 21)
+                                + " " + mActivity.getString(R.string.page_text));
+                        holder.indicatorTextView.setTypeface(null, Typeface.BOLD);
+//                        ((FrameLayout) holder.indicatorView.getParent()).setLayoutParams(
+//                                new RelativeLayout.LayoutParams(
+//                                        RelativeLayout.LayoutParams.MATCH_PARENT,
+//                                        RelativeLayout.LayoutParams.MATCH_PARENT));
+                holder.indicatorView.getLayoutParams().width =
+                        holder.threadItemContainer.getLayoutParams().width;
+
+            } else holder.indicatorView.setVisibility(View.GONE);
         } else {
-            //Log.d(LOG_TAG, "position++: " + position);
-            ((ViewHolder)holder).indicatorView.setVisibility(View.GONE);
+            holder.indicatorView.setVisibility(View.GONE);
         }
 
     }
 
-    private void loadThumbnailPreview(String thumbnail, ImageView image) {
+    private void switchImagesVisibility(ViewHolder holder, int filesSize) {
+        switch (filesSize) {
+            case 1: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.GONE);
+                break;
+            }
+            case 2: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.GONE);
+                break;
+            }
+            case 3: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.GONE);
+                break;
+            }
+            case 4: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.VISIBLE);
+                break;
+            }
+        }
+    }
+
+    private class ThumbnailOnClickListener implements View.OnClickListener {
+        private int threadPosition;
+        private int thumbnailPosition;
+
+        public ThumbnailOnClickListener(int threadPosition, int thumbnailPosition) {
+            this.threadPosition = threadPosition;
+            this.thumbnailPosition = thumbnailPosition;
+        }
+
+        @Override
+        public void onClick(View v) {
+            showFullPicVid(threadPosition, thumbnailPosition);
+        }
+    }
+
+    private void setupImageContainer(ViewHolder holder, ImageView image, ImageView webmImageView,
+                                     short thumbnailPosition, TextView summary, String thumbnail,
+                                     Files file, String imageOrVideoSize, String imageOrVideoWidth,
+                                     String imageOrVideoHeight) {
+
+        loadThumbnailPreview(thumbnail, image, imageOrVideoWidth, imageOrVideoHeight);
+
+        ThumbnailOnClickListener thumbnailOnClickListener =
+                new ThumbnailOnClickListener(holder.getAdapterPosition(), thumbnailPosition);
+
+        if (file.getPath().substring(file.getPath().length() - 4,
+                file.getPath().length()).equals(Formats.WEBM)) {
+            webmImageView.setVisibility(View.VISIBLE);
+            webmImageView.setOnClickListener(thumbnailOnClickListener);
+        } else webmImageView.setVisibility(View.GONE);
+
+        image.setOnClickListener(thumbnailOnClickListener);
+        summary.setText(StringUtils.getSummaryString(mActivity, imageOrVideoSize,
+                imageOrVideoWidth, imageOrVideoHeight));
+    }
+
+    private void loadThumbnailPreview(String thumbnail, final ImageView image,
+                                      final String width, final String height) {
+        setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), image);
+        image.setImageBitmap(null);
+        if (image.getAnimation() != null) image.getAnimation().cancel();
+        //image.setImageResource(R.color.dark_gray);
+        image.setBackgroundColor(mActivity.getResources().getColor(R.color.dark_gray));
+
         Glide.with(mActivity).load(Uri.parse(Constants.DVACH_BASE_URL + thumbnail)).asBitmap()
                 .diskCacheStrategy(DiskCacheStrategy.NONE).listener(new RequestListener<Uri, Bitmap>() {
             @Override
@@ -461,9 +390,28 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             public boolean onResourceReady(Bitmap resource, Uri model,
                                            Target<Bitmap> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
+                Log.d(LOG_TAG, "onResourceReady: ");
+                int widthInt = Integer.parseInt(width);
+                int heightInt = Integer.parseInt(height);
+                float aspectRatio = ((float) widthInt / (float) heightInt);
+                int finalHeight = Math.round(image.getLayoutParams().width / aspectRatio);
+                Log.d(LOG_TAG, "aspect ratio: " + aspectRatio);
+                if (image.getAnimation() == null) {
+                    image.setAnimation(com.koresuniku.wishmaster.utils.AnimationUtils.resizeThumbnail(
+                            image, resource,  image.getHeight(), finalHeight));
+                }
+
+                image.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (image.getAnimation() != null) image.startAnimation(image.getAnimation());
+                    }
+                });
                 return false;
             }
         }).into(image);
+
+
     }
 
     @Override
@@ -530,13 +478,19 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     private void setImageViewWidthDependingOnOrientation(
-            Configuration configuration, ImageView imageView) {
+            Configuration configuration, ImageView image) {
+
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            imageView.getLayoutParams().width = DeviceUtils.apiIs20OrHigher() ? 160 : 80;
-            imageView.requestLayout();
+            image.getLayoutParams().width = DeviceUtils.apiIsLollipopOrHigher() ? 160 : 80;
+
+            image.getLayoutParams().height =
+                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_square_default_size);
+            image.requestLayout();
         } else {
-            imageView.getLayoutParams().width = DeviceUtils.apiIs20OrHigher() ? 200 : 100;
-            imageView.requestLayout();
+            image.getLayoutParams().width = DeviceUtils.apiIsLollipopOrHigher() ? 200 : 100;
+            image.getLayoutParams().height =
+                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_square_default_size);
+            image.requestLayout();
         }
     }
 
