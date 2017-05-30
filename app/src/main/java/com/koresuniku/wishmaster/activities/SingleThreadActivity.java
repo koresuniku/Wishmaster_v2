@@ -52,7 +52,7 @@ import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
 import com.koresuniku.wishmaster.http.single_thread_api.SingleThreadApiService;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
-import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.ui.text.AnswersLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.views.FixedRecyclerView;
@@ -165,7 +165,7 @@ public class SingleThreadActivity extends AppCompatActivity {
             .build();
 
     SingleThreadApiService service = retrofit.create(SingleThreadApiService.class);
-    public static List<Post> mPosts;
+    public List<Post> mPosts;
 
 
     @Override
@@ -222,8 +222,8 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (Constants.API_INT >= 19) {
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
-                UIUtils.showSystemUIExceptNavigationBar(this);
-            } else UIUtils.showSystemUI(this);
+                UiUtils.showSystemUIExceptNavigationBar(this);
+            } else UiUtils.showSystemUI(this);
         }
     }
 
@@ -231,14 +231,14 @@ public class SingleThreadActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.d(LOG_TAG, "onConfigurationChanged:");
-        UIUtils.setupToolbarForNavigationBar(this, picVidToolbar);
+        UiUtils.setupToolbarForNavigationBar(this, picVidToolbar);
         if (Constants.API_INT >= 19) {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                UIUtils.showSystemUIExceptNavigationBar(this);
-            } else UIUtils.showSystemUI(this);
+                UiUtils.showSystemUIExceptNavigationBar(this);
+            } else UiUtils.showSystemUI(this);
             if (fullPicVidOpenedAndFullScreenModeIsOn) {
-                UIUtils.hideSystemUI(mActivity);
-                UIUtils.barsAreShown = false;
+                UiUtils.hideSystemUI(mActivity);
+                UiUtils.barsAreShown = false;
             }
         }
 
@@ -316,10 +316,10 @@ public class SingleThreadActivity extends AppCompatActivity {
     private void setupPicVidToolbar() {
         picVidToolbar = (Toolbar) findViewById(R.id.picvid_toolbar);
         picVidToolbar.inflateMenu(R.menu.picvid_toolbar_menu);
-        UIUtils.tintMenuIcons(this, picVidToolbar.getMenu());
+        UiUtils.tintMenuIcons(this, picVidToolbar.getMenu());
         fullPicVidContainer = (FrameLayout) findViewById(R.id.threads_full_picvid_container);
         fullPicVidContainer.setVisibility(GONE);
-        UIUtils.setupToolbarForNavigationBar(this, picVidToolbar);
+        UiUtils.setupToolbarForNavigationBar(this, picVidToolbar);
         picVidToolbarExitImageView = ((ImageView) picVidToolbar.findViewById(R.id.exit_icon));
         picVidToolbarExitImageView.setImageResource(R.drawable.ic_arrow_back_black_24dp);
         picVidToolbarExitImageView.setOnClickListener(new View.OnClickListener() {
@@ -500,7 +500,7 @@ public class SingleThreadActivity extends AppCompatActivity {
     }
 
     private void setupFullscreenMode() {
-        if (Constants.API_INT >= 19) UIUtils.showSystemUI(this);
+        if (Constants.API_INT >= 19) UiUtils.showSystemUI(this);
     }
 
     private void fixRefreshLayoutOnOrientation() {
@@ -567,7 +567,7 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48);
+                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
             if (singleThreadRefreshLayoutTop != null) {
                 singleThreadRefreshLayoutTop.requestLayout();
@@ -685,18 +685,18 @@ public class SingleThreadActivity extends AppCompatActivity {
             System.gc();
 
             if (Constants.API_INT >= 19) {
-                UIUtils.showSystemUI(mActivity);
-                UIUtils.barsAreShown = true;
+                UiUtils.showSystemUI(mActivity);
+                UiUtils.barsAreShown = true;
                 mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
                 if (answerOpened) {
-                    UIUtils.setStatusBarTranslucent(this, true);
-                    UIUtils.setNavigationBarTranslucent(this, false);
-                } else UIUtils.setBarsTranslucent(this, false);
+                    UiUtils.setStatusBarTranslucent(this, true);
+                    UiUtils.setNavigationBarTranslucent(this, false);
+                } else UiUtils.setBarsTranslucent(this, false);
             }
 
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
-                UIUtils.showSystemUIExceptNavigationBar(this);
+                UiUtils.showSystemUIExceptNavigationBar(this);
             }
             return;
         }
@@ -753,33 +753,33 @@ public class SingleThreadActivity extends AppCompatActivity {
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             if (DeviceUtils.getApiInt() >= 19) {
                 findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.apiIsLollipopOrHigher() ? 48 : 24,
-                        0, DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48);
+                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 : 24,
+                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
 
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.CENTER;
                 params.setMargins(
-                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 24,
-                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 25);
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 24,
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25);
                 mAnswerLayout.setLayoutParams(params);
                 mAnswerLayout.requestLayout();
             }
         } else {
             if (DeviceUtils.getApiInt() >= 19) {
                 findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.apiIsLollipopOrHigher() ? 48 : 24, 0, 0);
+                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 : 24, 0, 0);
 
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.CENTER;
                 params.setMargins(
-                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 25,
-                        DeviceUtils.apiIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.apiIsLollipopOrHigher() ? 50 : 25);
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25,
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25);
                 mAnswerLayout.setLayoutParams(params);
                 mAnswerLayout.requestLayout();
             }
@@ -791,7 +791,7 @@ public class SingleThreadActivity extends AppCompatActivity {
     }
 
     public void showAnswer(String postNumberToGo, String postNumberFrom) {
-        if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
+        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, true);
 
         int position = -1;
         for (Post post : mPosts) {
@@ -829,7 +829,7 @@ public class SingleThreadActivity extends AppCompatActivity {
 
     public void showAnswerList(String postNumberFrom) {
 
-        if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, true);
+        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, true);
 
         List<String> answersNumbers = adapter.mAnswers.get(postNumberFrom);
         List<Integer> answersPositions = new ArrayList<>();
@@ -867,10 +867,10 @@ public class SingleThreadActivity extends AppCompatActivity {
             lineDivider = new ImageView(mActivity);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.height = DeviceUtils.apiIsLollipopOrHigher() ? 2 : 1;
+            params.height = DeviceUtils.sdkIsLollipopOrHigher() ? 2 : 1;
             lineDivider.setLayoutParams(params);
-            lineDivider.setPadding(DeviceUtils.apiIsLollipopOrHigher() ? 16 : 8, 0,
-                    DeviceUtils.apiIsLollipopOrHigher() ? 16 : 8, 0);
+            lineDivider.setPadding(DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0,
+                    DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0);
             lineDivider.setImageResource(android.R.color.darker_gray);
             lineDivider.setBackgroundColor(getResources().getColor(R.color.common_background_color));
             mAnswerList.addView(lineDivider);
@@ -924,7 +924,7 @@ public class SingleThreadActivity extends AppCompatActivity {
     private void closeAnswerViews() {
         answerOpened = false;
         adapter.notifySingleView = false;
-        if (DeviceUtils.getApiInt() >= 19) UIUtils.setStatusBarTranslucent(mActivity, false);
+        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, false);
         mAnswerViews = new ArrayList<>();
         //mAnswerLayout.removeAllViews();
         mAnswersScrollStates = new ArrayList<>();

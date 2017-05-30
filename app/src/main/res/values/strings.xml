@@ -27,6 +27,7 @@
     <string name="sp_cache_size_code">cache size</string>
     <string name="sp_cache_size_default_value">1024</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="noname_text">noname.hz</string>
 
 
     <!-- Strings related to Settings -->

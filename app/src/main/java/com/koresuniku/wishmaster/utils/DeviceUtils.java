@@ -14,7 +14,7 @@ public class DeviceUtils {
         boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
         return !hasMenuKey && !hasBackKey;
     }
-    public static boolean apiIsLollipopOrHigher() { return Build.VERSION.SDK_INT >= 20; }
+    public static boolean sdkIsLollipopOrHigher() { return Build.VERSION.SDK_INT >= 20; }
 
-    public static boolean apiIsKitkatOrHigher() { return Build.VERSION.SDK_INT >= 19; }
+    public static boolean sdkIsKitkatOrHigher() { return Build.VERSION.SDK_INT >= 19; }
 }

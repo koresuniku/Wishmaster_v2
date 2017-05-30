@@ -1,8 +1,14 @@
 package com.koresuniku.wishmaster.utils;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.widget.TextView;
 
 import com.koresuniku.wishmaster.R;
+import com.koresuniku.wishmaster.activities.ThreadsActivity;
+import com.koresuniku.wishmaster.http.threads_api.models.Files;
+
+import java.util.List;
 
 public class StringUtils {
     public static String getCorrectPostsAndFilesString(String posts, String files) {
@@ -10,7 +16,7 @@ public class StringUtils {
 
         Integer postsLastNumeral =
                 Integer.parseInt(posts.substring(posts.length() - 1, posts.length()));
-        Integer filesLastNUmeral =
+        Integer filesLastNumeral =
                 Integer.parseInt(files.substring(files.length() - 1, files.length()));
 
         switch (postsLastNumeral) {
@@ -56,7 +62,7 @@ public class StringUtils {
             }
         }
 
-        switch (filesLastNUmeral) {
+        switch (filesLastNumeral) {
             case 0: {
                 result += files + " файлов";
                 break;
@@ -127,6 +133,7 @@ public class StringUtils {
         return count + " новых постов";
     }
 
+    @NonNull
     public static String getNumberAndTimeString(String number, String name, String trip, String time) {
         StringBuilder builder = new StringBuilder();
 
@@ -141,6 +148,7 @@ public class StringUtils {
         return builder.toString();
     }
 
+    @NonNull
     public static String getSummaryString(Context context, String size, String width, String height) {
         StringBuilder builder = new StringBuilder();
 
@@ -150,6 +158,26 @@ public class StringUtils {
         builder.append(width);
         builder.append("x");
         builder.append(height);
+
+        return builder.toString();
+    }
+
+    public static String getShortInfoForToolbarString(
+            TextView mediaToolbarTitleTextView, int thumbnailPosition, List<Files> files) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("(");
+        builder.append(thumbnailPosition + 1);
+        builder.append("/");
+        builder.append(files.size());
+        builder.append("), ");
+        builder.append(files.get(thumbnailPosition).getWidth());
+        builder.append("x");
+        builder.append(files.get(thumbnailPosition).getHeight());
+        builder.append(", ");
+        builder.append(files.get(thumbnailPosition).getSize());
+        builder.append(" ");
+        builder.append(mediaToolbarTitleTextView.getContext().getString(R.string.kilobytes_shortened));
 
         return builder.toString();
     }

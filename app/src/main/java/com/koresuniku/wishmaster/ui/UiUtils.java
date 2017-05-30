@@ -13,18 +13,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.ImageView;
 
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.ThreadsActivity;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 
-import java.lang.reflect.Method;
-
-public class UIUtils {
-    private static final String LOG_TAG = UIUtils.class.getSimpleName();
+public class UiUtils {
+    private static final String LOG_TAG = UiUtils.class.getSimpleName();
 
     public static boolean barsAreShown = true;
 

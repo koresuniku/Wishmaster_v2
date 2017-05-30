@@ -25,7 +25,7 @@
             android:text="number and time" />
 
         <FrameLayout
-            android:id="@+id/image_container"
+            android:id="@+id/image_container_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
@@ -57,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/image_container"
+            android:layout_below="@+id/image_container_1"
             android:layout_gravity="top"
             android:layout_toLeftOf="@+id/thread_comment"
             android:gravity="top|center"
@@ -81,8 +81,8 @@
             android:layout_marginLeft="@dimen/thread_item_padding_horizontal"
             android:layout_marginStart="@dimen/thread_item_padding_horizontal"
             android:layout_marginTop="@dimen/thread_item_margin_content_divider"
-            android:layout_toEndOf="@+id/image_container"
-            android:layout_toRightOf="@+id/image_container"
+            android:layout_toEndOf="@+id/image_container_1"
+            android:layout_toRightOf="@+id/image_container_1"
             android:lines="6"
             android:text="comment"
             android:textAppearance="@style/TextAppearance.AppCompat" />

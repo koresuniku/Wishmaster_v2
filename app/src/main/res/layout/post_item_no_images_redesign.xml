@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/post_item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/thread_item_padding_vertical"
+    android:paddingLeft="@dimen/thread_item_padding_horizontal"
+    android:paddingRight="@dimen/thread_item_padding_horizontal"
+    android:paddingTop="@dimen/thread_item_padding_vertical">
+
+    <TextView
+        android:id="@+id/post_subject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="subject"
+        android:textColor="@color/subject_color"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/post_number_and_time_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/post_subject"
+        android:text="number and time" />
+
+    <com.koresuniku.wishmaster.ui.views.NoScrollTextView
+        android:id="@+id/post_comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/post_number_and_time_info"
+        android:layout_marginTop="@dimen/thread_item_margin_content_divider"
+        android:layout_toEndOf="@+id/image_container_1"
+        android:layout_toRightOf="@+id/image_container_1"
+        android:maxLines="6"
+        android:text="comment"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <com.koresuniku.wishmaster.ui.views.NoScrollTextView
+        android:id="@+id/answers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/thread_comment"
+        android:lineSpacingExtra="2sp"
+        android:text="Answers: 1488666, 2284247"
+        android:textSize="13sp" />
+
+
+</RelativeLayout>

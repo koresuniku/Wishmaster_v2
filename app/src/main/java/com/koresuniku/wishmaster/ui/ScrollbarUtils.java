@@ -13,14 +13,14 @@ public class ScrollbarUtils {
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            params.setMargins(0, DeviceUtils.apiIsLollipopOrHigher() ? 48 + 112 : 24 + 56,
+            params.setMargins(0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 + 112 : 24 + 56,
                     0, DeviceUtils.deviceHasNavigationBar(activity) ? 96 : 0);
             params.gravity = Gravity.END;
             container.setLayoutParams(params);
         } else {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT);
-            params.setMargins(0, DeviceUtils.apiIsLollipopOrHigher() ? 48 + 96 : 24 + 48, 0, 0);
+            params.setMargins(0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 + 96 : 24 + 48, 0, 0);
             params.gravity = Gravity.END;
             container.setLayoutParams(params);
         }

@@ -57,7 +57,7 @@ import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Formats;
-import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
 import com.koresuniku.wishmaster.utils.listeners.OnImageEventListener;
@@ -428,7 +428,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             }
         }
 
-        controlViewContainer.setVisibility(UIUtils.barsAreShown ? View.VISIBLE : View.GONE);
+        controlViewContainer.setVisibility(UiUtils.barsAreShown ? View.VISIBLE : View.GONE);
         controlViewContainer.bringToFront();
 
         initControlChildViews(firstTime);
@@ -613,7 +613,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private void showOrHideControlView() {
         Log.d(LOG_TAG, "showOrHideControlView: ");
         if (controlViewContainer != null) {
-            if (UIUtils.barsAreShown) controlViewContainer.setVisibility(View.GONE);
+            if (UiUtils.barsAreShown) controlViewContainer.setVisibility(View.GONE);
             else controlViewContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -626,13 +626,13 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private View.OnClickListener videoOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            controlViewContainer.startAnimation(UIUtils.barsAreShown ? animCollapseControls : animExpandControls);
+            controlViewContainer.startAnimation(UiUtils.barsAreShown ? animCollapseControls : animExpandControls);
             changeUiVisibility();
         }
     };
 
     private void changeUiVisibility() {
-        Log.d(LOG_TAG, "barsAreShown: " + UIUtils.barsAreShown);
+        Log.d(LOG_TAG, "barsAreShown: " + UiUtils.barsAreShown);
 
         if (mActivity instanceof ThreadsActivity) {
             for (GalleryFragment fragment : ThreadsActivity.galleryFragments.values()) {
@@ -646,13 +646,13 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             }
         }
 
-        if (UIUtils.barsAreShown) performHideBars();
+        if (UiUtils.barsAreShown) performHideBars();
         else performShowBars();
     }
 
     private void performShowBars() {
         if (Constants.API_INT >= 19) {
-            UIUtils.showSystemUI(mActivity);
+            UiUtils.showSystemUI(mActivity);
             if (mActivity instanceof ThreadsActivity) {
                 ((ThreadsActivity) mActivity).fullPicVidOpenedAndFullScreenModeIsOn = false;
                 ((ThreadsActivity) mActivity).picVidToolbarContainer.startAnimation(animExpandActionBar);
@@ -662,7 +662,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 ((SingleThreadActivity) mActivity).picVidToolbarContainer.startAnimation(animExpandActionBar);
             }
         }
-        UIUtils.barsAreShown = true;
+        UiUtils.barsAreShown = true;
     }
 
     private void performHideBars() {
@@ -670,7 +670,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             Log.i(LOG_TAG, "picvid view clicked: ");
 
             if (player == null) {
-                UIUtils.hideSystemUI(mActivity);
+                UiUtils.hideSystemUI(mActivity);
                 if (mActivity instanceof ThreadsActivity) {
                     ((ThreadsActivity) mActivity).fullPicVidOpenedAndFullScreenModeIsOn = true;
                     ((ThreadsActivity) mActivity).picVidToolbarContainer.startAnimation(animCollapseActionBar);
@@ -699,7 +699,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                                 return;
                             }
                         }
-                        UIUtils.hideSystemUI(mActivity);
+                        UiUtils.hideSystemUI(mActivity);
                         if (mActivity instanceof ThreadsActivity) {
                             ((ThreadsActivity) mActivity).fullPicVidOpenedAndFullScreenModeIsOn = true;
                             if (videoView != null) {
@@ -720,7 +720,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 }.execute();
             }
         }
-        UIUtils.barsAreShown = false;
+        UiUtils.barsAreShown = false;
     }
 
     @Override

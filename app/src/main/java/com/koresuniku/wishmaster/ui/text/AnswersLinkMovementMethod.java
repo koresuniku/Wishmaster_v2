@@ -81,7 +81,7 @@ public class AnswersLinkMovementMethod extends LinkMovementMethod {
                 Log.d(TAG, "action_up");
                 allowActionCancel = false;
                 mActivity.showAnswer(String.valueOf(buffer.subSequence(begin, end)),
-                        SingleThreadActivity.mPosts.get(mPosition).getNum());
+                        mActivity.mPosts.get(mPosition).getNum());
                 //mActivity.showAnswerList(SingleThreadActivity.mPosts.get(mPosition).getNum());
             }
         }

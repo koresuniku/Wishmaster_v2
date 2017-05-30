@@ -89,10 +89,10 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
                 if (String.valueOf(buffer).contains("(OP)")) {
                     Log.d(TAG, "is to op ");
                     mActivity.showAnswer(String.valueOf(buffer.subSequence(begin, end - 5)),
-                            SingleThreadActivity.mPosts.get(mPosition).getNum());
+                            mActivity.mPosts.get(mPosition).getNum());
                 } else {
                     mActivity.showAnswer(String.valueOf(buffer.subSequence(begin, end)),
-                            SingleThreadActivity.mPosts.get(mPosition).getNum());
+                            mActivity.mPosts.get(mPosition).getNum());
                 }
             }
         }
@@ -120,7 +120,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
 
     private boolean answerIsToOp(Spannable buffer, int begin, int end) {
         return String.valueOf(buffer.subSequence(begin, end))
-                .equals(SingleThreadActivity.mPosts.get(0).getNum());
+                .equals(mActivity.mPosts.get(0).getNum());
     }
 
     private void locateAnswersToBeColored(Spannable buffer) {

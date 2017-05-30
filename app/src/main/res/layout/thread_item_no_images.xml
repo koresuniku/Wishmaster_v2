@@ -25,19 +25,6 @@
             android:text="number and time" />
 
         <TextView
-            android:id="@+id/image_summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/image_container"
-            android:layout_gravity="top"
-            android:layout_toLeftOf="@+id/thread_comment"
-            android:gravity="top|center"
-            android:text="summary"
-            android:textSize="10sp" />
-
-        <TextView
             android:id="@+id/thread_subject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,8 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/thread_number_and_time_info"
             android:layout_marginTop="@dimen/thread_item_margin_content_divider"
-            android:layout_toEndOf="@+id/image_container"
-            android:layout_toRightOf="@+id/image_container"
+            android:layout_toEndOf="@+id/image_container_1"
+            android:layout_toRightOf="@+id/image_container_1"
             android:lines="6"
             android:text="comment"
             android:textAppearance="@style/TextAppearance.AppCompat" />
@@ -81,7 +68,9 @@
             layout="@layout/threads_page_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="gone"></include>
+            android:visibility="gone">
+
+        </include>
 
     </FrameLayout>
 

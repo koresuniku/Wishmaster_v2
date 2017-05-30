@@ -1,11 +1,11 @@
 package com.koresuniku.wishmaster.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
@@ -15,18 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.SizeReadyCallback;
 import com.bumptech.glide.request.target.Target;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.SingleThreadActivity;
@@ -36,14 +31,13 @@ import com.koresuniku.wishmaster.http.threads_api.models.Thread;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.Formats;
-import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.utils.StringUtils;
 import com.koresuniku.wishmaster.utils.listeners.ThreadsViewPagerOnPageChangeListener;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
 
 public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecyclerViewAdapter.ViewHolder> {
     private final String LOG_TAG = ThreadsRecyclerViewAdapter.class.getSimpleName();
@@ -185,7 +179,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         if (subject.equals("")) holder.subject.setVisibility(View.GONE);
         holder.comment.setText(Html.fromHtml(comment));
         holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
-        holder.postsAndFiles.setText(correctPostsAndFilesString(postsCount, filesCount));
+        holder.postsAndFiles.setText(StringUtils.getCorrectPostsAndFilesString(postsCount, filesCount));
 
         String width;
         String height;
@@ -264,18 +258,12 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
 
         if ((position + 1) % 21 == 0) {
             if (position + 1 != mActivity.mSchema.getThreads().size()) {
-
-                        holder.indicatorView.setVisibility(View.VISIBLE);
-                        holder.indicatorTextView.setText(((holder.getAdapterPosition() + 1) / 21)
-                                + " " + mActivity.getString(R.string.page_text));
-                        holder.indicatorTextView.setTypeface(null, Typeface.BOLD);
-//                        ((FrameLayout) holder.indicatorView.getParent()).setLayoutParams(
-//                                new RelativeLayout.LayoutParams(
-//                                        RelativeLayout.LayoutParams.MATCH_PARENT,
-//                                        RelativeLayout.LayoutParams.MATCH_PARENT));
+                holder.indicatorView.setVisibility(View.VISIBLE);
+                holder.indicatorTextView.setText(((holder.getAdapterPosition() + 1) / 21)
+                        + " " + mActivity.getString(R.string.page_text));
+                holder.indicatorTextView.setTypeface(null, Typeface.BOLD);
                 holder.indicatorView.getLayoutParams().width =
                         holder.threadItemContainer.getLayoutParams().width;
-
             } else holder.indicatorView.setVisibility(View.GONE);
         } else {
             holder.indicatorView.setVisibility(View.GONE);
@@ -373,7 +361,6 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         setImageViewWidthDependingOnOrientation(mActivity.getResources().getConfiguration(), image);
         image.setImageBitmap(null);
         if (image.getAnimation() != null) image.getAnimation().cancel();
-        //image.setImageResource(R.color.dark_gray);
         image.setBackgroundColor(mActivity.getResources().getColor(R.color.dark_gray));
 
         Glide.with(mActivity).load(Uri.parse(Constants.DVACH_BASE_URL + thumbnail)).asBitmap()
@@ -387,24 +374,21 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
             }
 
             @Override
-            public boolean onResourceReady(Bitmap resource, Uri model,
+            public boolean onResourceReady(final Bitmap resource, Uri model,
                                            Target<Bitmap> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
                 Log.d(LOG_TAG, "onResourceReady: ");
                 int widthInt = Integer.parseInt(width);
                 int heightInt = Integer.parseInt(height);
                 float aspectRatio = ((float) widthInt / (float) heightInt);
-                int finalHeight = Math.round(image.getLayoutParams().width / aspectRatio);
+                final int finalHeight = Math.round(image.getLayoutParams().width / aspectRatio);
                 Log.d(LOG_TAG, "aspect ratio: " + aspectRatio);
-                if (image.getAnimation() == null) {
-                    image.setAnimation(com.koresuniku.wishmaster.utils.AnimationUtils.resizeThumbnail(
-                            image, resource,  image.getHeight(), finalHeight));
-                }
 
                 image.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (image.getAnimation() != null) image.startAnimation(image.getAnimation());
+                       image.startAnimation(com.koresuniku.wishmaster.utils.AnimationUtils.resizeThumbnail(
+                                image, resource,  image.getHeight(), finalHeight));
                     }
                 });
                 return false;
@@ -437,17 +421,22 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
     }
 
 
+    @SuppressLint("UseSparseArrays")
     private void showFullPicVid(final int threadPosition, final int thumbnailPosition) {
-        if (DeviceUtils.getApiInt() >= 19) UIUtils.showSystemUI(mActivity);
-        if (DeviceUtils.getApiInt() >= 19) UIUtils.setBarsTranslucent(mActivity, true);
+        if (DeviceUtils.sdkIsKitkatOrHigher()) {
+            UiUtils.showSystemUI(mActivity);
+            UiUtils.setBarsTranslucent(mActivity, true);
+        }
+
         mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
         mActivity.picVidToolbarContainer.setVisibility(View.VISIBLE);
         mActivity.fullPicVidOpened = true;
 
         ThreadsActivity.files = mActivity.mSchema.getThreads().get(threadPosition).getFiles();
         ThreadsActivity.imageCachePaths = new ArrayList<>();
+        ThreadsActivity.galleryFragments = new HashMap<>();
 
-        UIUtils.barsAreShown = true;
+        UiUtils.barsAreShown = true;
 
         mActivity.picVidPagerAdapter = new PicVidPagerAdapter(
                 mActivity.getSupportFragmentManager(),
@@ -463,133 +452,31 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
 
         String displayName = ThreadsActivity.files.get(thumbnailPosition).getDisplayName();
         if (displayName == null || displayName.equals("") || displayName.equals(" ")) {
-            mActivity.picVidToolbarTitleTextView.setText("noname.hz");
+            mActivity.picVidToolbarTitleTextView.setText(mActivity.getString(R.string.noname_text));
         } else {
             mActivity.picVidToolbarTitleTextView.setText(displayName);
         }
         mActivity.picVidToolbarTitleTextView.setTypeface(Typeface.DEFAULT_BOLD);
         mActivity.picVidToolbarTitleTextView.setTextSize(16.0f);
-        mActivity.picVidToolbarShortInfoTextView.setText("(" + (thumbnailPosition + 1) + "/"
-        + ThreadsActivity.files.size() + "), " + ThreadsActivity.files.get(thumbnailPosition).getWidth() + "x"
-        + ThreadsActivity.files.get(thumbnailPosition).getHeight() + ", "
-                + ThreadsActivity.files.get(thumbnailPosition).getSize() + " кб");
-
-
+        mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
+                mActivity.picVidToolbarShortInfoTextView, thumbnailPosition, ThreadsActivity.files));
     }
 
     private void setImageViewWidthDependingOnOrientation(
             Configuration configuration, ImageView image) {
-
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            image.getLayoutParams().width = DeviceUtils.apiIsLollipopOrHigher() ? 160 : 80;
-
+            image.getLayoutParams().width =
+                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_vertical);
             image.getLayoutParams().height =
-                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_square_default_size);
+                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_vertical);
             image.requestLayout();
         } else {
-            image.getLayoutParams().width = DeviceUtils.apiIsLollipopOrHigher() ? 200 : 100;
+            image.getLayoutParams().width =
+                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_horizontal);
             image.getLayoutParams().height =
-                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_square_default_size);
+                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_horizontal);
             image.requestLayout();
         }
-    }
-
-
-
-    private String correctPostsAndFilesString(String posts, String files) {
-        String result = "Пропущено ";
-
-        Integer postsLastNumeral =
-                Integer.parseInt(posts.substring(posts.length() - 1, posts.length()));
-        Integer filesLastNUmeral =
-                Integer.parseInt(files.substring(files.length() - 1, files.length()));
-
-        switch (postsLastNumeral) {
-            case 0: {
-                result += posts + " постов, ";
-                break;
-            }
-            case 1: {
-                result += posts + " пост, ";
-                break;
-            }
-            case 2: {
-                result += posts + " поста, ";
-                break;
-            }
-            case 3: {
-                result += posts + " поста, ";
-                break;
-            }
-            case 4: {
-                result += posts + " поста, ";
-                break;
-            }
-            case 5: {
-                result += posts + " постов, ";
-                break;
-            }
-            case 6: {
-                result += posts + " постов, ";
-                break;
-            }
-            case 7: {
-                result += posts + " постов, ";
-                break;
-            }
-            case 8: {
-                result += posts + " постов, ";
-                break;
-            }
-            case 9: {
-                result += posts + " постов, ";
-                break;
-            }
-        }
-
-        switch (filesLastNUmeral) {
-            case 0: {
-                result += files + " файлов";
-                break;
-            }
-            case 1: {
-                result += files + " файл";
-                break;
-            }
-            case 2: {
-                result += files + " файла";
-                break;
-            }
-            case 3: {
-                result += files + " файла";
-                break;
-            }
-            case 4: {
-                result += files + " файла";
-                break;
-            }
-            case 5: {
-                result += files + " файлов";
-                break;
-            }
-            case 6: {
-                result += files + " файлов";
-                break;
-            }
-            case 7: {
-                result += files + " файлов";
-                break;
-            }
-            case 8: {
-                result += files + " файлов";
-                break;
-            }
-            case 9: {
-                result += files + " файлов";
-                break;
-            }
-        }
-        return result;
     }
 
 }

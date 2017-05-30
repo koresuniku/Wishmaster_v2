@@ -21,7 +21,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/post_subject"
+                android:id="@+id/thread_subject"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="subject"
@@ -30,7 +30,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/post_number_and_time_info"
+                android:id="@+id/thread_number_and_time_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"

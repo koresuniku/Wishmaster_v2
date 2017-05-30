@@ -91,7 +91,6 @@ public class AnimationUtils {
 
             }
 
-
             @Override
             public boolean willChangeBounds() {
                 return true;

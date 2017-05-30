@@ -61,7 +61,7 @@ import com.koresuniku.wishmaster.adapters.ThreadsRecyclerViewAdapter;
 import com.koresuniku.wishmaster.http.threads_api.ThreadsApiService;
 import com.koresuniku.wishmaster.http.threads_api.models.ThreadsJsonSchema;
 import com.koresuniku.wishmaster.utils.Constants;
-import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.utils.IOUtils;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
 import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
@@ -215,8 +215,8 @@ public class ThreadsActivity extends AppCompatActivity {
         if (Constants.API_INT >= 19) {
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
-                UIUtils.showSystemUIExceptNavigationBar(this);
-            } else UIUtils.showSystemUI(this);
+                UiUtils.showSystemUIExceptNavigationBar(this);
+            } else UiUtils.showSystemUI(this);
         }
     }
 
@@ -228,14 +228,14 @@ public class ThreadsActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.d(LOG_TAG, "onConfigurationChanged:");
-        UIUtils.setupToolbarForNavigationBar(this, picVidToolbar);
+        UiUtils.setupToolbarForNavigationBar(this, picVidToolbar);
         if (Constants.API_INT >= 19) {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                UIUtils.showSystemUIExceptNavigationBar(this);
-            } else UIUtils.showSystemUI(this);
+                UiUtils.showSystemUIExceptNavigationBar(this);
+            } else UiUtils.showSystemUI(this);
             if (fullPicVidOpenedAndFullScreenModeIsOn) {
-                UIUtils.hideSystemUI(mActivity);
-                UIUtils.barsAreShown = false;
+                UiUtils.hideSystemUI(mActivity);
+                UiUtils.barsAreShown = false;
             }
         }
 
@@ -308,10 +308,10 @@ public class ThreadsActivity extends AppCompatActivity {
     private void setupPicVidToolbar() {
         picVidToolbar = (Toolbar) findViewById(R.id.picvid_toolbar);
         picVidToolbar.inflateMenu(R.menu.picvid_toolbar_menu);
-        UIUtils.tintMenuIcons(this, picVidToolbar.getMenu());
+        UiUtils.tintMenuIcons(this, picVidToolbar.getMenu());
         fullPicVidContainer = (FrameLayout) findViewById(R.id.threads_full_picvid_container);
         fullPicVidContainer.setVisibility(View.GONE);
-        UIUtils.setupToolbarForNavigationBar(this, picVidToolbar);
+        UiUtils.setupToolbarForNavigationBar(this, picVidToolbar);
         picVidToolbarExitImageView = ((ImageView) picVidToolbar.findViewById(R.id.exit_icon));
         picVidToolbarExitImageView.setImageResource(R.drawable.ic_arrow_back_black_24dp);
         picVidToolbarExitImageView.setOnClickListener(new View.OnClickListener() {
@@ -539,7 +539,7 @@ public class ThreadsActivity extends AppCompatActivity {
     }
 
     private void setupFullscreenMode() {
-        if (Constants.API_INT >= 19) UIUtils.showSystemUI(this);
+        if (Constants.API_INT >= 19) UiUtils.showSystemUI(this);
     }
 
     @Override
@@ -587,21 +587,21 @@ public class ThreadsActivity extends AppCompatActivity {
             //App.fixLeakCanary696(getApplicationContext());
             System.gc();
 
-            UIUtils.setBarsTranslucent(this, false);
+            UiUtils.setBarsTranslucent(this, false);
 
-            if (!UIUtils.barsAreShown) {
+            if (!UiUtils.barsAreShown) {
                 if (Constants.API_INT >= 19) {
                     Log.d(LOG_TAG, "im here, bars arent shown");
-                    UIUtils.showSystemUI(mActivity);
+                    UiUtils.showSystemUI(mActivity);
                     mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
                     //appBarLayout.startAnimation(animExpandActionBar);
                 }
-                UIUtils.barsAreShown = true;
+                UiUtils.barsAreShown = true;
             }
 
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
-                UIUtils.showSystemUIExceptNavigationBar(this);
+                UiUtils.showSystemUIExceptNavigationBar(this);
             }
             return;
         }
@@ -672,21 +672,16 @@ public class ThreadsActivity extends AppCompatActivity {
                     threadsRefreshLayoutBottom.setRefreshing(false);
                 appBarLayout.setExpanded(true);
                 threadsRecyclerView.scrollToPosition(0);
-
-
                 Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
             }
         }
-//        if (mListView == null) {
-//            setupListView();
-//        }
     }
 
     private void fixCoordinatorLayout(Configuration configuration) {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48);
+                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
         }
     }

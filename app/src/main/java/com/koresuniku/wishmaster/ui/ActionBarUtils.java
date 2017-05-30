@@ -15,13 +15,13 @@ public class ActionBarUtils {
         int height;
         if (activity.getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_PORTRAIT) {
-            if (DeviceUtils.apiIsLollipopOrHigher()) {
+            if (DeviceUtils.sdkIsLollipopOrHigher()) {
                 height = 112;
             } else {
                 height = 56;
             }
         } else {
-            if (DeviceUtils.apiIsLollipopOrHigher()) {
+            if (DeviceUtils.sdkIsLollipopOrHigher()) {
                 height = 96;
             } else {
                 height = 48;
@@ -33,16 +33,16 @@ public class ActionBarUtils {
     public static void setupAppBarLayoutSizeDependingOnOrientation(
             Activity activity, AppBarLayout appBarLayout, int offset) {
         int appBarHeight;
-        if (DeviceUtils.apiIsLollipopOrHigher()) {
+        if (DeviceUtils.sdkIsLollipopOrHigher()) {
             appBarHeight = 48 + offset;
         } else appBarHeight = 24 + offset;
 
 //        if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-//            if (DeviceUtils.apiIsLollipopOrHigher()) {
+//            if (DeviceUtils.sdkIsLollipopOrHigher()) {
 //                appBarHeight += offset;
 //            } else appBarHeight += offset;
 //        } else {
-//            if (DeviceUtils.apiIsLollipopOrHigher()) {
+//            if (DeviceUtils.sdkIsLollipopOrHigher()) {
 //                appBarHeight = 144;
 //            } else appBarHeight = 72;
 //        }

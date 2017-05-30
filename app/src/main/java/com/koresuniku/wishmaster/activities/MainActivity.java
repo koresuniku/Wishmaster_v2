@@ -39,7 +39,7 @@ import com.koresuniku.wishmaster.http.boards_api.BoardsApiService;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
 import com.koresuniku.wishmaster.utils.Constants;
-import com.koresuniku.wishmaster.ui.UIUtils;
+import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 
 import java.net.InetSocketAddress;
@@ -154,17 +154,17 @@ public class MainActivity extends AppCompatActivity
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             findViewById(R.id.main_toolbar_container).setLayoutParams(
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            DeviceUtils.apiIsLollipopOrHigher() ? 112 : 56));
+                            DeviceUtils.sdkIsLollipopOrHigher() ? 112 : 56));
         } else {
             findViewById(R.id.main_toolbar_container).setLayoutParams(
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            DeviceUtils.apiIsLollipopOrHigher() ? 96 : 48));
+                            DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48));
         }
         toolbar.inflateMenu(R.menu.main);
         //toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        UIUtils.setCurrentThemeColorFilterForImageView(this,
+        UiUtils.setCurrentThemeColorFilterForImageView(this,
                 ((ImageView)toolbar.findViewById(R.id.logo)));
     }
 
