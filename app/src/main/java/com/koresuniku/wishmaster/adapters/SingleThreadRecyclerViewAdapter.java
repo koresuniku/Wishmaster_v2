@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +44,7 @@ import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Formats;
 import com.koresuniku.wishmaster.utils.HtmlUtils;
 import com.koresuniku.wishmaster.utils.StringUtils;
-import com.koresuniku.wishmaster.utils.listeners.SingleThreadViewPagerOnPageChangeListener;
+import com.koresuniku.wishmaster.ui.listeners.SingleThreadViewPagerOnPageChangeListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,7 +69,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     public SingleThreadRecyclerViewAdapter(SingleThreadActivity activity, String board) {
         mActivity = activity;
-        mAnswers = new HashMap<>();
         backgroundColorSpan = new BackgroundColorSpan(mActivity.getResources().getColor(R.color.link_background));
         //foregroundColorSpan = new ForegroundColorSpan(mActivity.getResources().getColor(R.color.link_background));
         foregroundColorSpan = new StyleSpan(android.graphics.Typeface.BOLD);
@@ -156,6 +154,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.d(LOG_TAG, "mAnswers: " + mAnswers);
         View view;
         switch (viewType) {
             case Constants.ITEM_NO_IMAGES: {
@@ -190,21 +189,21 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(mActivity)
-                        .inflate(R.layout.post_item_no_images, null, false);
+                        .inflate(R.layout.post_item_no_images_redesign, null, false);
                 return view;
             }
             case Constants.ITEM_SINGLE_IMAGE: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(mActivity)
-                        .inflate(R.layout.post_item_single_image, null, false);
+                        .inflate(R.layout.post_item_single_image_redesign, null, false);
                 return view;
             }
             case Constants.ITEM_MULTIPLE_IMAGES: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(mActivity)
-                        .inflate(R.layout.post_item_multiple_images, null, false);
+                        .inflate(R.layout.post_item_multiple_images_redesign, null, false);
                 return view;
             }
         }
@@ -212,7 +211,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     }
 
     private void getAnswersForPost() {
-        HtmlUtils.getAnswersForPost(mActivity);
+        mAnswers = HtmlUtils.getAnswersForPost(mActivity);
     }
 
     private void setupLocationsList() {
@@ -280,7 +279,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 answerStringBuilder.setSpan(new UnderlineSpan(),
                         answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                answerStringBuilder.append(", ");
+                answerStringBuilder.append("  ");
             }
 
             SpannableString spannableAnswersString = SpannableString.valueOf(
@@ -319,8 +318,8 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         holder.answers.setText(getCorrectSpannableForAnswersTextView(holder.answers, number, position));
         holder.answers.setMovementMethod(AnswersLinkMovementMethod.getInstance(mActivity, position));
         if (position == 0) {
-            if (subject.equals("")) ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(comment);
-            else ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(subject);
+            if (subject.equals("")) ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(Html.fromHtml(comment));
+            else ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(Html.fromHtml(subject));
         }
 
         String width;
@@ -608,11 +607,12 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         if (subject.equals(""))subjectTextView.setVisibility(View.GONE);
         commentTextView.setText(getCorrectSpannableForCommentTextView(comment, position));
         commentTextView.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
-        commentTextView.setText(getCorrectSpannableForAnswersTextView(answersTextView, number, position));
+        commentTextView.setText(getCorrectSpannableForCommentTextView(comment, position));
+        answersTextView.setText(getCorrectSpannableForAnswersTextView(answersTextView, number, position));
         answersTextView.setMovementMethod(AnswersLinkMovementMethod.getInstance(mActivity, position));
         if (position == 0) {
-            if (subject.equals("")) ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(comment);
-            else ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(subject);
+            if (subject.equals("")) ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(Html.fromHtml(comment));
+            else ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(Html.fromHtml(subject));
         }
 
         String width;

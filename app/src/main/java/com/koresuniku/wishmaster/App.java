@@ -4,20 +4,12 @@ import android.app.Application;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Handler;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.github.piasy.biv.BigImageViewer;
 import com.github.piasy.biv.loader.glide.GlideImageLoader;
-import com.koresuniku.wishmaster.utils.listeners.SettingsContentObserver;
-import com.squareup.leakcanary.LeakCanary;
+import com.koresuniku.wishmaster.ui.listeners.SettingsContentObserver;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.concurrent.TimeUnit;

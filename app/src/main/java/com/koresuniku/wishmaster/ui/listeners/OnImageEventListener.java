@@ -1,11 +1,6 @@
-package com.koresuniku.wishmaster.utils.listeners;
+package com.koresuniku.wishmaster.ui.listeners;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.piasy.biv.view.BigImageView;

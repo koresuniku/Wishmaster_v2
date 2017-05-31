@@ -1,4 +1,4 @@
-package com.koresuniku.wishmaster.utils.listeners;
+package com.koresuniku.wishmaster.ui.listeners;
 
 import android.app.Activity;
 import android.content.Context;

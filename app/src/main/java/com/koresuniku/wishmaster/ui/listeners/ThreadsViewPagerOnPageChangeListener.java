@@ -1,4 +1,4 @@
-package com.koresuniku.wishmaster.utils.listeners;
+package com.koresuniku.wishmaster.ui.listeners;
 
 import android.support.v4.view.ViewPager;
 import android.util.Log;

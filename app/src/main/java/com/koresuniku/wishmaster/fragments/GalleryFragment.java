@@ -58,11 +58,13 @@ import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
 import com.koresuniku.wishmaster.utils.Formats;
 import com.koresuniku.wishmaster.ui.UiUtils;
-import com.koresuniku.wishmaster.utils.listeners.AnimationListenerDown;
-import com.koresuniku.wishmaster.utils.listeners.AnimationListenerUp;
-import com.koresuniku.wishmaster.utils.listeners.OnImageEventListener;
+import com.koresuniku.wishmaster.ui.listeners.AnimationListenerDown;
+import com.koresuniku.wishmaster.ui.listeners.AnimationListenerUp;
+import com.koresuniku.wishmaster.ui.listeners.OnImageEventListener;
 
 import java.util.concurrent.TimeUnit;
+
+import static android.view.View.GONE;
 
 public class GalleryFragment extends android.support.v4.app.Fragment implements View.OnClickListener, OnPreparedListener {
     private final String LOG_TAG = GalleryFragment.class.getSimpleName();
@@ -94,6 +96,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private ImageView gifImageView;
     public SimpleExoPlayer player;
     public com.devbrackets.android.exomedia.ui.widget.VideoView videoView;
+    private boolean isPrepared;
 
     public View controlView;
     public ImageView playPause;
@@ -178,7 +181,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 public boolean onResourceReady(GifDrawable resource, Uri model,
                                                Target<GifDrawable> target,
                                                boolean isFromMemoryCache, boolean isFirstResource) {
-                    rootView.findViewById(R.id.gif_progress_bar).setVisibility(View.GONE);
+                    rootView.findViewById(R.id.gif_progress_bar).setVisibility(GONE);
                     return false;
                 }
             })
@@ -275,6 +278,9 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             public void onCompletion() {
                 isCompleted = true;
                 completeVideoView();
+                if (rootView.findViewById(R.id.video_progress_bar).getVisibility() == View.VISIBLE) {
+                    rootView.findViewById(R.id.video_progress_bar).setVisibility(GONE);
+                }
             }
         });
         videoView.setId3MetadataListener(new MetadataListener() {
@@ -286,6 +292,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 }
             }
         });
+        isPrepared = false;
 
     }
 
@@ -403,8 +410,10 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
 
     private void createControlView(boolean firstTime) {
         if (mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            controlViewContainer = (FrameLayout) mActivity.getLayoutInflater().inflate(R.layout.webm_video_controls_redesign, null, false);
-        } else  controlViewContainer = (FrameLayout) mActivity.getLayoutInflater().inflate(R.layout.webm_video_controls, null, false);
+            controlViewContainer = (FrameLayout) mActivity.getLayoutInflater()
+                    .inflate(R.layout.webm_video_controls_redesign, null, false);
+        } else  controlViewContainer = (FrameLayout) mActivity.getLayoutInflater()
+                .inflate(R.layout.webm_video_controls, null, false);
 
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -428,7 +437,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             }
         }
 
-        controlViewContainer.setVisibility(UiUtils.barsAreShown ? View.VISIBLE : View.GONE);
+        controlViewContainer.setVisibility(UiUtils.barsAreShown ? View.VISIBLE : GONE);
         controlViewContainer.bringToFront();
 
         initControlChildViews(firstTime);
@@ -465,7 +474,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
 
         AudioManager audio = (AudioManager) mActivity.getSystemService(Context.AUDIO_SERVICE);
 
-        //videoView.setVolume((float)(volume / audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)));
         Log.d(LOG_TAG, "setting volume " + volume);
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, 0);
         if (volume == 0) {
@@ -574,7 +582,15 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         soundSwitcher = (ImageView) controlView.findViewById(R.id.sound_switcher);
         soundSwitcherContainer = controlView.findViewById(R.id.sound_switcher_container);
         soundSwitcherContainer.requestLayout();
-        soundSwitcherContainer.setOnClickListener(null);
+        soundSwitcherContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                soundSwitcherContainer.setEnabled(true);
+                soundSwitcherContainer.setClickable(true);
+                soundSwitcherContainer.setOnClickListener(switchSoundOnClickListener);
+
+            }
+        });
         switchSound(App.soundVolume);
     }
 
@@ -613,7 +629,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     private void showOrHideControlView() {
         Log.d(LOG_TAG, "showOrHideControlView: ");
         if (controlViewContainer != null) {
-            if (UiUtils.barsAreShown) controlViewContainer.setVisibility(View.GONE);
+            if (UiUtils.barsAreShown) controlViewContainer.setVisibility(GONE);
             else controlViewContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -744,7 +760,8 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     @Override
     public void onPrepared() {
         Log.d(LOG_TAG, "video prepared");
-        rootView.findViewById(R.id.video_progress_bar).setVisibility(View.GONE);
+        isPrepared = true;
+        rootView.findViewById(R.id.video_progress_bar).setVisibility(GONE);
 
         playPauseContainer.post(new Runnable() {
             @Override
@@ -757,16 +774,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                         changePlayPauseImage();
                     }
                 });
-            }
-        });
-
-        soundSwitcherContainer.post(new Runnable() {
-            @Override
-            public void run() {
-                soundSwitcherContainer.setEnabled(true);
-                soundSwitcherContainer.setClickable(true);
-                soundSwitcherContainer.setOnClickListener(switchSoundOnClickListener);
-
             }
         });
 
@@ -810,7 +817,8 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         Log.d(LOG_TAG, "udpateControlView()");
         mHandler = new Handler();
         overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
-        mHandler.postDelayed(updateProgress, 200);
+        mHandler.postDelayed(updateProgressTask, 200);
+        mHandler.postDelayed(updateProgressBarTask, 200);
     }
 
     private long minutes;
@@ -827,8 +835,8 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         return minutesString + ":" + secondsString;
     }
 
-    long previousProgress = 0L;
-    private Runnable updateProgress = new Runnable() {
+
+    private Runnable updateProgressTask = new Runnable() {
         @Override
         public void run() {
             progressTime.setText(getFormattedProgressString(videoView.getCurrentPosition()));
@@ -836,19 +844,45 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                 seekbar.setProgress((int) (videoView.getCurrentPosition() * 100 / videoView.getDuration()));
                 soundSwitcherContainer.bringToFront();
                 soundSwitcherContainer.requestFocusFromTouch();
-                if (previousProgress == videoView.getCurrentPosition() && videoView.isPlaying()) {
-                    rootView.findViewById(R.id.video_progress_bar).setVisibility(View.VISIBLE);
-                } else rootView.findViewById(R.id.video_progress_bar).setVisibility(View.GONE);
                 overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
                 if (videoView.getCurrentPosition() == videoView.getDuration()) {
                     completeVideoView();
                 }
-                previousProgress = videoView.getCurrentPosition();
             }
             if (!onActivityStop) mHandler.postDelayed(this, 200);
             if (onActivityStop) {
                 mHandler.removeCallbacks(this);
                 pauseVideoView();
+            }
+        }
+    };
+
+    long previousProgress = 0L;
+    boolean checkingForPauseStarted = false;
+    private Runnable updateProgressBarTask = new Runnable() {
+        @Override
+        public void run() {
+            if (!checkingForPauseStarted) {
+                previousProgress = videoView.getCurrentPosition();
+                if (videoView.getCurrentPosition() == previousProgress) {
+                    checkingForPauseStarted = true;
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if ((previousProgress == videoView.getCurrentPosition()
+                                    && videoView.isPlaying() || !isPrepared)) {
+                                rootView.findViewById(R.id.video_progress_bar).setVisibility(View.VISIBLE);
+                            } else {
+                                rootView.findViewById(R.id.video_progress_bar).setVisibility(GONE);
+                            }
+                            checkingForPauseStarted = false;
+                        }
+                    }, 200);
+                } else rootView.findViewById(R.id.video_progress_bar).setVisibility(GONE);
+            }
+            if (!onActivityStop) mHandler.postDelayed(this, 200);
+            if (onActivityStop) {
+                mHandler.removeCallbacks(this);
             }
         }
     };

@@ -33,7 +33,7 @@ import com.koresuniku.wishmaster.utils.Constants;
 import com.koresuniku.wishmaster.utils.Formats;
 import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.utils.StringUtils;
-import com.koresuniku.wishmaster.utils.listeners.ThreadsViewPagerOnPageChangeListener;
+import com.koresuniku.wishmaster.ui.listeners.ThreadsViewPagerOnPageChangeListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
