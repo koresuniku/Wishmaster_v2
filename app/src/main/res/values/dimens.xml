@@ -7,9 +7,10 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="xyz">20dp</dimen>
 
-    <dimen name="thread_item_padding_horizontal">12dp</dimen>
-    <dimen name="thread_item_padding_vertical">6dp</dimen>
-    <dimen name="thread_item_margin_content_divider">2dp</dimen>
+    <dimen name="item_padding_horizontal">12dp</dimen>
+    <dimen name="item_padding_vertical">6dp</dimen>
+    <dimen name="item_margin_content_divider">2dp</dimen>
+    <dimen name="post_item_margin_answers_divider">6dp</dimen>
 
     <dimen name="thumbnail_square_default_size">50dp</dimen>
     <dimen name="thumbnail_max_height">150dp</dimen>

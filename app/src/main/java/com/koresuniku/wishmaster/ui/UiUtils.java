@@ -2,12 +2,14 @@ package com.koresuniku.wishmaster.ui;
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,8 @@ import android.widget.ImageView;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.activities.ThreadsActivity;
 import com.koresuniku.wishmaster.utils.DeviceUtils;
+
+import static java.security.AccessController.getContext;
 
 public class UiUtils {
     private static final String LOG_TAG = UiUtils.class.getSimpleName();
@@ -136,6 +140,14 @@ public class UiUtils {
         }
     }
 
+    public static int dpToPx(Context context, int dp) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
 
+    public static int pxToDp(Context context, int px) {
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
 
 }

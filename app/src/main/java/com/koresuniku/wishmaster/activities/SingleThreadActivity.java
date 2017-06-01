@@ -51,10 +51,12 @@ import com.koresuniku.wishmaster.fragments.GalleryFragment;
 import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
 import com.koresuniku.wishmaster.http.single_thread_api.SingleThreadApiService;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
+import com.koresuniku.wishmaster.presenter.AnswersManager;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
 import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.ui.text.AnswersLinkMovementMethod;
 import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
+import com.koresuniku.wishmaster.ui.text.IAllowActionCancel;
 import com.koresuniku.wishmaster.ui.views.FixedRecyclerView;
 import com.koresuniku.wishmaster.ui.views.HackyViewPager;
 import com.koresuniku.wishmaster.ui.views.SaveStateScrollView;
@@ -142,10 +144,11 @@ public class SingleThreadActivity extends AppCompatActivity {
     public PicVidPagerAdapter picVidPagerAdapter;
     public SingleThreadViewPagerOnPageChangeListener singleThreadViewPagerOnPageChangeListener;
 
-    private CardView mAnswerLayout;
+    public AnswersManager mAnswersManager;
+    public CardView mAnswerLayout;
     public List<List<View>> mAnswerViews;
-    private LinearLayout mAnswerList;
-    private List<Integer> mAnswersScrollStates;
+    public LinearLayout mAnswerList;
+    public List<Integer> mAnswersScrollStates;
     public boolean answerOpened;
 
     public boolean dataLoaded = false;
@@ -188,8 +191,9 @@ public class SingleThreadActivity extends AppCompatActivity {
         setupSwipeRefreshLayout();
         setupFullscreenMode();
         setupOrientationFeatures();
-        setupAnswers();
-        setupAnswersLayoutContainer(getResources().getConfiguration());
+        mAnswersManager = new AnswersManager(this);
+        mAnswersManager.setupAnswers();
+        mAnswersManager.setupAnswersLayoutContainer(this.getResources().getConfiguration());
 
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
 
@@ -249,7 +253,7 @@ public class SingleThreadActivity extends AppCompatActivity {
 
         fixCoordinatorLayout(newConfig);
         fixRefreshLayoutOnOrientation();
-        setupAnswersLayoutContainer(newConfig);
+        mAnswersManager.setupAnswersLayoutContainer(newConfig);
 
         if (adapter != null) adapter.notifyDataSetChanged();
         if (singleThreadRefreshLayoutTop.isEnabled())
@@ -702,7 +706,7 @@ public class SingleThreadActivity extends AppCompatActivity {
         }
 
         if (answerOpened) {
-            showPreviousAnswer();
+            mAnswersManager.showPreviousAnswer();
             return;
         }
 
@@ -735,207 +739,253 @@ public class SingleThreadActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    private void setupAnswers() {
-        mAnswerViews = new ArrayList<>();
-        mAnswerLayout = (CardView) findViewById(R.id.answer_layout);
-        mAnswerList = (LinearLayout) findViewById(R.id.answer_layout_list);
-        mAnswersScrollStates = new ArrayList<>();
-        answerOpened = false;
-    }
+//    private void setupAnswers() {
+//        mAnswerViews = new ArrayList<>();
+//        mAnswerLayout = (CardView) findViewById(R.id.answer_layout);
+//        mAnswerList = (LinearLayout) findViewById(R.id.answer_layout_list);
+//        mAnswersScrollStates = new ArrayList<>();
+//        answerOpened = false;
+//    }
 
-    private void setupAnswersLayoutContainer(Configuration configuration) {
-        findViewById(R.id.answer_layout_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPreviousAnswer();
-            }
-        });
-        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            if (DeviceUtils.getApiInt() >= 19) {
-                findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 : 24,
-                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
-
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                params.gravity = Gravity.CENTER;
-                params.setMargins(
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 24,
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25);
-                mAnswerLayout.setLayoutParams(params);
-                mAnswerLayout.requestLayout();
-            }
-        } else {
-            if (DeviceUtils.getApiInt() >= 19) {
-                findViewById(R.id.answer_layout_container).setPadding(
-                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 : 24, 0, 0);
-
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                params.gravity = Gravity.CENTER;
-                params.setMargins(
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25,
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
-                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25);
-                mAnswerLayout.setLayoutParams(params);
-                mAnswerLayout.requestLayout();
-            }
-        }
-    }
-
-    public void writeInAnswerScrollState() {
-        mAnswersScrollStates.add(mAnswerLayout.findViewById(R.id.answer_layout_scrollview).getScrollY());
-    }
-
-    public void showAnswer(String postNumberToGo, String postNumberFrom) {
-        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, true);
-
-        int position = -1;
-        for (Post post : mPosts) {
-            if (post.getNum().equals(postNumberToGo)) {
-                position = mPosts.indexOf(post);
-                break;
-            }
-        }
-        Log.d(LOG_TAG, "getting child for position: " + position);
-        View answerView = adapter.getViewForPosition(position);
-        if (postNumberFrom != null) {
-            if (((TextView)answerView.findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
-                ((CommentLinkMovementMethod) ((TextView) answerView.findViewById(R.id.post_comment)).getMovementMethod())
-                        .setForegroundSpanForParticularLocation(postNumberFrom);
-            }
-            if (((TextView)answerView.findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
-                ((AnswersLinkMovementMethod) ((TextView) answerView.findViewById(R.id.answers)).getMovementMethod())
-                        .setForegroundSpanForParticularLocation(postNumberFrom);
-            }
-        }
-        setupAnswersLayoutContainer(getResources().getConfiguration());
-        //setupCommentTextViewForRecyclerView(position);
-        mAnswerViews.add(new ArrayList<>(Collections.singletonList(answerView)));
-        //mAnswerLayout.removeAllViews();
-        mAnswerList.removeAllViews();
-        //mAnswerLayout.addView(answerView);
-        mAnswerList.addView(answerView);
-        if (answerOpened) {
-            writeInAnswerScrollState();
-        }
-        findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
-        answerOpened = true;
-        adapter.notifySingleView = true;
-    }
-
-    public void showAnswerList(String postNumberFrom) {
-
-        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, true);
-
-        List<String> answersNumbers = adapter.mAnswers.get(postNumberFrom);
-        List<Integer> answersPositions = new ArrayList<>();
-
-        Post post;
-        for (int i = 0; i < mPosts.size(); i++) {
-            post = mPosts.get(i);
-            if (answersNumbers.contains(post.getNum())) {
-                answersPositions.add(mPosts.indexOf(post));
-            }
-        }
-        View answerView;
-        mAnswerViews.add(new ArrayList<View>());
-        for (Integer answerPosition : answersPositions) {
-            answerView = adapter.getViewForPosition(answerPosition);
-            if (((TextView)answerView.findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
-                ((CommentLinkMovementMethod) ((TextView) answerView.findViewById(R.id.post_comment)).getMovementMethod())
-                        .setForegroundSpanForParticularLocation(postNumberFrom);
-            }
-            if (((TextView)answerView.findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
-                ((AnswersLinkMovementMethod) ((TextView) answerView.findViewById(R.id.answers)).getMovementMethod())
-                        .setForegroundSpanForParticularLocation(postNumberFrom);
-            }
-            //setupCommentTextViewForRecyclerView(answerPosition);
-            mAnswerViews.get(mAnswerViews.size() - 1).addAll(Collections.singletonList(answerView));
-        }
-        setupAnswersLayoutContainer(getResources().getConfiguration());
-
-        //mAnswerLayout.removeAllViews();
-        mAnswerList.removeAllViews();
-        //mAnswerLayout.addView(answerView);
-        ImageView lineDivider;
-        for (View view : mAnswerViews.get(mAnswerViews.size() - 1)) {
-            mAnswerList.addView(view);
-            lineDivider = new ImageView(mActivity);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            params.height = DeviceUtils.sdkIsLollipopOrHigher() ? 2 : 1;
-            lineDivider.setLayoutParams(params);
-            lineDivider.setPadding(DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0,
-                    DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0);
-            lineDivider.setImageResource(android.R.color.darker_gray);
-            lineDivider.setBackgroundColor(getResources().getColor(R.color.common_background_color));
-            mAnswerList.addView(lineDivider);
-        }
-        mAnswerList.removeViewAt(mAnswerList.getChildCount() - 1);
-        if (answerOpened) {
-            writeInAnswerScrollState();
-        }
-        findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
-        answerOpened = true;
-        adapter.notifySingleView = true;
-    }
-
-    private void showPreviousAnswer() {
-
-       // mAnswerLayout.removeAllViews();
-        mAnswerList.removeAllViews();
-        if (mAnswerViews.size() <= 1) {
-            closeAnswerViews();
-            return;
-        }
-        mAnswerViews.remove(mAnswerViews.size() - 1);
-        if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
-                .findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
-            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
-                    .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
-        } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(mAnswerViews.size() - 1)
-                .findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
-            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
-                    .findViewById(R.id.post_comment)).getMovementMethod()).allowActionCancel = true;
-        }
-
-        //mAnswerLayout.addView(mAnswerViews.get(mAnswerViews.size() - 1));
-        mAnswerList.addView(mAnswerViews.get(mAnswerViews.size() - 1).get(0));
-        //((SaveStateScrollView)mAnswerLayout.getChildAt(0)).scrollToSavedState();
-        Log.d(LOG_TAG, "scroll states: " + mAnswersScrollStates.size());
-//        mAnswerLayout.findViewById(R.id.answer_layout_scrollview).post(new Runnable() {
+//    public void setupAnswersLayoutContainer(Configuration configuration) {
+//        findViewById(R.id.answer_layout_container).setOnClickListener(new View.OnClickListener() {
 //            @Override
-//            public void run() {
-//
-//                mAnswerLayout.findViewById(R.id.answer_layout_scrollview)
-//                        .scrollTo(0, mAnswersScrollStates.get(mAnswersScrollStates.size() - 1));
+//            public void onClick(View v) {
+//                showPreviousAnswer();
 //            }
 //        });
-        ((SaveStateScrollView)mAnswerLayout.findViewById(R.id.answer_layout_scrollview))
-                .scrollToWithGuarantees(0, mAnswersScrollStates.get(mAnswersScrollStates.size() - 1));
-
-        mAnswersScrollStates.remove(mAnswerViews.size() - 1);
-    }
-
-    private void closeAnswerViews() {
-        answerOpened = false;
-        adapter.notifySingleView = false;
-        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, false);
-        mAnswerViews = new ArrayList<>();
-        //mAnswerLayout.removeAllViews();
-        mAnswersScrollStates = new ArrayList<>();
-        mAnswerList.removeAllViews();
-        findViewById(R.id.answer_layout_container).setVisibility(GONE);
-    }
-
-    private void setupCommentTextViewForRecyclerView(int position) {
-        adapter.notifyItemChanged(position);
-    }
-
-
+//        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+//            if (DeviceUtils.getApiInt() >= 19) {
+//                findViewById(R.id.answer_layout_container).setPadding(
+//                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 : 24,
+//                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
+//
+//                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+//                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                params.gravity = Gravity.CENTER;
+//                params.setMargins(
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 24,
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25);
+//                mAnswerLayout.setLayoutParams(params);
+//                mAnswerLayout.requestLayout();
+//            }
+//        } else {
+//            if (DeviceUtils.getApiInt() >= 19) {
+//                findViewById(R.id.answer_layout_container).setPadding(
+//                        0, DeviceUtils.sdkIsLollipopOrHigher() ? 48 : 24, 0, 0);
+//
+//                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+//                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//                params.gravity = Gravity.CENTER;
+//                params.setMargins(
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25,
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 24 : 12,
+//                        DeviceUtils.sdkIsLollipopOrHigher() ? 50 : 25);
+//                mAnswerLayout.setLayoutParams(params);
+//                mAnswerLayout.requestLayout();
+//            }
+//        }
+//    }
+//
+//    public void writeInAnswerScrollState() {
+//        Log.d(LOG_TAG, "writeInAnswerScrollState()");
+//        mAnswersScrollStates.add(mAnswerLayout.findViewById(R.id.answer_layout_scrollview).getScrollY());
+//    }
+//
+//    public void showAnswer(String postNumberToGo, String postNumberFrom, boolean fromComment) {
+//        if (sharedPreferences.getInt(
+//                this.getString(R.string.sp_answers_code), Integer.parseInt(this.getString(R.string.sp_answers_default))) == 0) {
+//            if (fromComment) showSingleAnswer(postNumberToGo, postNumberFrom);
+//            else showMultipleAnswers(postNumberFrom);
+//        } else {
+//            showSingleAnswer(postNumberToGo, postNumberFrom);
+//        }
+//    }
+//
+//    public void showSingleAnswer(String postNumberToGo, String postNumberFrom) {
+//        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, true);
+//
+//        int position = -1;
+//        for (Post post : mPosts) {
+//            if (post.getNum().equals(postNumberToGo)) {
+//                position = mPosts.indexOf(post);
+//                break;
+//            }
+//        }
+//        Log.d(LOG_TAG, "getting child for position: " + position);
+//        View answerView = adapter.getViewForPosition(position);
+//        if (postNumberFrom != null) {
+//            if (((TextView)answerView.findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+//                ((CommentLinkMovementMethod) ((TextView) answerView.findViewById(R.id.post_comment)).getMovementMethod())
+//                        .setForegroundSpanForParticularLocation(postNumberFrom);
+//            }
+//            if (((TextView)answerView.findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
+//                ((AnswersLinkMovementMethod) ((TextView) answerView.findViewById(R.id.answers)).getMovementMethod())
+//                        .setForegroundSpanForParticularLocation(postNumberFrom);
+//            }
+//        }
+//        setupAnswersLayoutContainer(getResources().getConfiguration());
+//        //setupCommentTextViewForRecyclerView(position);
+//        mAnswerViews.add(new ArrayList<>(Collections.singletonList(answerView)));
+//        //mAnswerLayout.removeAllViews();
+//        mAnswerList.removeAllViews();
+//        //mAnswerLayout.addView(answerView);
+//        mAnswerList.addView(answerView);
+//        if (answerOpened) {
+//            writeInAnswerScrollState();
+//        }
+//        findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
+//        answerOpened = true;
+//        adapter.notifySingleView = true;
+//    }
+//
+//    public void showMultipleAnswers(String postNumberFrom) {
+//        if (DeviceUtils.sdkIsKitkatOrHigher()) UiUtils.setStatusBarTranslucent(mActivity, true);
+//
+//        Log.d(LOG_TAG, "postNumberFrom: " + postNumberFrom);
+//
+//        List<String> answersNumbers = adapter.mAnswers.get(postNumberFrom);
+//        List<Integer> answersPositions = new ArrayList<>();
+//
+//        Post post;
+//        for (int i = 0; i < mPosts.size(); i++) {
+//            post = mPosts.get(i);
+//            if (answersNumbers.contains(post.getNum())) {
+//                answersPositions.add(mPosts.indexOf(post));
+//            }
+//        }
+//
+//        View answerView;
+//        mAnswerViews.add(new ArrayList<View>());
+//        for (Integer answerPosition : answersPositions) {
+//            answerView = adapter.getViewForPosition(answerPosition);
+//            if (((TextView)answerView.findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+//                ((CommentLinkMovementMethod) ((TextView) answerView.findViewById(R.id.post_comment)).getMovementMethod())
+//                        .setForegroundSpanForParticularLocation(postNumberFrom);
+//            }
+//            if (((TextView)answerView.findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
+//                ((AnswersLinkMovementMethod) ((TextView) answerView.findViewById(R.id.answers)).getMovementMethod())
+//                        .setForegroundSpanForParticularLocation(postNumberFrom);
+//            }
+//            mAnswerViews.get(mAnswerViews.size() - 1).addAll(Collections.singletonList(answerView));
+//        }
+//        setupAnswersLayoutContainer(getResources().getConfiguration());
+//
+//        mAnswerList.removeAllViews();
+//
+//        ImageView lineDivider;
+//        for (View view : mAnswerViews.get(mAnswerViews.size() - 1)) {
+//            mAnswerList.addView(view);
+//            lineDivider = new ImageView(mActivity);
+//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+//                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//            params.height = DeviceUtils.sdkIsLollipopOrHigher() ? 2 : 1;
+//            lineDivider.setLayoutParams(params);
+//            lineDivider.setPadding(DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0,
+//                    DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0);
+//            lineDivider.setImageResource(android.R.color.darker_gray);
+//            lineDivider.setBackgroundColor(getResources().getColor(R.color.common_background_color));
+//            mAnswerList.addView(lineDivider);
+//        }
+//        mAnswerList.removeViewAt(mAnswerList.getChildCount() - 1);
+//
+//        if (answerOpened) {
+//            writeInAnswerScrollState();
+//        } else {
+//            ((SaveStateScrollView)mAnswerLayout.findViewById(R.id.answer_layout_scrollview))
+//                    .scrollToWithGuarantees(0, 0);
+//        }
+//        findViewById(R.id.answer_layout_container).setVisibility(View.VISIBLE);
+//        answerOpened = true;
+//        adapter.notifySingleView = true;
+//    }
+//
+//    private void showPreviousAnswer() {
+//        if (sharedPreferences.getInt(
+//                this.getString(R.string.sp_answers_code),
+//                Integer.parseInt(this.getString(R.string.sp_answers_default))) == 0) {
+//            showPreviousMultipleAnswers();
+//        } else {
+//            showPreviousSingleAnswer();
+//        }
+//    }
+//
+//    private void showPreviousSingleAnswer() {
+//        Log.d(LOG_TAG, "sshowPreviousSingleAnswer()");
+//
+//        mAnswerList.removeAllViews();
+//        if (mAnswerViews.size() <= 1) {
+//            closeAnswerViews();
+//            return;
+//        }
+//        mAnswerViews.remove(mAnswerViews.size() - 1);
+////        if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+////                .findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
+////            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+////                    .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
+////        } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(mAnswerViews.size() - 1)
+////                .findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
+////            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+////                    .findViewById(R.id.post_comment)).getMovementMethod()).allowActionCancel = true;
+////        }
+//
+//        ((IAllowActionCancel)((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+//                .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel();
+//
+//        mAnswerList.addView(mAnswerViews.get(mAnswerViews.size() - 1).get(0));
+//        Log.d(LOG_TAG, "scroll states: " + mAnswersScrollStates.size());
+//        ((SaveStateScrollView)mAnswerLayout.findViewById(R.id.answer_layout_scrollview))
+//                .scrollToWithGuarantees(0, mAnswersScrollStates.get(mAnswersScrollStates.size() - 1));
+//
+//        mAnswersScrollStates.remove(mAnswerViews.size() - 1);
+//    }
+//
+//    private void showPreviousMultipleAnswers() {
+//        Log.d(LOG_TAG, "showPreviousMultipleAnswers()");
+//        mAnswerList.removeAllViews();
+//        if (mAnswerViews.size() <= 1) {
+//            closeAnswerViews();
+//            return;
+//        }
+//        mAnswerViews.remove(mAnswerViews.size() - 1);
+//
+//        ((IAllowActionCancel)((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+//                .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel();
+//
+//        ImageView lineDivider;
+//        for (View view : mAnswerViews.get(mAnswerViews.size() - 1)) {
+//            mAnswerList.addView(view);
+//            lineDivider = new ImageView(mActivity);
+//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+//                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//            params.height = DeviceUtils.sdkIsLollipopOrHigher() ? 2 : 1;
+//            lineDivider.setLayoutParams(params);
+//            lineDivider.setPadding(DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0,
+//                    DeviceUtils.sdkIsLollipopOrHigher() ? 16 : 8, 0);
+//            lineDivider.setImageResource(android.R.color.darker_gray);
+//            lineDivider.setBackgroundColor(getResources().getColor(R.color.common_background_color));
+//            mAnswerList.addView(lineDivider);
+//        }
+//        mAnswerList.removeViewAt(mAnswerList.getChildCount() - 1);
+//
+//        ((SaveStateScrollView)mAnswerLayout.findViewById(R.id.answer_layout_scrollview))
+//                .scrollToWithGuarantees(0, mAnswersScrollStates.get(mAnswersScrollStates.size() - 1));
+//
+//        mAnswersScrollStates.remove(mAnswerViews.size() - 1);
+//    }
+//
+//    private void closeAnswerViews() {
+//        Log.d(LOG_TAG, "closeAnswerViews:");
+//        answerOpened = false;
+//        adapter.notifySingleView = false;
+//        if (DeviceUtils.getApiInt() >= 19) UiUtils.setStatusBarTranslucent(mActivity, false);
+//        mAnswerViews = new ArrayList<>();
+//        mAnswersScrollStates = new ArrayList<>();
+//        mAnswerList.removeAllViews();
+//        findViewById(R.id.answer_layout_container).setVisibility(GONE);
+//    }
 
 }

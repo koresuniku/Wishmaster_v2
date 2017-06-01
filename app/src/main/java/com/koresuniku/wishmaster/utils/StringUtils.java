@@ -119,7 +119,7 @@ public class StringUtils {
             lastNumber = Integer.parseInt(String.valueOf(count).substring(signsCount -1 , signsCount));
         }
         if (count >= 10 && count <= 20) {
-            return " новых постов";
+            return count + " новых постов";
         }
         if (lastNumber == 1) {
             if (count >= 10 && String.valueOf(count).substring(signsCount - 1, signsCount).equals("11")) {
@@ -133,6 +133,32 @@ public class StringUtils {
         return count + " новых постов";
     }
 
+    public static String getCorrectAnswersString(int count) {
+        if (count == 0) return "";
+
+        int lastNumber;
+        int signsCount = -1;
+        if (count < 10) {
+            lastNumber = count;
+        } else {
+            signsCount = String.valueOf(count).length();
+            lastNumber = Integer.parseInt(String.valueOf(count).substring(signsCount -1 , signsCount));
+        }
+        if (count >= 10 && count <= 20) {
+            return count + " ответов";
+        }
+        if (lastNumber == 1) {
+            if (count >= 10 && String.valueOf(count).substring(signsCount - 1, signsCount).equals("11")) {
+                return count + " ответов";
+            }
+            return count + " ответ";
+        }
+        if (lastNumber == 2 || lastNumber == 3 || lastNumber == 4) {
+            return count + " ответа";
+        }
+        return count + " ответов";
+    }
+
     @NonNull
     public static String getNumberAndTimeString(String number, String name, String trip, String time) {
         StringBuilder builder = new StringBuilder();
@@ -142,7 +168,7 @@ public class StringUtils {
         builder.append(name.equals("") ? "" : " " + name);
         builder.append(" ");
         builder.append(trip.equals("") ? "" : " " + trip);
-        builder.append(" ");
+//        builder.append(" ");
         builder.append(time);
 
         return builder.toString();
@@ -162,6 +188,7 @@ public class StringUtils {
         return builder.toString();
     }
 
+    @NonNull
     public static String getShortInfoForToolbarString(
             TextView mediaToolbarTitleTextView, int thumbnailPosition, List<Files> files) {
         StringBuilder builder = new StringBuilder();

@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/thread_item_padding_vertical"
-    android:paddingLeft="@dimen/thread_item_padding_horizontal"
-    android:paddingRight="@dimen/thread_item_padding_horizontal"
-    android:paddingTop="@dimen/thread_item_padding_vertical">
+    android:paddingBottom="@dimen/item_padding_vertical"
+    android:paddingLeft="@dimen/item_padding_horizontal"
+    android:paddingRight="@dimen/item_padding_horizontal"
+    android:paddingTop="@dimen/item_padding_vertical">
 
     <RelativeLayout
         android:id="@+id/thread_content"
@@ -31,7 +31,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/thread_number_and_time_info"
-            android:layout_marginTop="@dimen/thread_item_margin_content_divider">
+            android:layout_marginTop="@dimen/item_margin_content_divider">
 
             <ImageView
                 android:id="@+id/thread_image"
@@ -78,9 +78,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/thread_number_and_time_info"
-            android:layout_marginLeft="@dimen/thread_item_padding_horizontal"
-            android:layout_marginStart="@dimen/thread_item_padding_horizontal"
-            android:layout_marginTop="@dimen/thread_item_margin_content_divider"
+            android:layout_marginLeft="@dimen/item_padding_horizontal"
+            android:layout_marginStart="@dimen/item_padding_horizontal"
+            android:layout_marginTop="@dimen/item_margin_content_divider"
             android:layout_toEndOf="@+id/image_container_1"
             android:layout_toRightOf="@+id/image_container_1"
             android:lines="6"
@@ -95,7 +95,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/thread_content"
-        android:layout_marginTop="@dimen/thread_item_margin_content_divider"
+        android:layout_marginTop="@dimen/item_margin_content_divider"
         android:text="posts and files info"
         android:textSize="12sp" />
 
@@ -105,7 +105,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/posts_and_files_info"
-        android:layout_marginTop="@dimen/thread_item_margin_content_divider">
+        android:layout_marginTop="@dimen/item_margin_content_divider">
 
         <include
             android:id="@+id/threads_page_indicator_view"

@@ -2,6 +2,7 @@ package com.koresuniku.wishmaster;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.util.Log;
@@ -17,8 +18,8 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
 public class App extends Application {
-
     static final String LOG_TAG = App.class.getSimpleName();
+
     public static int soundVolume;
     public static SettingsContentObserver mSettingsContentObserver;
 

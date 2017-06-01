@@ -28,7 +28,7 @@ public class SaveStateScrollView extends ScrollView {
 
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        Log.d(TAG, "onOverScrolled: " + scrollY);
+        //Log.d(TAG, "onOverScrolled: " + scrollY);
         this.scrollY = scrollY;
         super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
     }
@@ -42,6 +42,8 @@ public class SaveStateScrollView extends ScrollView {
         // When adding items to a scrollView, you can't immediately scroll to it - it takes a while
         // for the new addition to cycle back and update the scrollView's max scroll... so we have
         // to wait and re-set as necessary
+
+        Log.d(TAG, "scrollToWithGuarantees: ");
 
         scrollTo(__x, __y);
 

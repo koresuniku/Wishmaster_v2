@@ -11,12 +11,11 @@ import android.widget.TextView;
 
 import com.koresuniku.wishmaster.activities.SingleThreadActivity;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CommentLinkMovementMethod extends LinkMovementMethod {
+public class CommentLinkMovementMethod extends LinkMovementMethod implements IAllowActionCancel {
     private final String TAG = CommentLinkMovementMethod.class.getSimpleName();
 
     private SingleThreadActivity mActivity;
@@ -70,7 +69,6 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
                         end = locations.get(1);
                         buffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
                                 locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
                         locationsToAdd = mActivity.adapter.mCommentAnswersSpansLocations.get(mPosition);
                         mActivity.adapter.mCommentAnswersSpansLocations.remove(mPosition);
                         locationsToAdd.clear();
@@ -85,15 +83,10 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
         if (action == MotionEvent.ACTION_UP) {
             if (begin != -1 && end != -1) {
                 Log.d(TAG, "action_up");
-                allowActionCancel = false;
-                if (String.valueOf(buffer).contains("(OP)")) {
-                    Log.d(TAG, "is to op ");
-                    mActivity.showAnswer(String.valueOf(buffer.subSequence(begin, end - 5)),
-                            mActivity.mPosts.get(mPosition).getNum());
-                } else {
-                    mActivity.showAnswer(String.valueOf(buffer.subSequence(begin, end)),
-                            mActivity.mPosts.get(mPosition).getNum());
-                }
+                disallowActionCancel();
+                mActivity.mAnswersManager.showAnswer(String.valueOf(buffer.subSequence(
+                        begin, String.valueOf(buffer).contains("(OP)") ? end - 5 : end)),
+                        mActivity.mPosts.get(mPosition).getNum(), true);
             }
         }
 
@@ -161,8 +154,8 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
 
     public void setForegroundSpanForParticularLocation(String number) {
         locateAnswersToBeColored(mBuffer);
-        Log.d(TAG, "setForegroundSpanForParticularLocation: mBuffer: " + mBuffer.toString());
-        Log.d(TAG, "setForegroundSpanForParticularLocation: mLocations: " + mLocations);
+        //Log.d(TAG, "setForegroundSpanForParticularLocation: mBuffer: " + mBuffer.toString());
+        //Log.d(TAG, "setForegroundSpanForParticularLocation: mLocations: " + mLocations);
 
 
             for (List<Integer> locations : mLocations) {
@@ -171,7 +164,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
                     end -= 5;
                 }
                 if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).equals(number)) {
-                    Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen " + locations.get(0) + ", " + locations.get(1));
+                    //Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen " + locations.get(0) + ", " + locations.get(1));
                     mBuffer.setSpan(mActivity.adapter.foregroundColorSpan, locations.get(0),
                             locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     List<Integer> locationsToAdd;
@@ -182,7 +175,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
                     locationsToAdd.add(locations.get(1));
                     mActivity.adapter.mCommentAnswersSpansLocations.add(mPosition, locationsToAdd);
                 } else {
-                    Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
+                    //Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
                 }
             }
 
@@ -193,5 +186,15 @@ public class CommentLinkMovementMethod extends LinkMovementMethod {
         this.mBuffer = text;
         //Log.d(TAG, "initialize " + mPosition);
         super.initialize(widget, text);
+    }
+
+    @Override
+    public void allowActionCancel() {
+        allowActionCancel = true;
+    }
+
+    @Override
+    public void disallowActionCancel() {
+        allowActionCancel = false;
     }
 }

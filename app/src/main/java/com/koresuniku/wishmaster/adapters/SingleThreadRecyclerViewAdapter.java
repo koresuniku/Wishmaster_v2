@@ -18,6 +18,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -256,38 +257,102 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         }
     }
 
-    private Spannable getCorrectSpannableForCommentTextView(String comment, int position) {
+    private Spannable getCorrectStringForCommentTextView(String comment, int position) {
         SpannableString spannableCommentAnswerString = new SpannableString(Html.fromHtml(comment));
         return setCommentAnswersBackgroundSpansIfNeeded(spannableCommentAnswerString, position);
     }
 
-    private Spannable getCorrectSpannableForAnswersTextView(TextView answers, String number, int position) {
-        if (mAnswers.containsKey(number)) {
-            answers.setVisibility(View.VISIBLE);
-            SpannableStringBuilder answerStringBuilder
-                    = new SpannableStringBuilder(mActivity.getString(R.string.answers_text));
-            answerStringBuilder.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC),
-                    0, answerStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            answerStringBuilder.append(" ");
-            for (String answer : mAnswers.get(number)) {
-                answerStringBuilder.append(">>");
-                answerStringBuilder.append(answer);
-                answerStringBuilder.setSpan(
-                        new ForegroundColorSpan(mActivity.getResources().getColor(R.color.colorAccent)),
-                        answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                answerStringBuilder.setSpan(new UnderlineSpan(),
-                        answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    private void setCorrectStringForAnswersTextView(final ViewHolder holder, String number, int position) {
+        if (mActivity.mAnswersManager.getAnswersMode() == 0) {
+            SpannableString answersString = new SpannableString(
+                    StringUtils.getCorrectAnswersString(getAnswersCountForPost(number)));
+            if (answersString.equals(new SpannableString("")))
+                ((FrameLayout)holder.answers.getParent()).setVisibility(View.GONE);
+            else ((FrameLayout)holder.answers.getParent()).setVisibility(View.VISIBLE);
+            holder.answers.setTextAppearance(mActivity, android.R.style.TextAppearance_DeviceDefault);
+            holder.answers.setTextColor(mActivity.getResources().getColor(R.color.colorAccent));
+            holder.answers.setTypeface(null, Typeface.BOLD_ITALIC);
+            answersString.setSpan(new ForegroundColorSpan(
+                    mActivity.getResources().getColor(R.color.colorAccent)),
+                    0, answersString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            holder.answers.setText(answersString);
+        } else {
+            if (mAnswers.containsKey(number)) {
+                holder.answers.setVisibility(View.VISIBLE);
+                SpannableStringBuilder answerStringBuilder
+                        = new SpannableStringBuilder(mActivity.getString(R.string.answers_text));
+                answerStringBuilder.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC),
+                        0, answerStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 answerStringBuilder.append("  ");
-            }
+                for (String answer : mAnswers.get(number)) {
+                    answerStringBuilder.append(">>");
+                    answerStringBuilder.append(answer);
+                    answerStringBuilder.setSpan(
+                            new ForegroundColorSpan(mActivity.getResources().getColor(R.color.colorAccent)),
+                            answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    answerStringBuilder.setSpan(new UnderlineSpan(),
+                            answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    answerStringBuilder.append(",  ");
+                }
 
-            SpannableString spannableAnswersString = SpannableString.valueOf(
-                    answerStringBuilder.delete(answerStringBuilder.length() - 2, answerStringBuilder.length()));
-            spannableAnswersString = setAnswersBackgroundSpansIfNeeded(spannableAnswersString, position);
-            return spannableAnswersString;
+                SpannableString spannableAnswersString = SpannableString.valueOf(
+                        answerStringBuilder.delete(answerStringBuilder.length() - 3, answerStringBuilder.length()));
+                spannableAnswersString = setAnswersBackgroundSpansIfNeeded(spannableAnswersString, position);
+                holder.answers.setText(spannableAnswersString);
 
-        } else answers.setVisibility(View.GONE); return new SpannableString("");
+            } else holder.answers.setVisibility(View.GONE);
+        }
+    }
+
+    private void setCorrectStringForAnswersTextView(final TextView answers, String number, int position) {
+        if (mActivity.mAnswersManager.getAnswersMode() == 0) {
+            SpannableString answersString = new SpannableString(
+                    StringUtils.getCorrectAnswersString(getAnswersCountForPost(number)));
+            if (answersString.equals(new SpannableString("")))
+                ((FrameLayout)answers.getParent()).setVisibility(View.GONE);
+            else answers.setVisibility(View.VISIBLE);
+            answers.setTextAppearance(mActivity, android.R.style.TextAppearance_DeviceDefault);
+            answers.setTextColor(mActivity.getResources().getColor(R.color.colorAccent));
+            answers.setTypeface(null, Typeface.BOLD_ITALIC);
+            answersString.setSpan(new ForegroundColorSpan(
+                            mActivity.getResources().getColor(R.color.colorAccent)),
+                    0, answersString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            answers.setText(answersString);
+        } else {
+            if (mAnswers.containsKey(number)) {
+                answers.setVisibility(View.VISIBLE);
+                SpannableStringBuilder answerStringBuilder
+                        = new SpannableStringBuilder(mActivity.getString(R.string.answers_text));
+                answerStringBuilder.setSpan(new StyleSpan(android.graphics.Typeface.ITALIC),
+                        0, answerStringBuilder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                answerStringBuilder.append("  ");
+                for (String answer : mAnswers.get(number)) {
+                    answerStringBuilder.append(">>");
+                    answerStringBuilder.append(answer);
+                    answerStringBuilder.setSpan(
+                            new ForegroundColorSpan(mActivity.getResources().getColor(R.color.colorAccent)),
+                            answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    answerStringBuilder.setSpan(new UnderlineSpan(),
+                            answerStringBuilder.length() - answer.length() - 2, answerStringBuilder.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    answerStringBuilder.append(",  ");
+                }
+
+                SpannableString spannableAnswersString = SpannableString.valueOf(
+                        answerStringBuilder.delete(answerStringBuilder.length() - 3, answerStringBuilder.length()));
+                spannableAnswersString = setAnswersBackgroundSpansIfNeeded(spannableAnswersString, position);
+                answers.setText(spannableAnswersString);
+
+            } else answers.setVisibility(View.GONE);
+        }
+    }
+
+    private int getAnswersCountForPost(String number) {
+        if (mAnswers.containsKey(number)) return mAnswers.get(number).size();
+        else return 0;
     }
 
     @Override
@@ -313,9 +378,9 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         if (!boardId.equals("b")) holder.subject.setText(Html.fromHtml(subject));
         else holder.subject.setVisibility(View.GONE);
         if (subject.equals("")) holder.subject.setVisibility(View.GONE);
-        holder.comment.setText(getCorrectSpannableForCommentTextView(comment, position));
+        holder.comment.setText(getCorrectStringForCommentTextView(comment, position));
         holder.comment.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
-        holder.answers.setText(getCorrectSpannableForAnswersTextView(holder.answers, number, position));
+        setCorrectStringForAnswersTextView(holder, number, position);
         holder.answers.setMovementMethod(AnswersLinkMovementMethod.getInstance(mActivity, position));
         if (position == 0) {
             if (subject.equals("")) ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(Html.fromHtml(comment));
@@ -605,10 +670,10 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         if (!boardId.equals("b")) subjectTextView.setText(Html.fromHtml(subject));
         else subjectTextView.setVisibility(View.GONE);
         if (subject.equals(""))subjectTextView.setVisibility(View.GONE);
-        commentTextView.setText(getCorrectSpannableForCommentTextView(comment, position));
+        commentTextView.setText(getCorrectStringForCommentTextView(comment, position));
         commentTextView.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
-        commentTextView.setText(getCorrectSpannableForCommentTextView(comment, position));
-        answersTextView.setText(getCorrectSpannableForAnswersTextView(answersTextView, number, position));
+        commentTextView.setText(getCorrectStringForCommentTextView(comment, position));
+        setCorrectStringForAnswersTextView(answersTextView, number, position);
         answersTextView.setMovementMethod(AnswersLinkMovementMethod.getInstance(mActivity, position));
         if (position == 0) {
             if (subject.equals("")) ((TextView)mActivity.toolbar.findViewById(R.id.title)).setText(Html.fromHtml(comment));

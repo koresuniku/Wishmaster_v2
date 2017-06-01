@@ -6,10 +6,10 @@
     android:layout_height="wrap_content"
     android:background="@color/common_background_color"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/thread_item_padding_vertical"
-    android:paddingLeft="@dimen/thread_item_padding_horizontal"
-    android:paddingRight="@dimen/thread_item_padding_horizontal"
-    android:paddingTop="@dimen/thread_item_padding_vertical">
+    android:paddingBottom="@dimen/item_padding_vertical"
+    android:paddingLeft="@dimen/item_padding_horizontal"
+    android:paddingRight="@dimen/item_padding_horizontal"
+    android:paddingTop="@dimen/item_padding_vertical">
 
     <RelativeLayout
         android:id="@+id/post_content"
@@ -45,7 +45,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/post_number_and_time_info"
-            android:layout_marginTop="@dimen/thread_item_margin_content_divider">
+            android:layout_marginTop="@dimen/item_margin_content_divider">
 
             <ImageView
                 android:id="@+id/post_image"
@@ -79,24 +79,30 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/post_number_and_time_info"
-            android:layout_marginLeft="@dimen/thread_item_padding_horizontal"
-            android:layout_marginStart="@dimen/thread_item_padding_horizontal"
-            android:layout_marginTop="@dimen/thread_item_margin_content_divider"
+            android:layout_marginLeft="@dimen/item_padding_horizontal"
+            android:layout_marginStart="@dimen/item_padding_horizontal"
+            android:layout_marginTop="@dimen/item_margin_content_divider"
             android:layout_toEndOf="@+id/image_container_1"
             android:layout_toRightOf="@+id/image_container_1"
             android:text="comment"
             android:textAppearance="@style/TextAppearance.AppCompat" />
     </RelativeLayout>
 
-    <com.koresuniku.wishmaster.ui.views.NoScrollTextView
-        android:id="@+id/answers"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:id="@+id/answers_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/post_content"
-        android:layout_marginTop="@dimen/thread_item_margin_content_divider"
-        android:lineSpacingExtra="2sp"
-        android:text="Answers: 1488666, 2284247"
-        android:textSize="13sp" />
+        android:layout_marginTop="@dimen/post_item_margin_answers_divider">
+
+        <com.koresuniku.wishmaster.ui.views.NoScrollTextView
+            android:id="@+id/answers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Answers: 1488666, 2284247"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textStyle="italic" />
+    </FrameLayout>
 
 
 </RelativeLayout>
