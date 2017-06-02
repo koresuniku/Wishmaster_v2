@@ -45,7 +45,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/post_number_and_time_info"
-            android:layout_marginTop="@dimen/item_margin_content_divider">
+            android:layout_marginTop="@dimen/item_margin_images_top_divider">
 
             <ImageView
                 android:id="@+id/post_image"
@@ -74,14 +74,14 @@
             android:layout_below="@+id/post_subject"
             android:text="number and time" />
 
-        <com.koresuniku.wishmaster.ui.views.NoScrollTextView
+        <com.koresuniku.wishmaster.ui.widget.NoScrollTextView
             android:id="@+id/post_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/post_number_and_time_info"
             android:layout_marginLeft="@dimen/item_padding_horizontal"
             android:layout_marginStart="@dimen/item_padding_horizontal"
-            android:layout_marginTop="@dimen/item_margin_content_divider"
+            android:layout_marginTop="@dimen/item_margin_images_top_divider"
             android:layout_toEndOf="@+id/image_container_1"
             android:layout_toRightOf="@+id/image_container_1"
             android:text="comment"
@@ -95,10 +95,11 @@
         android:layout_below="@+id/post_content"
         android:layout_marginTop="@dimen/post_item_margin_answers_divider">
 
-        <com.koresuniku.wishmaster.ui.views.NoScrollTextView
+        <com.koresuniku.wishmaster.ui.widget.NoScrollTextView
             android:id="@+id/answers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/item_margin_content_divider"
             android:text="Answers: 1488666, 2284247"
             android:textAppearance="@style/TextAppearance.AppCompat"
             android:textStyle="italic" />

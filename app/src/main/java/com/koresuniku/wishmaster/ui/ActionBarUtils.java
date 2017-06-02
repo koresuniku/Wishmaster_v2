@@ -7,7 +7,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.koresuniku.wishmaster.utils.DeviceUtils;
+import com.koresuniku.wishmaster.util.DeviceUtils;
 
 public class ActionBarUtils {
 

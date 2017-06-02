@@ -2,14 +2,13 @@ package com.koresuniku.wishmaster;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.util.Log;
 
 import com.github.piasy.biv.BigImageViewer;
 import com.github.piasy.biv.loader.glide.GlideImageLoader;
-import com.koresuniku.wishmaster.ui.listeners.SettingsContentObserver;
+import com.koresuniku.wishmaster.ui.listener.SettingsContentObserver;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;

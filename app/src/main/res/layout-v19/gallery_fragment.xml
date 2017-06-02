@@ -10,14 +10,14 @@
     android:focusableInTouchMode="true"
     android:foregroundGravity="top">
 
-    <com.koresuniku.wishmaster.ui.views.HackyViewPager
+    <com.koresuniku.wishmaster.ui.widget.HackyViewPager
         android:id="@+id/threads_full_pic_vid_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
         android:focusable="true">
 
-    </com.koresuniku.wishmaster.ui.views.HackyViewPager>
+    </com.koresuniku.wishmaster.ui.widget.HackyViewPager>
 
     <LinearLayout
         android:id="@+id/picvid_toolbar_container"

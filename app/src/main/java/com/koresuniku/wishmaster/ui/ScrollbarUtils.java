@@ -5,7 +5,7 @@ import android.content.res.Configuration;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 
-import com.koresuniku.wishmaster.utils.DeviceUtils;
+import com.koresuniku.wishmaster.util.DeviceUtils;
 
 public class ScrollbarUtils {
 

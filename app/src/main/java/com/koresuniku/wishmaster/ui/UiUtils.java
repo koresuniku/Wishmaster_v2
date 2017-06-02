@@ -18,10 +18,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.koresuniku.wishmaster.R;
-import com.koresuniku.wishmaster.activities.ThreadsActivity;
-import com.koresuniku.wishmaster.utils.DeviceUtils;
-
-import static java.security.AccessController.getContext;
+import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
+import com.koresuniku.wishmaster.util.DeviceUtils;
 
 public class UiUtils {
     private static final String LOG_TAG = UiUtils.class.getSimpleName();

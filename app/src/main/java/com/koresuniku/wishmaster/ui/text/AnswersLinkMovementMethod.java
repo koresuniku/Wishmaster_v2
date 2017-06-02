@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
-import com.koresuniku.wishmaster.activities.SingleThreadActivity;
+import com.koresuniku.wishmaster.ui.activity.SingleThreadActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;

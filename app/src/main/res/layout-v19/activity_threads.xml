@@ -67,14 +67,14 @@
                 app:srl_direction="bottom"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <com.koresuniku.wishmaster.ui.views.FixedRecyclerView
+                <com.koresuniku.wishmaster.ui.widget.FixedRecyclerView
                     android:id="@+id/threads_recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/common_background_color"
                     android:clipToPadding="false">
 
-                </com.koresuniku.wishmaster.ui.views.FixedRecyclerView>
+                </com.koresuniku.wishmaster.ui.widget.FixedRecyclerView>
 
 
 
@@ -150,7 +150,7 @@
             android:layout_gravity="center"
             app:srcCompat="@drawable/fastscroll_background" />
 
-        <com.koresuniku.wishmaster.ui.views.VerticalSeekBar
+        <com.koresuniku.wishmaster.ui.widget.VerticalSeekBar
             android:id="@+id/scroll_seekBar"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
