@@ -134,9 +134,8 @@ public class AnswersController {
         }
         mActivity.mAnswerList.removeViewAt(mActivity.mAnswerList.getChildCount() - 1);
 
-        if (mActivity.answerOpened) {
-            writeInAnswerScrollState();
-        }
+        if (mActivity.answerOpened) writeInAnswerScrollState();
+
         ((SaveStateScrollView)mActivity.mAnswerLayout.findViewById(R.id.answer_layout_scrollview))
                 .scrollToWithGuarantees(0, 0);
 

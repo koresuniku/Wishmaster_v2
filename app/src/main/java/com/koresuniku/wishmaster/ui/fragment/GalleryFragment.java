@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
+import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.ui.activity.SingleThreadActivity;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
@@ -248,17 +249,10 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         layoutContainer.addView(videoView);
         videoView.setControls(null);
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        OkHttpDataSourceFactory dataSourceFactory = null;
-        if (mActivity instanceof ThreadsActivity) {
-            dataSourceFactory = new OkHttpDataSourceFactory(((ThreadsActivity)mActivity).client,
-                    Util.getUserAgent(mActivity, mActivity.getString(R.string.app_name)),
-                    (TransferListener<? super DataSource>) bandwidthMeter);
-        }
-        if (mActivity instanceof SingleThreadActivity) {
-            dataSourceFactory = new OkHttpDataSourceFactory(((SingleThreadActivity)mActivity).client,
-                    Util.getUserAgent(mActivity, mActivity.getString(R.string.app_name)),
-                    (TransferListener<? super DataSource>) bandwidthMeter);
-        }
+        OkHttpDataSourceFactory dataSourceFactory =
+                new OkHttpDataSourceFactory(HttpClient.client,
+                Util.getUserAgent(mActivity, mActivity.getString(R.string.app_name)),
+                (TransferListener<? super DataSource>) bandwidthMeter);
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
         MediaSource videoSource = new ExtractorMediaSource(Uri.parse(Constants.DVACH_BASE_URL + path),
                 dataSourceFactory, extractorsFactory, null, null);
@@ -295,118 +289,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         isPrepared = false;
 
     }
-
-//    private void createVideoViewExo(String path) {
-//        layoutContainer = (FrameLayout) rootView.findViewById(R.id.full_video_layout_container);
-//        videoViewExo = new com.koresuniku.wishmaster.ui.views.SimpleExoPlayerView(mActivity);
-//        videoViewExo.setUseController(false);
-//        videoViewExo.setLayoutParams(new ViewGroup.LayoutParams(
-//                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//        layoutContainer.addView(videoViewExo);
-//        videoViewExo.setBackgroundColor(mActivity.getResources().getColor(R.color.full_media_tint));
-//
-//
-//        TrackSelection.Factory videoTrackSelectionFactory =
-//                new AdaptiveTrackSelection.Factory(bandwidthMeter);
-//        TrackSelector trackSelector =
-//                new DefaultTrackSelector(videoTrackSelectionFactory);
-//        LoadControl loadControl = new DefaultLoadControl();
-//        playerExo = ExoPlayerFactory.newSimpleInstance(mActivity, trackSelector, loadControl);
-//        videoViewExo.getOverlayFrameLayout().setOnClickListener(videoOnClickListener);
-//
-//
-//        OkHttpDataSourceFactory dataSourceFactory = null;
-//        if (mActivity instanceof ThreadsActivity) {
-//            dataSourceFactory = new OkHttpDataSourceFactory(((ThreadsActivity)mActivity).client,
-//                    Util.getUserAgent(mActivity, mActivity.getString(R.string.app_name)),
-//                    (TransferListener<? super DataSource>) bandwidthMeter);
-//        }
-//        if (mActivity instanceof SingleThreadActivity) {
-//            dataSourceFactory = new OkHttpDataSourceFactory(((SingleThreadActivity)mActivity).client,
-//                    Util.getUserAgent(mActivity, mActivity.getString(R.string.app_name)),
-//                    (TransferListener<? super DataSource>) bandwidthMeter);
-//        }
-//        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-//        MediaSource videoSource = new ExtractorMediaSource(Uri.parse(path),
-//                dataSourceFactory, extractorsFactory, null, null);
-//        playerExo.setPlayWhenReady(false);
-//        playerExo.prepare(videoSource);
-//        videoViewExo.setPlayer(playerExo);
-//        playerExo.setVideoDebugListener(new VideoRendererEventListener() {
-//            @Override
-//            public void onVideoEnabled(DecoderCounters counters) {
-//
-//            }
-//
-//            @Override
-//            public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-//
-//            }
-//
-//            @Override
-//            public void onVideoInputFormatChanged(Format format) {
-//
-//            }
-//
-//            @Override
-//            public void onDroppedFrames(int count, long elapsedMs) {
-//
-//            }
-//
-//            @Override
-//            public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-//
-//            }
-//
-//            @Override
-//            public void onRenderedFirstFrame(Surface surface) {
-//                Log.d(LOG_TAG, "onRenderedFirstFrame:");
-//                onPreparedExo();
-//            }
-//
-//            @Override
-//            public void onVideoDisabled(DecoderCounters counters) {
-//
-//            }
-//        });
-//        playerExo.addListener(new ExoPlayer.EventListener() {
-//            @Override
-//            public void onTimelineChanged(Timeline timeline, Object manifest) {
-//
-//            }
-//
-//            @Override
-//            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-//
-//            }
-//
-//            @Override
-//            public void onLoadingChanged(boolean isLoading) {
-//
-//            }
-//
-//            @Override
-//            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-//
-//            }
-//
-//            @Override
-//            public void onPlayerError(ExoPlaybackException error) {
-//
-//            }
-//
-//            @Override
-//            public void onPositionDiscontinuity() {
-//
-//            }
-//
-//
-//            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-//
-//            }
-//        });
-//
-//    }
 
     private void createControlView(boolean firstTime) {
         if (mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -448,7 +330,6 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         videoView.pause();
         setPlayPauseImage(false);
         videoView.requestLayout();
-
     }
 
 
@@ -463,7 +344,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             @Override
             public void onClick(View v) {
                 rootView.findViewById(R.id.video_progress_bar).setVisibility(View.VISIBLE);
-                restartVideoView();
+                restartVideoView(0L, 0);
             }
         });
     }
@@ -507,9 +388,11 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     };
 
 
-    public void restartVideoView() {
+    public void restartVideoView(long seekToMillis, int progress) {
         videoView.restart();
-        startVideoView();
+        videoView.seekTo(seekToMillis);
+        seekbar.setProgress(progress);
+        isCompleted = false;
     }
 
     public void startVideoView() {
@@ -562,7 +445,8 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     seekToMillis = videoView.getDuration() * progress / 100;
-                    videoView.seekTo(seekToMillis);
+                    if (isCompleted) restartVideoView(seekToMillis, progress);
+                    else videoView.seekTo(seekToMillis);
                 }
             }
 
@@ -788,36 +672,12 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
         setPlayPauseImage(false);
     }
 
-//    public void onPreparedExo() {
-//        Log.d(LOG_TAG, "video prepared");
-//        playerExoIsPrepared = true;
-//        rootView.findViewById(R.id.video_progress_bar).setVisibility(View.GONE);
-//        playPauseContainer.setEnabled(true);
-//        playPauseContainer.setClickable(true);
-//        playPauseContainer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                changePlayPauseImage();
-//            }
-//        });
-//        seekbar.setEnabled(true);
-//        if (isCompleted) {
-//            isCompleted = false;
-//            playerExo.seekTo(0);
-//            playPauseContainer.setOnClickListener(v -> changePlayPauseImage());
-//        }
-//        if (mPlayVideo) {
-//           // startVideoView();
-//            startPlayerExo();
-//        }
-//        setPlayPauseImage(false);
-//    }
 
     private void updateControlView() {
         Log.d(LOG_TAG, "udpateControlView()");
         mHandler = new Handler();
         overallDuration.setText(getFormattedProgressString(videoView.getDuration()));
-        mHandler.postDelayed(updateProgressTask, 200);
+        mHandler.postDelayed(updateVideoProgressTask, 200);
         mHandler.postDelayed(updateProgressBarTask, 200);
     }
 
@@ -836,7 +696,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
     }
 
 
-    private Runnable updateProgressTask = new Runnable() {
+    private Runnable updateVideoProgressTask = new Runnable() {
         @Override
         public void run() {
             progressTime.setText(getFormattedProgressString(videoView.getCurrentPosition()));
@@ -870,7 +730,7 @@ public class GalleryFragment extends android.support.v4.app.Fragment implements 
                         @Override
                         public void run() {
                             if ((previousProgress == videoView.getCurrentPosition()
-                                    && videoView.isPlaying() || !isPrepared)) {
+                                    && videoView.isPlaying() || !isPrepared) && !isCompleted) {
                                 rootView.findViewById(R.id.video_progress_bar).setVisibility(View.VISIBLE);
                             } else {
                                 rootView.findViewById(R.id.video_progress_bar).setVisibility(GONE);

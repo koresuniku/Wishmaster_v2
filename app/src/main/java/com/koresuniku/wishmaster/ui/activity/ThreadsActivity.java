@@ -2,6 +2,7 @@ package com.koresuniku.wishmaster.ui.activity;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -43,6 +44,10 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.koresuniku.wishmaster.App;
+import com.koresuniku.wishmaster.http.HttpClient;
+import com.koresuniku.wishmaster.http.IBaseJsonSchema;
+import com.koresuniku.wishmaster.presenter.DataLoader;
+import com.koresuniku.wishmaster.presenter.ILoadData;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.ui.adapter.ThreadsListViewAdapter;
@@ -88,7 +93,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class ThreadsActivity extends AppCompatActivity {
+public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     private final String LOG_TAG = ThreadsActivity.class.getSimpleName();
 
     private ThreadsActivity mActivity;
@@ -138,6 +143,7 @@ public class ThreadsActivity extends AppCompatActivity {
     public PicVidPagerAdapter picVidPagerAdapter;
     public ThreadsViewPagerOnPageChangeListener threadsViewPagerOnPageChangeListener;
 
+    private DataLoader mDataLoader;
 
 
     public boolean dataLoaded = false;
@@ -145,17 +151,17 @@ public class ThreadsActivity extends AppCompatActivity {
     public boolean fullPicVidOpenedAndFullScreenModeIsOn = false;
     public int picVidOpenedPosition = -1;
 
-    public OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(5000, TimeUnit.SECONDS)
-            //.proxy(setProxy())
-            .readTimeout(10000, TimeUnit.SECONDS).build();
-    public Gson gson = new GsonBuilder().create();
-    public Retrofit retrofit = new Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(Constants.DVACH_BASE_URL)
-            .client(client)
-            .build();
-    public ThreadsApiService service = retrofit.create(ThreadsApiService.class);
+//    public OkHttpClient client = new OkHttpClient.Builder()
+//            .connectTimeout(5000, TimeUnit.SECONDS)
+//            //.proxy(setProxy())
+//            .readTimeout(10000, TimeUnit.SECONDS).build();
+//    public Gson gson = new GsonBuilder().create();
+//    public Retrofit retrofit = new Retrofit.Builder()
+//            .addConverterFactory(GsonConverterFactory.create(gson))
+//            .baseUrl(Constants.DVACH_BASE_URL)
+//            .client(client)
+//            .build();
+//    public ThreadsApiService service = retrofit.create(ThreadsApiService.class);
     public ThreadsJsonSchema mSchema;
 
 
@@ -181,6 +187,7 @@ public class ThreadsActivity extends AppCompatActivity {
         setupFullscreenMode();
         setupOrientationFeatures();
 
+        mDataLoader = new DataLoader(this);
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
     }
 
@@ -191,7 +198,6 @@ public class ThreadsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //if (adapter != null) adapter.notifyDataSetChanged();
         App.mSettingsContentObserver.switchActivity(this);
     }
 
@@ -199,17 +205,9 @@ public class ThreadsActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (!dataLoaded) {
-            loadData();
-        } else {
-//            if (mSchema != null) {
-//                //setupThreadsRecyclerView();
-//            }
-//            else loadData();
+            mDataLoader.loadData(boardId);
         }
     }
-
-
-
 
     private void setupOrientationFeatures() {
         if (Constants.API_INT >= 19) {
@@ -343,7 +341,7 @@ public class ThreadsActivity extends AppCompatActivity {
                         threadsRefreshLayoutTop.setRefreshing(true);
                     }
                 });
-                loadData();
+                mDataLoader.loadData(boardId);
             }
         });
         threadsRefreshLayoutBottom.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
@@ -356,7 +354,7 @@ public class ThreadsActivity extends AppCompatActivity {
                         threadsRefreshLayoutBottom.setRefreshing(true);
                     }
                 });
-                loadData();
+                mDataLoader.loadData(boardId);
             }
         });
 
@@ -456,7 +454,7 @@ public class ThreadsActivity extends AppCompatActivity {
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mActivity)
                 .imageDownloader(new BaseImageDownloader(mActivity, 50 * 1000, 20 * 1000)).build();
-        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(client));
+        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.client));
         ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
 
@@ -557,7 +555,7 @@ public class ThreadsActivity extends AppCompatActivity {
                 return true;
             case R.id.action_refresh: {
                 threadsRefreshLayoutTop.setRefreshing(true);
-                loadData();
+                mDataLoader.loadData(boardId);
 
             }
         }
@@ -615,66 +613,66 @@ public class ThreadsActivity extends AppCompatActivity {
         System.gc();
     }
 
-    private void loadData() {
-        dataLoaded = true;
-
-        Log.d(LOG_TAG, "sending request...");
-
-        if (boardId.equals("d") || boardId.equals("d")) {
-            new ThreadsForPagesAsyncTask(this, boardId).execute();
-        } else {
-            Call<ThreadsJsonSchema> call = service.getThreads(boardId);
-            call.enqueue(new Callback<ThreadsJsonSchema>() {
-                @Override
-                public void onResponse(Call<ThreadsJsonSchema> call,
-                                       Response<ThreadsJsonSchema> response) {
-                    mSchema = response.body();
-                    Log.d(LOG_TAG, "data loaded:");
-                    postLoadData();
-                }
-
-                @Override
-                public void onFailure(Call<ThreadsJsonSchema> call, Throwable t) {
-                    Log.d(LOG_TAG, "onFailure: ");
-                    t.printStackTrace();
-                }
-            });
-        }
-    }
-
-    public void postLoadData() {
-        Log.d(LOG_TAG, "postLoadData: mSchema: treadsSize: " + mSchema.getThreads().size());
-        if (boardName.equals("")) {
-            boardName = mSchema.getBoardName();
-            ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
-        }
-        if (threadsRecyclerView == null) {
-            setupThreadsRecyclerView();
-        } else {
-            if (adapter == null) {
-                adapter = new ThreadsRecyclerViewAdapter(mActivity, boardId);
-                threadsRecyclerView.setAdapter(adapter);
-                if (threadsRefreshLayoutTop.isEnabled())
-                    threadsRefreshLayoutTop.setRefreshing(false);
-                if (threadsRefreshLayoutBottom.isEnabled())
-                    threadsRefreshLayoutBottom.setRefreshing(false);
-            } else {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-                if (threadsRefreshLayoutTop.isEnabled() || threadsRefreshLayoutTop.isRefreshing())
-                    threadsRefreshLayoutTop.setRefreshing(false);
-                if (threadsRefreshLayoutBottom.isEnabled())
-                    threadsRefreshLayoutBottom.setRefreshing(false);
-                appBarLayout.setExpanded(true);
-                threadsRecyclerView.scrollToPosition(0);
-                Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
-            }
-        }
-    }
+//    private void loadData() {
+//        dataLoaded = true;
+//
+//        Log.d(LOG_TAG, "sending request...");
+//
+//        if (boardId.equals("d") || boardId.equals("d")) {
+//            new ThreadsForPagesAsyncTask(this, boardId).execute();
+//        } else {
+//            Call<ThreadsJsonSchema> call = service.getThreads(boardId);
+//            call.enqueue(new Callback<ThreadsJsonSchema>() {
+//                @Override
+//                public void onResponse(Call<ThreadsJsonSchema> call,
+//                                       Response<ThreadsJsonSchema> response) {
+//                    mSchema = response.body();
+//                    Log.d(LOG_TAG, "data loaded:");
+//                    postLoadData();
+//                }
+//
+//                @Override
+//                public void onFailure(Call<ThreadsJsonSchema> call, Throwable t) {
+//                    Log.d(LOG_TAG, "onFailure: ");
+//                    t.printStackTrace();
+//                }
+//            });
+//        }
+//    }
+//
+//    public void postLoadData() {
+//        Log.d(LOG_TAG, "postLoadData: mSchema: treadsSize: " + mSchema.getThreads().size());
+//        if (boardName.equals("")) {
+//            boardName = mSchema.getBoardName();
+//            ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
+//        }
+//        if (threadsRecyclerView == null) {
+//            setupThreadsRecyclerView();
+//        } else {
+//            if (adapter == null) {
+//                adapter = new ThreadsRecyclerViewAdapter(mActivity, boardId);
+//                threadsRecyclerView.setAdapter(adapter);
+//                if (threadsRefreshLayoutTop.isEnabled())
+//                    threadsRefreshLayoutTop.setRefreshing(false);
+//                if (threadsRefreshLayoutBottom.isEnabled())
+//                    threadsRefreshLayoutBottom.setRefreshing(false);
+//            } else {
+//                new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        adapter.notifyDataSetChanged();
+//                    }
+//                });
+//                if (threadsRefreshLayoutTop.isEnabled() || threadsRefreshLayoutTop.isRefreshing())
+//                    threadsRefreshLayoutTop.setRefreshing(false);
+//                if (threadsRefreshLayoutBottom.isEnabled())
+//                    threadsRefreshLayoutBottom.setRefreshing(false);
+//                appBarLayout.setExpanded(true);
+//                threadsRecyclerView.scrollToPosition(0);
+//                Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
+//            }
+//        }
+//    }
 
     private void fixCoordinatorLayout(Configuration configuration) {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
@@ -762,4 +760,45 @@ public class ThreadsActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onDataLoaded(List schema) {
+        dataLoaded = true;
+        mSchema = (ThreadsJsonSchema) schema.get(0);
+        Log.d(LOG_TAG, "postLoadData: mSchema: treadsSize: " + mSchema.getThreads().size());
+        if (boardName.equals("")) {
+            boardName = mSchema.getBoardName();
+            ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
+        }
+        if (threadsRecyclerView == null) {
+            setupThreadsRecyclerView();
+        } else {
+            if (adapter == null) {
+                adapter = new ThreadsRecyclerViewAdapter(mActivity, boardId);
+                threadsRecyclerView.setAdapter(adapter);
+                if (threadsRefreshLayoutTop.isEnabled())
+                    threadsRefreshLayoutTop.setRefreshing(false);
+                if (threadsRefreshLayoutBottom.isEnabled())
+                    threadsRefreshLayoutBottom.setRefreshing(false);
+            } else {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+                if (threadsRefreshLayoutTop.isEnabled() || threadsRefreshLayoutTop.isRefreshing())
+                    threadsRefreshLayoutTop.setRefreshing(false);
+                if (threadsRefreshLayoutBottom.isEnabled())
+                    threadsRefreshLayoutBottom.setRefreshing(false);
+                appBarLayout.setExpanded(true);
+                threadsRecyclerView.scrollToPosition(0);
+                Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
+            }
+        }
+    }
+
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
 }

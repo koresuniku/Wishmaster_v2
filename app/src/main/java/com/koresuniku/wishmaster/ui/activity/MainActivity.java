@@ -32,10 +32,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.koresuniku.wishmaster.http.IBaseJsonSchema;
+import com.koresuniku.wishmaster.presenter.DataLoader;
+import com.koresuniku.wishmaster.presenter.ILoadData;
 import com.koresuniku.wishmaster.ui.adapter.BoardsExpandableListViewAdapter;
-import com.koresuniku.wishmaster.http.boards_api.BoardsApiService;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
 import com.koresuniku.wishmaster.util.Constants;
@@ -44,20 +44,14 @@ import com.koresuniku.wishmaster.util.DeviceUtils;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ILoadData {
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private MainActivity mActivity;
+    private DataLoader mDataLoader;
 
     private Toolbar toolbar;
     private ExpandableListView mBoardsExpListView;
@@ -68,17 +62,6 @@ public class MainActivity extends AppCompatActivity
     public Menu mMenu;
     public boolean searchIsShown = false;
 
-    OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(5000, TimeUnit.SECONDS)
-            //.proxy(setProxy())
-            .readTimeout(10000, TimeUnit.SECONDS).build();
-    public Gson gson = new GsonBuilder().create();
-    public Retrofit retrofit = new Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(Constants.DVACH_BASE_URL)
-            .client(client)
-            .build();
-    BoardsApiService service = retrofit.create(BoardsApiService.class);
     private BoardsJsonSchema mSchema;
 
     @Override
@@ -93,7 +76,8 @@ public class MainActivity extends AppCompatActivity
         hideSearchEditText();
 
         setupDefaultPreferences();
-        collectBoardsData();
+        mDataLoader = new DataLoader(this);
+        mDataLoader.collectBoardsData();
     }
 
     private Proxy setProxy() {
@@ -370,25 +354,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void collectBoardsData() {
-        Call<BoardsJsonSchema> call = service.getBoards("get_boards");
-        call.enqueue(new Callback<BoardsJsonSchema>() {
-            @Override
-            public void onResponse(Call<BoardsJsonSchema> call, Response<BoardsJsonSchema> response) {
-                Log.i(LOG_TAG, "onResponse: " + response.body().getAdults());
-                mSchema = response.body();
-                setupExpandableListView(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<BoardsJsonSchema> call, Throwable t) {
-                Log.d(LOG_TAG, "onFailure: ");
-                t.printStackTrace();
-            }
-        });
-    }
-
-
     private void setupExpandableListView(BoardsJsonSchema schema) {
         BoardsExpandableListViewAdapter adapter = new BoardsExpandableListViewAdapter(this, schema);
         mBoardsExpListView = (ExpandableListView) findViewById(R.id.boards_exp_listview);
@@ -401,4 +366,17 @@ public class MainActivity extends AppCompatActivity
         int defaultValue = Integer.parseInt(getResources().getString(R.string.sp_cache_size_default_value));
         preferences.getInt(getString(R.string.sp_cache_size_code), defaultValue);
     }
+
+    @Override
+    public void onDataLoaded(List schema) {
+        mSchema = (BoardsJsonSchema) schema.get(0);
+        setupExpandableListView(mSchema);
+    }
+
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+
 }

@@ -22,15 +22,16 @@ public class App extends Application {
     public static int soundVolume;
     public static SettingsContentObserver mSettingsContentObserver;
 
-    public OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(10000, TimeUnit.SECONDS)
-            .proxy(setProxy())
-            .readTimeout(10000, TimeUnit.SECONDS).build();
-
-    private Proxy setProxy() {
-        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
-    }
+//    public OkHttpClient client = new OkHttpClient.Builder()
+//            .connectTimeout(10000, TimeUnit.SECONDS)
+//            .proxy(setProxy())
+//            .readTimeout(10000, TimeUnit.SECONDS).build();
 //
+//
+//    private Proxy setProxy() {
+//        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress("94.177.233.56", 1189));
+//    }
+////
 //    public static void fixLeakCanary696(Context context) {
 //        if (!isEmui()) {
 //            Log.w(LOG_TAG, "not emui");

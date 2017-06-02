@@ -2,11 +2,12 @@ package com.koresuniku.wishmaster.http.single_thread_api.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 
 import java.util.List;
 
-public class Post {
+public class Post implements IBaseJsonSchema {
     @SerializedName("comment")
     @Expose
     private String comment;

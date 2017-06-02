@@ -3,6 +3,7 @@ package com.koresuniku.wishmaster.http.threads_api;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 import com.koresuniku.wishmaster.http.threads_api.models.Thread;
 import com.koresuniku.wishmaster.http.threads_api.models.ThreadForPage;
@@ -11,6 +12,7 @@ import com.koresuniku.wishmaster.http.threads_api.models.ThreadsJsonSchema;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -50,13 +52,13 @@ public class ThreadsForPagesAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        Call<ThreadsJsonSchema> callMainSchema = mActivity.service.getThreads(mBoardId);
+        Call<ThreadsJsonSchema> callMainSchema = HttpClient.threadsService.getThreads(mBoardId);
         try {
             mActivity.mSchema = callMainSchema.execute().body();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Call<ThreadsForPagesJsonSchema> call = mActivity.service.getThreadsForPages(mBoardId, "index");
+        Call<ThreadsForPagesJsonSchema> call = HttpClient.threadsService.getThreadsForPages(mBoardId, "index");
 
         call.enqueue(new Callback<ThreadsForPagesJsonSchema>() {
             @Override
@@ -70,7 +72,7 @@ public class ThreadsForPagesAsyncTask extends AsyncTask<Void, Void, Void> {
                     final int iCopy = i;
                     Log.d(LOG_TAG, "loading page " + i);
                     final Call<ThreadsForPagesJsonSchema> callForPage
-                            = mActivity.service.getThreadsForPages(mBoardId, String.valueOf(i));
+                            = HttpClient.threadsService.getThreadsForPages(mBoardId, String.valueOf(i));
                         callForPage.enqueue(new Callback<ThreadsForPagesJsonSchema>() {
                             @Override
                             public void onResponse(Call<ThreadsForPagesJsonSchema> call, final Response<ThreadsForPagesJsonSchema> response) {
@@ -113,7 +115,7 @@ public class ThreadsForPagesAsyncTask extends AsyncTask<Void, Void, Void> {
             public void run() {
                 Log.d(LOG_TAG, "finish: ");
                 mActivity.mSchema.setThreads(threadList);
-                mActivity.postLoadData();
+                mActivity.onDataLoaded(Collections.singletonList(mActivity.mSchema));
             }
         });
     }

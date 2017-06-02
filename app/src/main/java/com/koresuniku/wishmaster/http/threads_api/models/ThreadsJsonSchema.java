@@ -7,8 +7,9 @@ import android.os.Parcelable;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 
-public class ThreadsJsonSchema {
+public class ThreadsJsonSchema implements IBaseJsonSchema {
 
     @SerializedName("BoardName")
     @Expose

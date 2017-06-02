@@ -4,8 +4,9 @@ package com.koresuniku.wishmaster.http.boards_api.models;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 
-public class BoardsJsonSchema {
+public class BoardsJsonSchema implements IBaseJsonSchema {
 
     @SerializedName("Взрослым")
     @Expose
