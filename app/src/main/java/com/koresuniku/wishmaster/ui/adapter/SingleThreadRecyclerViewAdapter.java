@@ -270,7 +270,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             else ((FrameLayout)holder.answers.getParent()).setVisibility(View.VISIBLE);
             holder.answers.setTextAppearance(mActivity, android.R.style.TextAppearance_DeviceDefault);
             holder.answers.setTextColor(mActivity.getResources().getColor(R.color.colorAccent));
-            holder.answers.setTypeface(null, Typeface.BOLD_ITALIC);
+            holder.answers.setTypeface(null, Typeface.BOLD);
             answersString.setSpan(new ForegroundColorSpan(
                     mActivity.getResources().getColor(R.color.colorAccent)),
                     0, answersString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -314,7 +314,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             else answers.setVisibility(View.VISIBLE);
             answers.setTextAppearance(mActivity, android.R.style.TextAppearance_DeviceDefault);
             answers.setTextColor(mActivity.getResources().getColor(R.color.colorAccent));
-            answers.setTypeface(null, Typeface.BOLD_ITALIC);
+            answers.setTypeface(null, Typeface.BOLD);
             answersString.setSpan(new ForegroundColorSpan(
                             mActivity.getResources().getColor(R.color.colorAccent)),
                     0, answersString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

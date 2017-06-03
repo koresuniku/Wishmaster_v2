@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -258,15 +259,17 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
 
         if ((position + 1) % 21 == 0) {
             if (position + 1 != mActivity.mSchema.getThreads().size()) {
+                ((FrameLayout)holder.indicatorView.getParent()).setVisibility(View.VISIBLE);
                 holder.indicatorView.setVisibility(View.VISIBLE);
                 holder.indicatorTextView.setText(((holder.getAdapterPosition() + 1) / 21)
                         + " " + mActivity.getString(R.string.page_text));
                 holder.indicatorTextView.setTypeface(null, Typeface.BOLD);
                 holder.indicatorView.getLayoutParams().width =
                         holder.threadItemContainer.getLayoutParams().width;
-            } else holder.indicatorView.setVisibility(View.GONE);
+
+            } else ((FrameLayout)holder.indicatorView.getParent()).setVisibility(View.GONE);
         } else {
-            holder.indicatorView.setVisibility(View.GONE);
+            ((FrameLayout)holder.indicatorView.getParent()).setVisibility(View.GONE);
         }
 
     }

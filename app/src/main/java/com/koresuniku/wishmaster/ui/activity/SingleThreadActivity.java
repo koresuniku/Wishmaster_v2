@@ -40,19 +40,15 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.HttpClient;
-import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 import com.koresuniku.wishmaster.presenter.DataLoader;
 import com.koresuniku.wishmaster.presenter.ILoadData;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.ui.adapter.SingleThreadRecyclerViewAdapter;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
 import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
-import com.koresuniku.wishmaster.http.single_thread_api.SingleThreadApiService;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.ui.controller.AnswersController;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
@@ -81,14 +77,6 @@ import java.net.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.view.View.GONE;
 
@@ -413,7 +401,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         });
     }
 
-    private void setupThreadsRecyclerView() {
+    private void setupRecyclerView() {
         singleThreadRecyclerView = (FixedRecyclerView) findViewById(R.id.single_thread_recycler_view);
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mActivity)
                 .imageDownloader(new BaseImageDownloader(mActivity, 50 * 1000, 200 * 1000)).build();
@@ -485,7 +473,8 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         });
         onRestoreInstanceState(null);
         fixCoordinatorLayout(null);
-
+        adapter = new SingleThreadRecyclerViewAdapter(mActivity, boardId);
+        singleThreadRecyclerView.setAdapter(adapter);
 
         setupFastScrollSeekBar();
     }
@@ -671,45 +660,27 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         mPosts = (List<Post>) schema;
 
         Log.d(LOG_TAG, "data loaded:");
-        if (dataLoadedFirstTime) setupThreadsRecyclerView();
-        else {
-            if (dataLoadedFirstTime) {
-                adapter = new SingleThreadRecyclerViewAdapter(mActivity, boardId);
-                singleThreadRecyclerView.setAdapter(adapter);
-                if (singleThreadRefreshLayoutTop.isEnabled())
-                    singleThreadRefreshLayoutTop.setRefreshing(false);
-                if (singleThreadRefreshLayoutBottom.isEnabled())
-                    singleThreadRefreshLayoutBottom.setRefreshing(false);
-            } else {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        int afterCount = mPosts.size();
-                        adapter.onAdapterChanges();
-                        adapter.notifyDataSetChanged();
-                        Log.d(LOG_TAG, "beforeCount: " + beforeCount + ", afterCount: " + afterCount);
-                        if (!dataLoadedFirstTime) adapter.notifyNewPosts(beforeCount, afterCount);
-                        else dataLoadedFirstTime = false;
-                        mFastScrollSeekBar.setMax(adapter.getItemCount());
-                        mFastScrollSeekBar.updateThumb();
-                        if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
-                                == beforeCount - 1) {
-                            linearLayoutManager.scrollToPositionWithOffset(beforeCount, 0);
-                            singleThreadRefreshLayoutBottom.requestLayout();
-                        } else {
-                            Log.d(LOG_TAG, "");
-                        }
-
-                    }
-                });
-                if (singleThreadRefreshLayoutTop.isRefreshing())
-                    singleThreadRefreshLayoutTop.setRefreshing(false);
-                if (singleThreadRefreshLayoutBottom.isRefreshing())
-                    singleThreadRefreshLayoutBottom.setRefreshing(false);
-
-                Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
+        if (dataLoadedFirstTime) setupRecyclerView();
+        int afterCount = mPosts.size();
+        adapter.onAdapterChanges();
+        adapter.notifyDataSetChanged();
+        Log.d(LOG_TAG, "beforeCount: " + beforeCount + ", afterCount: " + afterCount);
+        if (!dataLoadedFirstTime) {
+            adapter.notifyNewPosts(beforeCount, afterCount);
+            if (linearLayoutManager.findLastCompletelyVisibleItemPosition() == beforeCount - 1) {
+                linearLayoutManager.scrollToPositionWithOffset(beforeCount, 0);
+                singleThreadRefreshLayoutBottom.requestLayout();
             }
-        }
+        } else dataLoadedFirstTime = false;
+        mFastScrollSeekBar.setMax(adapter.getItemCount());
+        mFastScrollSeekBar.updateThumb();
+
+        if (singleThreadRefreshLayoutTop.isRefreshing())
+            singleThreadRefreshLayoutTop.setRefreshing(false);
+        if (singleThreadRefreshLayoutBottom.isRefreshing())
+            singleThreadRefreshLayoutBottom.setRefreshing(false);
+
+        Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
 
     }
 

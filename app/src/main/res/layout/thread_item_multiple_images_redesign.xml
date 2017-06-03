@@ -256,11 +256,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/posts_and_files_info"
-        android:layout_marginTop="@dimen/item_margin_content_divider">
+        android:layout_marginTop="@dimen/item_padding_vertical">
 
         <include
             android:id="@+id/threads_page_indicator_view"
             layout="@layout/threads_page_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:visibility="gone">
 
         </include>

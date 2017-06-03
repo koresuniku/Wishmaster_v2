@@ -168,7 +168,7 @@ public class StringUtils {
                                                          String op, String name, String trip, String time) {
         SpannableStringBuilder builder = new SpannableStringBuilder(
                 "#" + (position + 1) + " ");
-        builder.append(op.equals("0") ? "" : "#OP ");
+        builder.append(op.equals("0") ? "" : "OP ");
         builder.setSpan(new ForegroundColorSpan(
                         context.getResources().getColor(R.color.post_number_color)),
                 0, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
