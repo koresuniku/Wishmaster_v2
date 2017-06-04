@@ -21,6 +21,9 @@
     <dimen name="item_margin_content_divider">2dp</dimen>
     <dimen name="item_margin_images_top_divider">4dp</dimen>
     <dimen name="post_item_margin_answers_divider">6dp</dimen>
+    
+    <dimen name="item_webm_pic_width">70dp</dimen>
+    <dimen name="item_webm_pic_height">30dp</dimen>
 
     <dimen name="thumbnail_square_default_size">50dp</dimen>
     <dimen name="thumbnail_max_height">150dp</dimen>

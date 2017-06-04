@@ -68,21 +68,37 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         private RelativeLayout imageAndSummaryContainer2;
         private RelativeLayout imageAndSummaryContainer3;
         private RelativeLayout imageAndSummaryContainer4;
+        private RelativeLayout imageAndSummaryContainer5;
+        private RelativeLayout imageAndSummaryContainer6;
+        private RelativeLayout imageAndSummaryContainer7;
+        private RelativeLayout imageAndSummaryContainer8;
         private ImageView image;
         private ImageView image1;
         private ImageView image2;
         private ImageView image3;
         private ImageView image4;
+        private ImageView image5;
+        private ImageView image6;
+        private ImageView image7;
+        private ImageView image8;
         private ImageView webmImageView;
         private ImageView webmImageView1;
         private ImageView webmImageView2;
         private ImageView webmImageView3;
         private ImageView webmImageView4;
+        private ImageView webmImageView5;
+        private ImageView webmImageView6;
+        private ImageView webmImageView7;
+        private ImageView webmImageView8;
         private TextView summary;
         private TextView summary1;
         private TextView summary2;
         private TextView summary3;
         private TextView summary4;
+        private TextView summary5;
+        private TextView summary6;
+        private TextView summary7;
+        private TextView summary8;
         private TextView comment;
         private TextView postsAndFiles;
         private View indicatorView;
@@ -108,6 +124,14 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                         (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_3);
                 imageAndSummaryContainer4 =
                         (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_4);
+                imageAndSummaryContainer5 =
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_5);
+                imageAndSummaryContainer6 =
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_6);
+                imageAndSummaryContainer7 =
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_7);
+                imageAndSummaryContainer8 =
+                        (RelativeLayout) itemView.findViewById(R.id.image_with_summary_container_8);
                 image1 = (ImageView) itemView.findViewById(R.id.thread_image_1);
                 webmImageView1 = (ImageView) itemView.findViewById(R.id.webm_imageview_1);
                 image2 = (ImageView) itemView.findViewById(R.id.thread_image_2);
@@ -116,10 +140,22 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                 webmImageView3 = (ImageView) itemView.findViewById(R.id.webm_imageview_3);
                 image4 = (ImageView) itemView.findViewById(R.id.thread_image_4);
                 webmImageView4 = (ImageView) itemView.findViewById(R.id.webm_imageview_4);
+                image5 = (ImageView) itemView.findViewById(R.id.thread_image_5);
+                webmImageView5 = (ImageView) itemView.findViewById(R.id.webm_imageview_5);
+                image6 = (ImageView) itemView.findViewById(R.id.thread_image_6);
+                webmImageView6 = (ImageView) itemView.findViewById(R.id.webm_imageview_6);
+                image7 = (ImageView) itemView.findViewById(R.id.thread_image_7);
+                webmImageView7 = (ImageView) itemView.findViewById(R.id.webm_imageview_7);
+                image8 = (ImageView) itemView.findViewById(R.id.thread_image_8);
+                webmImageView8 = (ImageView) itemView.findViewById(R.id.webm_imageview_8);
                 summary1 = (TextView) itemView.findViewById(R.id.image_summary_1);
                 summary2 = (TextView) itemView.findViewById(R.id.image_summary_2);
                 summary3 = (TextView) itemView.findViewById(R.id.image_summary_3);
                 summary4 = (TextView) itemView.findViewById(R.id.image_summary_4);
+                summary5 = (TextView) itemView.findViewById(R.id.image_summary_5);
+                summary6 = (TextView) itemView.findViewById(R.id.image_summary_6);
+                summary7 = (TextView) itemView.findViewById(R.id.image_summary_7);
+                summary8 = (TextView) itemView.findViewById(R.id.image_summary_8);
             }
             comment = (TextView) itemView.findViewById(R.id.thread_comment);
             postsAndFiles = (TextView) itemView.findViewById(R.id.posts_and_files_info);
@@ -206,9 +242,10 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
             size = file.getSize();
 
             if (files.size() == 1) {
-                setupImageContainer(holder, holder.image, holder.webmImageView, (short) 0, holder.summary,
-                        thumbnail, file, size, width, height);
-            } else if (files.size() <= 4) {
+                setupImageContainer(holder, holder.image, holder.webmImageView, (short) 0,
+                        holder.summary, thumbnail, file, size, width, height);
+            }
+            if (files.size() > 1) {
                 switch (i) {
                     case 0: {
                         setupImageContainer(holder, holder.image1, holder.webmImageView1, (short) 0,
@@ -225,6 +262,22 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                     case 3: {
                         setupImageContainer(holder, holder.image4, holder.webmImageView4, (short) 3,
                                 holder.summary4, thumbnail, file, size, width, height); break;
+                    }
+                    case 4: {
+                        setupImageContainer(holder, holder.image5, holder.webmImageView5, (short) 4,
+                                holder.summary5, thumbnail, file, size, width, height); break;
+                    }
+                    case 5: {
+                        setupImageContainer(holder, holder.image6, holder.webmImageView6, (short) 5,
+                                holder.summary6, thumbnail, file, size, width, height); break;
+                    }
+                    case 6: {
+                        setupImageContainer(holder, holder.image7, holder.webmImageView7, (short) 6,
+                                holder.summary7, thumbnail, file, size, width, height); break;
+                    }
+                    case 7: {
+                        setupImageContainer(holder, holder.image8, holder.webmImageView8, (short) 7,
+                                holder.summary8, thumbnail, file, size, width, height); break;
                     }
                 }
             }
@@ -292,6 +345,14 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                     holder.imageAndSummaryContainer3.setVisibility(View.GONE);
                 if (holder.imageAndSummaryContainer4 != null)
                     holder.imageAndSummaryContainer4.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
                 break;
             }
             case 2: {
@@ -303,6 +364,14 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                     holder.imageAndSummaryContainer3.setVisibility(View.GONE);
                 if (holder.imageAndSummaryContainer4 != null)
                     holder.imageAndSummaryContainer4.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
                 break;
             }
             case 3: {
@@ -314,6 +383,14 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                     holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
                 if (holder.imageAndSummaryContainer4 != null)
                     holder.imageAndSummaryContainer4.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
                 break;
             }
             case 4: {
@@ -325,6 +402,90 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                     holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
                 if (holder.imageAndSummaryContainer4 != null)
                     holder.imageAndSummaryContainer4.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
+                break;
+            }
+            case 5: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
+                break;
+            }
+            case 6: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.GONE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
+                break;
+            }
+            case 7: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.GONE);
+                break;
+            }
+            case 8: {
+                if (holder.imageAndSummaryContainer1 != null)
+                    holder.imageAndSummaryContainer1.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer2 != null)
+                    holder.imageAndSummaryContainer2.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer3 != null)
+                    holder.imageAndSummaryContainer3.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer4 != null)
+                    holder.imageAndSummaryContainer4.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer5 != null)
+                    holder.imageAndSummaryContainer5.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer6 != null)
+                    holder.imageAndSummaryContainer6.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer7 != null)
+                    holder.imageAndSummaryContainer7.setVisibility(View.VISIBLE);
+                if (holder.imageAndSummaryContainer8 != null)
+                    holder.imageAndSummaryContainer8.setVisibility(View.VISIBLE);
                 break;
             }
         }
@@ -477,14 +638,19 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             image.getLayoutParams().width =
                     (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_vertical);
+//            ((RelativeLayout)image.getParent().getParent()).getLayoutParams().width =
+//                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_vertical);
             image.getLayoutParams().height =
                     (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_vertical);
             image.requestLayout();
         } else {
             image.getLayoutParams().width =
                     (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_horizontal);
+//            ((RelativeLayout)image.getParent().getParent()).getLayoutParams().width =
+//                    (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_horizontal);
             image.getLayoutParams().height =
                     (int) mActivity.getResources().getDimension(R.dimen.thumbnail_width_horizontal);
+
             image.requestLayout();
         }
     }
