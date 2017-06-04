@@ -48,6 +48,7 @@ import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 import com.koresuniku.wishmaster.presenter.DataLoader;
 import com.koresuniku.wishmaster.presenter.ILoadData;
+import com.koresuniku.wishmaster.ui.ActionBarUtils;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.ui.adapter.ThreadsListViewAdapter;
@@ -130,7 +131,7 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     private boolean fastScrollSeekbarTouchedFromUser;
 
     private Parcelable threadsRecyclerViewState;
-    private ThreadsRecyclerViewAdapter adapter;
+    public ThreadsRecyclerViewAdapter adapter;
     private SpeedyLinearLayoutManager linearLayoutManager;
     public static List<Files> files;
     public static List<String> thumbnails;
@@ -145,23 +146,11 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
 
     private DataLoader mDataLoader;
 
-
     public boolean dataLoaded = false;
     public boolean fullPicVidOpened = false;
     public boolean fullPicVidOpenedAndFullScreenModeIsOn = false;
     public int picVidOpenedPosition = -1;
 
-//    public OkHttpClient client = new OkHttpClient.Builder()
-//            .connectTimeout(5000, TimeUnit.SECONDS)
-//            //.proxy(setProxy())
-//            .readTimeout(10000, TimeUnit.SECONDS).build();
-//    public Gson gson = new GsonBuilder().create();
-//    public Retrofit retrofit = new Retrofit.Builder()
-//            .addConverterFactory(GsonConverterFactory.create(gson))
-//            .baseUrl(Constants.DVACH_BASE_URL)
-//            .client(client)
-//            .build();
-//    public ThreadsApiService service = retrofit.create(ThreadsApiService.class);
     public ThreadsJsonSchema mSchema;
 
 
@@ -199,18 +188,19 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     protected void onStart() {
         super.onStart();
         App.mSettingsContentObserver.switchActivity(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         if (!dataLoaded) {
             mDataLoader.loadData(boardId);
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
     private void setupOrientationFeatures() {
-        if (Constants.API_INT >= 19) {
+        if (DeviceUtils.sdkIsKitkatOrHigher()) {
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
                 UiUtils.showSystemUIExceptNavigationBar(this);
@@ -227,7 +217,7 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
         super.onConfigurationChanged(newConfig);
         Log.d(LOG_TAG, "onConfigurationChanged:");
         UiUtils.setupToolbarForNavigationBar(this, picVidToolbar);
-        if (Constants.API_INT >= 19) {
+        if (DeviceUtils.sdkIsKitkatOrHigher()) {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 UiUtils.showSystemUIExceptNavigationBar(this);
             } else UiUtils.showSystemUI(this);
@@ -243,7 +233,7 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
                 newConfig);
 
         fixCoordinatorLayout(newConfig);
-        fixRefreshLayoutOnOrientation();
+        defineIfNeedToEnableRefreshLayout();
 
         if (adapter != null) adapter.notifyDataSetChanged();
     }
@@ -265,10 +255,6 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
         toolbar = (Toolbar) findViewById(R.id.activity_toolbar);
     }
 
-    private void fixRefreshLayoutOnOrientation() {
-        defineIfNeedToEnableRefreshLayout();
-    }
-
     private void setupActionBar() {
         ((LinearLayout)appBarLayout.findViewById(R.id.toolbar_container)).removeView(toolbar);
         toolbar = (Toolbar) getLayoutInflater()
@@ -283,7 +269,9 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
         getSupportActionBar().setHomeButtonEnabled(true);
         ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
         ((TextView)toolbar.findViewById(R.id.title)).setTextSize(
-                getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? 20 : 16);
+                getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ?
+                        ActionBarUtils.MEDIA_TOOLBAR_TEXT_SIZE_VERTICAL :
+                        ActionBarUtils.MEDIA_TOOLBAR_TEXT_SIZE_HORIZONAL);
     }
 
     private void setupAnimations() {
@@ -480,10 +468,10 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
                     //imageLoader.pause();
-                    if (mActivity != null) Glide.with(mActivity).pauseRequests();
+                    if (getActivity() != null) Glide.with(mActivity).pauseRequests();
                 } else {
                     //imageLoader.resume();
-                    if (mActivity != null) Glide.with(mActivity).resumeRequests();
+                    if (getActivity() != null) Glide.with(mActivity).resumeRequests();
                 }
                 if (!fastScrollSeekbarTouchedFromUser) {
                     if (newState != 0) {
@@ -537,7 +525,7 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     }
 
     private void setupFullscreenMode() {
-        if (Constants.API_INT >= 19) UiUtils.showSystemUI(this);
+        if (DeviceUtils.sdkIsKitkatOrHigher()) UiUtils.showSystemUI(this);
     }
 
     @Override
@@ -588,7 +576,7 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
             UiUtils.setBarsTranslucent(this, false);
 
             if (!UiUtils.barsAreShown) {
-                if (Constants.API_INT >= 19) {
+                if (DeviceUtils.sdkIsKitkatOrHigher()) {
                     Log.d(LOG_TAG, "im here, bars arent shown");
                     UiUtils.showSystemUI(mActivity);
                     mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
@@ -613,72 +601,13 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
         System.gc();
     }
 
-//    private void loadData() {
-//        dataLoaded = true;
-//
-//        Log.d(LOG_TAG, "sending request...");
-//
-//        if (boardId.equals("d") || boardId.equals("d")) {
-//            new ThreadsForPagesAsyncTask(this, boardId).execute();
-//        } else {
-//            Call<ThreadsJsonSchema> call = service.getThreads(boardId);
-//            call.enqueue(new Callback<ThreadsJsonSchema>() {
-//                @Override
-//                public void onResponse(Call<ThreadsJsonSchema> call,
-//                                       Response<ThreadsJsonSchema> response) {
-//                    mSchema = response.body();
-//                    Log.d(LOG_TAG, "data loaded:");
-//                    postLoadData();
-//                }
-//
-//                @Override
-//                public void onFailure(Call<ThreadsJsonSchema> call, Throwable t) {
-//                    Log.d(LOG_TAG, "onFailure: ");
-//                    t.printStackTrace();
-//                }
-//            });
-//        }
-//    }
-//
-//    public void postLoadData() {
-//        Log.d(LOG_TAG, "postLoadData: mSchema: treadsSize: " + mSchema.getThreads().size());
-//        if (boardName.equals("")) {
-//            boardName = mSchema.getBoardName();
-//            ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
-//        }
-//        if (threadsRecyclerView == null) {
-//            setupThreadsRecyclerView();
-//        } else {
-//            if (adapter == null) {
-//                adapter = new ThreadsRecyclerViewAdapter(mActivity, boardId);
-//                threadsRecyclerView.setAdapter(adapter);
-//                if (threadsRefreshLayoutTop.isEnabled())
-//                    threadsRefreshLayoutTop.setRefreshing(false);
-//                if (threadsRefreshLayoutBottom.isEnabled())
-//                    threadsRefreshLayoutBottom.setRefreshing(false);
-//            } else {
-//                new Handler(Looper.getMainLooper()).post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        adapter.notifyDataSetChanged();
-//                    }
-//                });
-//                if (threadsRefreshLayoutTop.isEnabled() || threadsRefreshLayoutTop.isRefreshing())
-//                    threadsRefreshLayoutTop.setRefreshing(false);
-//                if (threadsRefreshLayoutBottom.isEnabled())
-//                    threadsRefreshLayoutBottom.setRefreshing(false);
-//                appBarLayout.setExpanded(true);
-//                threadsRecyclerView.scrollToPosition(0);
-//                Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
-//            }
-//        }
-//    }
 
     private void fixCoordinatorLayout(Configuration configuration) {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
+                findViewById(R.id.coordinator).setPadding(
+                        0, 0, 0, (int) getResources().getDimension(R.dimen.navigation_bar_height));
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
         }
     }

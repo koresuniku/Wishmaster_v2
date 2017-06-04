@@ -135,17 +135,12 @@ public class MainActivity extends AppCompatActivity
                 .inflate(R.layout.activity_main_toolbar_layout, null, false)
                 .findViewById(R.id.toolbar);
         ((FrameLayout)findViewById(R.id.main_toolbar_container)).addView(toolbar);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            findViewById(R.id.main_toolbar_container).setLayoutParams(
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            DeviceUtils.sdkIsLollipopOrHigher() ? 112 : 56));
-        } else {
-            findViewById(R.id.main_toolbar_container).setLayoutParams(
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48));
-        }
+        findViewById(R.id.main_toolbar_container).setLayoutParams(
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                        getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ?
+                                (int) getResources().getDimension(R.dimen.action_bar_height_vertical) :
+                                (int) getResources().getDimension(R.dimen.action_bar_height_horizontal)));
         toolbar.inflateMenu(R.menu.main);
-        //toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         UiUtils.setCurrentThemeColorFilterForImageView(this,
@@ -273,7 +268,7 @@ public class MainActivity extends AppCompatActivity
                     intent.putExtra(Constants.BOARD_ID, searchEditTextText);
                     intent.putExtra(Constants.BOARD_NAME, "");
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (DeviceUtils.sdkIsLollipopOrHigher()) {
                         mActivity.startActivity(intent);
                         mActivity.overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                     } else mActivity.startActivity(intent);

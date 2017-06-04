@@ -75,10 +75,10 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
     public void stopAndReleasePlayers(boolean pause, boolean release) {
         if (mActivity instanceof ThreadsActivity) {
             for (GalleryFragment fragment : ThreadsActivity.galleryFragments.values()) {
-                if (fragment != null && fragment.videoView != null) {
-                    if (pause) fragment.pauseVideoView();
+                if (fragment != null && fragment.videoViewUnit != null) {
+                    if (pause) fragment.videoViewUnit.pauseVideoView();
                     if (release) {
-                        fragment.releaseVideoView();
+                        fragment.videoViewUnit.releaseVideoView();
                     }
                     fragment.onActivityStop = true;
                 }
@@ -86,10 +86,10 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
         }
         if (mActivity instanceof SingleThreadActivity) {
             for (GalleryFragment fragment : SingleThreadActivity.galleryFragments.values()) {
-                if (fragment != null && fragment.videoView != null) {
-                    if (pause) fragment.pauseVideoView();
+                if (fragment != null && fragment.videoViewUnit != null) {
+                    if (pause) fragment.videoViewUnit.pauseVideoView();
                     if (release) {
-                        fragment.releaseVideoView();
+                        fragment.videoViewUnit.releaseVideoView();
                     }
                     fragment.onActivityStop = true;
                 }
@@ -105,18 +105,18 @@ public class PicVidPagerAdapter extends FragmentStatePagerAdapter {
 
         if (mActivity instanceof ThreadsActivity) {
             GalleryFragment fragment = ThreadsActivity.galleryFragments.get(position);
-            if (fragment != null && fragment.videoView != null) {
-                fragment.pauseVideoView();
-                fragment.releaseVideoView();
+            if (fragment != null && fragment.videoViewUnit != null) {
+                fragment.videoViewUnit.pauseVideoView();
+                fragment.videoViewUnit.releaseVideoView();
                 ThreadsActivity.galleryFragments.remove(position);
             }
         }
 
         if (mActivity instanceof SingleThreadActivity) {
             GalleryFragment fragment = SingleThreadActivity.galleryFragments.get(position);
-            if (fragment != null && fragment.videoView != null) {
-                fragment.pauseVideoView();
-                fragment.releaseVideoView();
+            if (fragment != null && fragment.videoViewUnit != null) {
+                fragment.videoViewUnit.pauseVideoView();
+                fragment.videoViewUnit.releaseVideoView();
                 SingleThreadActivity.galleryFragments.remove(position);
             }
         }

@@ -7,25 +7,20 @@ import android.support.design.widget.CoordinatorLayout;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.util.DeviceUtils;
 
 public class ActionBarUtils {
 
+    public static final int MEDIA_TOOLBAR_TEXT_SIZE_VERTICAL = 20;
+    public static final int MEDIA_TOOLBAR_TEXT_SIZE_HORIZONAL = 16;
+
     public static void setProperActionBarContainerHeight(Activity activity, LinearLayout container) {
         int height;
-        if (activity.getResources().getConfiguration().orientation
-                == Configuration.ORIENTATION_PORTRAIT) {
-            if (DeviceUtils.sdkIsLollipopOrHigher()) {
-                height = 112;
-            } else {
-                height = 56;
-            }
+        if (activity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            height = (int) activity.getResources().getDimension(R.dimen.action_bar_height_vertical);
         } else {
-            if (DeviceUtils.sdkIsLollipopOrHigher()) {
-                height = 96;
-            } else {
-                height = 48;
-            }
+            height = (int) activity.getResources().getDimension(R.dimen.action_bar_height_horizontal);
         }
         container.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, height));
     }

@@ -36,17 +36,17 @@ public class ThreadsViewPagerOnPageChangeListener implements ViewPager.OnPageCha
                 + ThreadsActivity.files.get(position).getSize() + " кб");
 
         GalleryFragment fragment = ThreadsActivity.galleryFragments.get(mActivity.picVidOpenedPosition);
-        if (fragment != null && fragment.videoView != null) {
-            fragment.startVideoView();
+        if (fragment != null && fragment.videoViewUnit != null) {
+            fragment.videoViewUnit.startVideoView();
         }
 
         mActivity.picVidOpenedPosition = position;
 
         fragment = ThreadsActivity.galleryFragments.get(mActivity.picVidOpenedPosition);
-        if (fragment != null && fragment.videoView != null) {
+        if (fragment != null && fragment.videoViewUnit != null) {
             if (mActivity.sharedPreferences.getInt(Constants.SP_AUTOPLAY, 1) == 1) {
                 Log.d(LOG_TAG, "startuem!");
-                fragment.startVideoView();
+                fragment.videoViewUnit.startVideoView();
             } else Log.d(LOG_TAG, "smth wrong");
         }
 

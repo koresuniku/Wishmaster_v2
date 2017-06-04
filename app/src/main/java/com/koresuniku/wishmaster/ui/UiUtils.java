@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 import com.koresuniku.wishmaster.util.DeviceUtils;
@@ -51,40 +52,13 @@ public class UiUtils {
         return pixel / (int) activity.getResources().getDisplayMetrics().density;
     }
 
-    public static int getActionBarSize(ThreadsActivity activity, int config) {
-        if (config == Configuration.ORIENTATION_PORTRAIT) {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 112 : 56;
-        }
-        if (config == Configuration.ORIENTATION_LANDSCAPE) {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 96 : 48;
-        }
-        return 0;
-    }
-
-    public static int getActionBarHeight(Activity activity) {
-        TypedArray styledAttributes = activity.getTheme().obtainStyledAttributes(
-                new int[] { android.R.attr.actionBarSize });
-        int actionBarSize = (int) styledAttributes.getDimension(0, 0);
-        styledAttributes.recycle();
-        return actionBarSize;
-    }
-
-    public static int getNavBarHeight(Activity activity) {
-        Resources resources = activity.getResources();
-        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return resources.getDimensionPixelSize(resourceId);
-        }
-        return 0;
-    }
-
     public static void setupToolbarForNavigationBar(Activity activity, Toolbar toolbar) {
         Log.d(LOG_TAG, "setupToolbarForNavigationBar:");
         if (DeviceUtils.deviceHasNavigationBar(activity)) {
             if (activity.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
                 toolbar.setPadding(0, 0,
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP ? 120 : 60, 0);
+                        (int) activity.getResources().getDimension(R.dimen.navigation_bar_height), 0);
             } else toolbar.setPadding(0, 0, 0, 0);
         }
     }

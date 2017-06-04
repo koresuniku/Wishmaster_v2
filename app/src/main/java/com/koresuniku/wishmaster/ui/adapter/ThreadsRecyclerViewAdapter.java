@@ -11,6 +11,8 @@ import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +31,7 @@ import com.koresuniku.wishmaster.ui.activity.SingleThreadActivity;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.http.threads_api.models.Thread;
+import com.koresuniku.wishmaster.ui.text.CommentLinkMovementMethod;
 import com.koresuniku.wishmaster.util.DeviceUtils;
 import com.koresuniku.wishmaster.util.Constants;
 import com.koresuniku.wishmaster.util.Formats;
@@ -48,6 +51,9 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
     private String boardId;
     private int mViewType;
     private Bitmap webmBitmap;
+
+    public BackgroundColorSpan backgroundColorSpan;
+    public StyleSpan foregroundColorSpan;
 
     @Override
     public long getItemId(int position) {
@@ -81,7 +87,6 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         private TextView postsAndFiles;
         private View indicatorView;
         private TextView indicatorTextView;
-
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -127,6 +132,8 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
 
     public ThreadsRecyclerViewAdapter(ThreadsActivity activity,String board) {
         mActivity = activity;
+        backgroundColorSpan = new BackgroundColorSpan(mActivity.getResources().getColor(R.color.link_background));
+        foregroundColorSpan = new StyleSpan(android.graphics.Typeface.BOLD);
         boardId = board;
         webmBitmap = BitmapFactory.decodeResource(mActivity.getResources(), R.drawable.webm);
     }
@@ -179,7 +186,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         else holder.subject.setVisibility(View.GONE);
         if (subject.equals("")) holder.subject.setVisibility(View.GONE);
         holder.comment.setText(Html.fromHtml(comment));
-        holder.comment.setMovementMethod(LinkMovementMethod.getInstance());
+        holder.comment.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
         holder.postsAndFiles.setText(StringUtils.getCorrectPostsAndFilesString(postsCount, filesCount));
 
         String width;
@@ -234,7 +241,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                 intent.putExtra(Constants.BOARD_NAME, mActivity.boardName);
                 intent.putExtra(Constants.THREAD_NUMBER, number);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (DeviceUtils.sdkIsLollipopOrHigher()) {
                     mActivity.startActivity(intent);
                     mActivity.overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                 } else mActivity.startActivity(intent);
@@ -250,7 +257,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                 intent.putExtra(Constants.BOARD_NAME, mActivity.boardName);
                 intent.putExtra(Constants.THREAD_NUMBER, number);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (DeviceUtils.sdkIsLollipopOrHigher()) {
                     mActivity.startActivity(intent);
                     mActivity.overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                 } else mActivity.startActivity(intent);
@@ -460,7 +467,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
             mActivity.picVidToolbarTitleTextView.setText(displayName);
         }
         mActivity.picVidToolbarTitleTextView.setTypeface(Typeface.DEFAULT_BOLD);
-        mActivity.picVidToolbarTitleTextView.setTextSize(16.0f);
+        mActivity.picVidToolbarTitleTextView.setTextSize((int)mActivity.getResources().getDimension(R.dimen.media_toolbar_text_size));
         mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
                 mActivity.picVidToolbarShortInfoTextView, thumbnailPosition, ThreadsActivity.files));
     }

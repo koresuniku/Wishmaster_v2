@@ -40,30 +40,19 @@ public class SettingsContentObserver extends ContentObserver {
         AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         App.soundVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
 
-        GalleryFragment fragment;
         if (mActivity instanceof ThreadsActivity) {
             if (ThreadsActivity.galleryFragments == null) return;
-//            for (int i = 0; i < ThreadsActivity.galleryFragments.size(); i++) {
-//                fragment = ThreadsActivity.galleryFragments.get(i);
-//                Log.d(LOG_TAG, "switching sound for fragment: " + i);
-//                fragment.switchSound(App.soundVolume);
-//            }
-            for (GalleryFragment fragment1 : ThreadsActivity.galleryFragments.values()) {
+            for (GalleryFragment fragment : ThreadsActivity.galleryFragments.values()) {
                 Log.d(LOG_TAG, "switching sound for fragment: ");
-                fragment1.switchSound(App.soundVolume);
+                if (fragment.videoViewUnit != null) fragment.videoViewUnit.switchSound(App.soundVolume);
             }
         }
         if (mActivity instanceof SingleThreadActivity) {
             if (SingleThreadActivity.galleryFragments == null) return;
             Log.d(LOG_TAG, "galleryFragmentsSize: " + SingleThreadActivity.galleryFragments.size());
-//            for (int i = 0; i < SingleThreadActivity.galleryFragments.size(); i++) {
-//                fragment = SingleThreadActivity.galleryFragments.get(i);
-//                Log.d(LOG_TAG, "switching sound for fragment: " + i);
-//                fragment.switchSound(App.soundVolume);
-//            }
-            for (GalleryFragment fragment1 : SingleThreadActivity.galleryFragments.values()) {
+            for (GalleryFragment fragment : SingleThreadActivity.galleryFragments.values()) {
                 Log.d(LOG_TAG, "switching sound for fragment: ");
-                fragment1.switchSound(App.soundVolume);
+                if (fragment.videoViewUnit != null) fragment.videoViewUnit.switchSound(App.soundVolume);
             }
         }
     }

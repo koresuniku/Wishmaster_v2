@@ -101,6 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/item_margin_content_divider"
             android:text="Answers: 1488666, 2284247"
+            android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat"
             android:textStyle="italic" />
     </FrameLayout>

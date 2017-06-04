@@ -270,7 +270,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             else ((FrameLayout)holder.answers.getParent()).setVisibility(View.VISIBLE);
             holder.answers.setTextAppearance(mActivity, android.R.style.TextAppearance_DeviceDefault);
             holder.answers.setTextColor(mActivity.getResources().getColor(R.color.colorAccent));
-            holder.answers.setTypeface(null, Typeface.BOLD);
             answersString.setSpan(new ForegroundColorSpan(
                     mActivity.getResources().getColor(R.color.colorAccent)),
                     0, answersString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -314,7 +313,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             else answers.setVisibility(View.VISIBLE);
             answers.setTextAppearance(mActivity, android.R.style.TextAppearance_DeviceDefault);
             answers.setTextColor(mActivity.getResources().getColor(R.color.colorAccent));
-            answers.setTypeface(null, Typeface.BOLD);
             answersString.setSpan(new ForegroundColorSpan(
                             mActivity.getResources().getColor(R.color.colorAccent)),
                     0, answersString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -367,13 +365,6 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         String comment = post.getComment();
         List<Files> files = post.getFiles();
 
-//        SpannableStringBuilder numberAndTimeString = new SpannableStringBuilder(
-//                "#" + (position + 1) + " ");
-//        numberAndTimeString.setSpan(new ForegroundColorSpan(
-//                mActivity.getResources().getColor(R.color.post_number_color)),
-//                0, numberAndTimeString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        numberAndTimeString.append(op.equals("0") ? "" : "#OP");
-//        numberAndTimeString.append(Html.fromHtml(StringUtils.getNumberAndTimeString(number, name, trip, time)));
         holder.numberAndTime.setText(StringUtils.getNumberAndTimeString(
                 mActivity, position, number, op, name, trip, time));
         if (!boardId.equals("b")) holder.subject.setText(Html.fromHtml(subject));
@@ -762,7 +753,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
             mActivity.picVidToolbarTitleTextView.setText(displayName);
         }
         mActivity.picVidToolbarTitleTextView.setTypeface(Typeface.DEFAULT_BOLD);
-        mActivity.picVidToolbarTitleTextView.setTextSize(16.0f);
+        mActivity.picVidToolbarTitleTextView.setTextSize(mActivity.getResources().getDimension(R.dimen.media_toolbar_text_size));
         mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
                 mActivity.picVidToolbarShortInfoTextView, currentPosition, SingleThreadActivity.files));
     }

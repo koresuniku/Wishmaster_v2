@@ -13,6 +13,7 @@ import com.koresuniku.wishmaster.ui.activity.MainActivity;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
 import com.koresuniku.wishmaster.util.Constants;
+import com.koresuniku.wishmaster.util.DeviceUtils;
 
 import java.util.List;
 
@@ -223,7 +224,7 @@ public class BoardsExpandableListViewAdapter extends BaseExpandableListAdapter {
                 intent.putExtra(Constants.BOARD_ID, boardId);
                 intent.putExtra(Constants.BOARD_NAME, boardName);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                if (DeviceUtils.sdkIsLollipopOrHigher()) {
                     mActivity.startActivity(intent);
                     mActivity.overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
                 } else mActivity.startActivity(intent);

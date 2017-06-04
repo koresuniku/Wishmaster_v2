@@ -45,6 +45,7 @@ import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.presenter.DataLoader;
 import com.koresuniku.wishmaster.presenter.ILoadData;
+import com.koresuniku.wishmaster.ui.ActionBarUtils;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.ui.adapter.SingleThreadRecyclerViewAdapter;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
@@ -172,31 +173,27 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
 
         mDataLoader = new DataLoader(this);
-        mDataLoader.loadData(boardId, threadNumber);
     }
 
-    private Proxy setProxy() {
-        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("188.165.243.106", 9050));
-    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        //if (adapter != null) adapter.notifyDataSetChanged();
         App.mSettingsContentObserver.switchActivity(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         if (!dataLoaded) {
             //loadData();
             mDataLoader.loadData(boardId, threadNumber);
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
     private void setupOrientationFeatures() {
-        if (Constants.API_INT >= 19) {
+        if (DeviceUtils.sdkIsKitkatOrHigher()) {
             if (this.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE) {
                 UiUtils.showSystemUIExceptNavigationBar(this);
@@ -209,7 +206,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         super.onConfigurationChanged(newConfig);
         Log.d(LOG_TAG, "onConfigurationChanged:");
         UiUtils.setupToolbarForNavigationBar(this, picVidToolbar);
-        if (Constants.API_INT >= 19) {
+        if (DeviceUtils.sdkIsKitkatOrHigher()) {
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 UiUtils.showSystemUIExceptNavigationBar(this);
             } else UiUtils.showSystemUI(this);
@@ -229,6 +226,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         mAnswersManager.setupAnswersLayoutContainer(newConfig);
 
         if (adapter != null) adapter.notifyDataSetChanged();
+
         if (singleThreadRefreshLayoutTop.isEnabled())
             singleThreadRefreshLayoutTop.setRefreshing(false);
         if (singleThreadRefreshLayoutBottom.isEnabled())
@@ -270,7 +268,9 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         getSupportActionBar().setHomeButtonEnabled(true);
         ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
         ((TextView)toolbar.findViewById(R.id.title)).setTextSize(
-                getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ? 20 : 16);
+                getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT ?
+                        ActionBarUtils.MEDIA_TOOLBAR_TEXT_SIZE_VERTICAL :
+                        ActionBarUtils.MEDIA_TOOLBAR_TEXT_SIZE_HORIZONAL);
     }
 
     private void setupAnimations() {
@@ -414,9 +414,6 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         singleThreadRecyclerView.setLayoutManager(linearLayoutManager);
         adapter = new SingleThreadRecyclerViewAdapter(this, boardId);
         adapter.setHasStableIds(true);
-        if (adapter.getItemCount() < 20) {
-
-        }
         singleThreadRecyclerView.setAdapter(adapter);
         final boolean[] touchedAgain = {false};
         singleThreadRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -480,7 +477,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
     }
 
     private void setupFullscreenMode() {
-        if (Constants.API_INT >= 19) UiUtils.showSystemUI(this);
+        if (DeviceUtils.sdkIsKitkatOrHigher()) UiUtils.showSystemUI(this);
     }
 
     private void fixRefreshLayoutOnOrientation() {
@@ -544,7 +541,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                findViewById(R.id.coordinator).setPadding(0, 0, 0, DeviceUtils.sdkIsLollipopOrHigher() ? 96 : 48);
+                findViewById(R.id.coordinator).setPadding(0, 0, 0, (int) getResources().getDimension(R.dimen.navigation_bar_height));
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
             if (singleThreadRefreshLayoutTop != null) {
                 singleThreadRefreshLayoutTop.requestLayout();
@@ -598,7 +595,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
             thumbnails = null;
             galleryFragments = new HashMap<>();
 
-            if (Constants.API_INT >= 19) {
+            if (DeviceUtils.sdkIsKitkatOrHigher()) {
                 UiUtils.showSystemUI(mActivity);
                 UiUtils.barsAreShown = true;
                 mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
@@ -659,7 +656,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
 
         mPosts = (List<Post>) schema;
 
-        Log.d(LOG_TAG, "data loaded:");
+        Log.d(LOG_TAG, "data loaded: first time " + dataLoadedFirstTime);
         if (dataLoadedFirstTime) setupRecyclerView();
         int afterCount = mPosts.size();
         adapter.onAdapterChanges();

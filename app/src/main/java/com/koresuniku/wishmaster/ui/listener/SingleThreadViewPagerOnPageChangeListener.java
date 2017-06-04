@@ -36,17 +36,17 @@ public class SingleThreadViewPagerOnPageChangeListener implements ViewPager.OnPa
                 + SingleThreadActivity.files.get(position).getSize() + " кб");
 
         GalleryFragment fragment = SingleThreadActivity.galleryFragments.get(mActivity.picVidOpenedPosition);
-        if (fragment != null && fragment.videoView != null) {
-            fragment.pauseVideoView();
+        if (fragment != null && fragment.videoViewUnit != null) {
+            fragment.videoViewUnit.pauseVideoView();
         }
 
         mActivity.picVidOpenedPosition = position;
 
         fragment = SingleThreadActivity.galleryFragments.get(mActivity.picVidOpenedPosition);
-        if (fragment != null && fragment.videoView != null) {
+        if (fragment != null && fragment.videoViewUnit != null) {
             if (mActivity.sharedPreferences.getInt(Constants.SP_AUTOPLAY, 1) == 1) {
                 Log.d(LOG_TAG, "startuem!");
-                fragment.startVideoView();
+                fragment.videoViewUnit.startVideoView();
             } else Log.d(LOG_TAG, "smth wrong");
         }
 
