@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:background="@color/common_background_color">
 
 
     <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/common_background_color">
 
         <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -64,8 +66,8 @@
                 android:id="@+id/threads_refresh_layout_bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:srl_direction="bottom"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:srl_direction="bottom">
 
                 <com.koresuniku.wishmaster.ui.widget.FixedRecyclerView
                     android:id="@+id/threads_recycler_view"
@@ -77,43 +79,42 @@
                 </com.koresuniku.wishmaster.ui.widget.FixedRecyclerView>
 
 
-
                 <!--<com.l4digital.fastscroll.FastScrollRecyclerView-->
-                    <!--android:id="@+id/threads_recycler_view"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--app:bubbleColor="#00bb00"-->
-                    <!--app:bubbleTextColor="#ffffff"-->
-                    <!--app:handleColor="#999999"-->
-                    <!--app:trackColor="#bbbbbb"-->
-                    <!--app:hideScrollbar="false"-->
-                    <!--app:showTrack="false" />-->
+                <!--android:id="@+id/threads_recycler_view"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--app:bubbleColor="#00bb00"-->
+                <!--app:bubbleTextColor="#ffffff"-->
+                <!--app:handleColor="#999999"-->
+                <!--app:trackColor="#bbbbbb"-->
+                <!--app:hideScrollbar="false"-->
+                <!--app:showTrack="false" />-->
 
 
                 <!--<recyclerview_fastscroll.views.FastScrollRecyclerView-->
-                    <!--android:id="@+id/threads_recycler_view"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:clipToPadding="false"-->
+                <!--android:id="@+id/threads_recycler_view"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:clipToPadding="false"-->
 
-                    <!--app:fastScrollThumbColor="#a9a9a9"-->
-                    <!--app:fastScrollTrackColor="@android:color/transparent"-->
-                    <!--app:fastScrollAutoHide="true"-->
-                    <!--app:fastScrollAutoHideDelay="200" />-->
+                <!--app:fastScrollThumbColor="#a9a9a9"-->
+                <!--app:fastScrollTrackColor="@android:color/transparent"-->
+                <!--app:fastScrollAutoHide="true"-->
+                <!--app:fastScrollAutoHideDelay="200" />-->
 
                 <!--<com.koresuniku.wishmaster.ui.views.AbsoluteScrollableRecyclerView-->
-                    <!--android:id="@+id/threads_recycler_view"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent">-->
+                <!--android:id="@+id/threads_recycler_view"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent">-->
 
                 <!--</com.koresuniku.wishmaster.ui.views.AbsoluteScrollableRecyclerView>-->
 
 
                 <!--<com.pluscubed.recyclerfastscroll.RecyclerFastScroller-->
-                    <!--android:id="@+id/fast_scroller"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:layout_gravity="end">-->
+                <!--android:id="@+id/fast_scroller"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_gravity="end">-->
 
                 <!--</com.pluscubed.recyclerfastscroll.RecyclerFastScroller>-->
 
@@ -166,6 +167,13 @@
 
 
     </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/main_progress_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 
 
 </FrameLayout>

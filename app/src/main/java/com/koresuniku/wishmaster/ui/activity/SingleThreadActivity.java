@@ -8,7 +8,6 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -33,6 +32,7 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,10 +44,11 @@ import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.presenter.DataLoader;
-import com.koresuniku.wishmaster.presenter.ILoadData;
+import com.koresuniku.wishmaster.presenter.LoadDataView;
 import com.koresuniku.wishmaster.ui.ActionBarUtils;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.ui.adapter.SingleThreadRecyclerViewAdapter;
+import com.koresuniku.wishmaster.ui.controller.ProgressBarUnit;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
 import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
@@ -73,15 +74,13 @@ import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirec
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static android.view.View.GONE;
 
-public class SingleThreadActivity extends AppCompatActivity implements ILoadData{
+public class SingleThreadActivity extends AppCompatActivity implements LoadDataView {
     private final String LOG_TAG = SingleThreadActivity.class.getSimpleName();
 
     private SingleThreadActivity mActivity;
@@ -91,6 +90,8 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
     private String boardId;
     private String boardName;
     private String threadNumber;
+
+    private ProgressBarUnit mProgressBarUnit;
 
     public AppBarLayout appBarLayout;
     public int appBarVerticalOffSet;
@@ -169,6 +170,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         mAnswersManager = new AnswersController(this);
         mAnswersManager.setupAnswers();
         mAnswersManager.setupAnswersLayoutContainer(this.getResources().getConfiguration());
+        mProgressBarUnit = new ProgressBarUnit(this, (ProgressBar) findViewById(R.id.main_progress_bar));
 
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
 
@@ -652,6 +654,7 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
     public void onDataLoaded(List schema) {
         dataLoaded = true;
 
+        findViewById(R.id.main_progress_bar).setVisibility(GONE);
         final int beforeCount = mPosts == null ? 0 : mPosts.size();
 
         mPosts = (List<Post>) schema;
@@ -686,4 +689,10 @@ public class SingleThreadActivity extends AppCompatActivity implements ILoadData
         return this;
     }
 
+    @Override
+    public void showProgressBar() {
+        if (!singleThreadRefreshLayoutTop.isRefreshing() && !singleThreadRefreshLayoutBottom.isRefreshing()) {
+            findViewById(R.id.main_progress_bar).setVisibility(View.VISIBLE);
+        }
+    }
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -32,9 +31,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 import com.koresuniku.wishmaster.presenter.DataLoader;
-import com.koresuniku.wishmaster.presenter.ILoadData;
+import com.koresuniku.wishmaster.presenter.LoadDataView;
 import com.koresuniku.wishmaster.ui.adapter.BoardsExpandableListViewAdapter;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
@@ -47,7 +45,7 @@ import java.net.Proxy;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ILoadData {
+        implements NavigationView.OnNavigationItemSelectedListener, LoadDataView {
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private MainActivity mActivity;
@@ -371,6 +369,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public Activity getActivity() {
         return this;
+    }
+
+    @Override
+    public void showProgressBar() {
+
     }
 
 

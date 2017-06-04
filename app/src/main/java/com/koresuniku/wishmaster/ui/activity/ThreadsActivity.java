@@ -35,25 +35,23 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.http.HttpClient;
-import com.koresuniku.wishmaster.http.IBaseJsonSchema;
 import com.koresuniku.wishmaster.presenter.DataLoader;
-import com.koresuniku.wishmaster.presenter.ILoadData;
+import com.koresuniku.wishmaster.presenter.LoadDataView;
 import com.koresuniku.wishmaster.ui.ActionBarUtils;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.ui.adapter.ThreadsListViewAdapter;
+import com.koresuniku.wishmaster.ui.controller.ProgressBarUnit;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
-import com.koresuniku.wishmaster.http.threads_api.ThreadsForPagesAsyncTask;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
 import com.koresuniku.wishmaster.ui.widget.FixedRecyclerView;
@@ -64,7 +62,6 @@ import com.koresuniku.wishmaster.ui.widget.VerticalSeekBar;
 import com.koresuniku.wishmaster.util.CacheUtils;
 import com.koresuniku.wishmaster.util.DeviceUtils;
 import com.koresuniku.wishmaster.ui.adapter.ThreadsRecyclerViewAdapter;
-import com.koresuniku.wishmaster.http.threads_api.ThreadsApiService;
 import com.koresuniku.wishmaster.http.threads_api.models.ThreadsJsonSchema;
 import com.koresuniku.wishmaster.util.Constants;
 import com.koresuniku.wishmaster.ui.UiUtils;
@@ -85,16 +82,8 @@ import java.net.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-public class ThreadsActivity extends AppCompatActivity implements ILoadData{
+public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
     private final String LOG_TAG = ThreadsActivity.class.getSimpleName();
 
     private ThreadsActivity mActivity;
@@ -152,6 +141,7 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     public int picVidOpenedPosition = -1;
 
     public ThreadsJsonSchema mSchema;
+    private ProgressBarUnit mProgressBarUnit;
 
 
     @Override
@@ -178,6 +168,8 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
 
         mDataLoader = new DataLoader(this);
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
+        mProgressBarUnit = new ProgressBarUnit(this, (ProgressBar) findViewById(R.id.main_progress_bar));
+
     }
 
     private Proxy setProxy() {
@@ -692,6 +684,8 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     @Override
     public void onDataLoaded(List schema) {
         dataLoaded = true;
+
+        findViewById(R.id.main_progress_bar).setVisibility(View.GONE);
         mSchema = (ThreadsJsonSchema) schema.get(0);
         Log.d(LOG_TAG, "postLoadData: mSchema: treadsSize: " + mSchema.getThreads().size());
         if (boardName.equals("")) {
@@ -729,5 +723,12 @@ public class ThreadsActivity extends AppCompatActivity implements ILoadData{
     @Override
     public Activity getActivity() {
         return this;
+    }
+
+    @Override
+    public void showProgressBar() {
+        if (!threadsRefreshLayoutTop.isRefreshing() && !threadsRefreshLayoutBottom.isRefreshing()) {
+            findViewById(R.id.main_progress_bar).setVisibility(View.VISIBLE);
+        }
     }
 }

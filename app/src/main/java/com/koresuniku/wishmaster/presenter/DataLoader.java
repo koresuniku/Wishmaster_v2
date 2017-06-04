@@ -1,18 +1,13 @@
 package com.koresuniku.wishmaster.presenter;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import com.koresuniku.wishmaster.http.HttpClient;
-import com.koresuniku.wishmaster.http.IBaseJsonSchema;
-import com.koresuniku.wishmaster.http.boards_api.BoardsApiService;
 import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
 import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
 import com.koresuniku.wishmaster.http.threads_api.ThreadsForPagesAsyncTask;
 import com.koresuniku.wishmaster.http.threads_api.models.ThreadsJsonSchema;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
-import com.koresuniku.wishmaster.ui.adapter.SingleThreadRecyclerViewAdapter;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,9 +19,9 @@ import retrofit2.Response;
 public class DataLoader {
     private final String LOG_TAG = DataLoader.class.getSimpleName();
 
-    private ILoadData view;
+    private LoadDataView view;
 
-    public DataLoader(ILoadData view) {
+    public DataLoader(LoadDataView view) {
         this.view = view;
     }
 
@@ -48,6 +43,7 @@ public class DataLoader {
     }
 
     public void loadData(String boardId) {
+        view.showProgressBar();
         if (boardId.equals("d") || boardId.equals("d")) {
             new ThreadsForPagesAsyncTask((ThreadsActivity)view.getActivity(), boardId).execute();
         } else {
@@ -70,6 +66,7 @@ public class DataLoader {
 
     public void loadData(String boardId, String threadNumber) {
         Log.d(LOG_TAG, "loadData:");
+        view.showProgressBar();
 
         Call<List<Post>> call =
                 HttpClient.singleThreadService.getPosts("get_thread", boardId, threadNumber, 0);

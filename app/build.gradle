@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 
 android {
@@ -70,6 +71,7 @@ dependencies {
 
     compile 'com.android.support:support-vector-drawable:25.3.1'
     testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
 }
 allprojects {
@@ -82,5 +84,8 @@ allprojects {
             url 'https://jitpack.io'
         }
     }
+}
+repositories {
+    mavenCentral()
 }
 

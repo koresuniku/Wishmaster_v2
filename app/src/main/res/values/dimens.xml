@@ -7,6 +7,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="xyz">20dp</dimen>
 
+    <dimen name="status_bar_height">24dp</dimen>
     <dimen name="action_bar_height_vertical">56dp</dimen>
     <dimen name="action_bar_height_horizontal">48dp</dimen>
     <dimen name="action_bar_text_size_vertical">20sp</dimen>
