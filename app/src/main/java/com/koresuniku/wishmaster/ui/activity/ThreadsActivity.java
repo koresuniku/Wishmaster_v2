@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -48,6 +49,7 @@ import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.presenter.DataLoader;
 import com.koresuniku.wishmaster.presenter.FileSaver;
+import com.koresuniku.wishmaster.presenter.PermissionManager;
 import com.koresuniku.wishmaster.presenter.view_interface.LoadDataView;
 import com.koresuniku.wishmaster.presenter.view_interface.SaveFileView;
 import com.koresuniku.wishmaster.ui.ActionBarUtils;
@@ -114,6 +116,8 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     public TextView picVidToolbarTitleTextView;
     public TextView picVidToolbarShortInfoTextView;
     public MenuItem picVidToolbarMenuItem;
+    public String picVidToolbarFilename;
+    public String picVidToolbarUrl;
 
     public SwipyRefreshLayout threadsRefreshLayoutTop;
     public SwipyRefreshLayout threadsRefreshLayoutBottom;
@@ -740,5 +744,16 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     @Override
     public Context getContext() {
         return this;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == PermissionManager.INSTANCE.getWRITE_EXTERNAL_STORAGE_PERMISSION_CODE()) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mFileSaver.saveFileToExternalStorage(picVidToolbarUrl, picVidToolbarFilename);
+            }
+        }
+
     }
 }

@@ -54,9 +54,13 @@ public class ThreadsViewPagerOnPageChangeListener implements ViewPager.OnPageCha
         mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                Log.d(LOG_TAG, "onMenuItemClick");
+                mActivity.picVidToolbarUrl =
+                        Constants.DVACH_BASE_URL + ThreadsActivity.files.get(position).getPath();
+                mActivity.picVidToolbarFilename =
+                        ThreadsActivity.files.get(position).getDisplayName();
                 mActivity.mFileSaver.saveFileToExternalStorage(
-                        Constants.DVACH_BASE_URL + ThreadsActivity.files.get(position).getPath(),
-                        ThreadsActivity.files.get(position).getDisplayName());
+                        mActivity.picVidToolbarUrl, mActivity.picVidToolbarFilename);
                 return false;
             }
         });

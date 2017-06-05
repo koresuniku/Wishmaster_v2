@@ -633,9 +633,13 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                Log.d(LOG_TAG, "onMenuItemClick");
+                mActivity.picVidToolbarUrl =
+                        Constants.DVACH_BASE_URL + ThreadsActivity.files.get(thumbnailPosition).getPath();
+                mActivity.picVidToolbarFilename =
+                        ThreadsActivity.files.get(thumbnailPosition).getDisplayName();
                 mActivity.mFileSaver.saveFileToExternalStorage(
-                        Constants.DVACH_BASE_URL + ThreadsActivity.files.get(thumbnailPosition).getPath(),
-                        ThreadsActivity.files.get(thumbnailPosition).getDisplayName());
+                        mActivity.picVidToolbarUrl, mActivity.picVidToolbarFilename);
                 return false;
             }
         });
