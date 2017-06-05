@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -32,7 +33,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.koresuniku.wishmaster.presenter.DataLoader;
-import com.koresuniku.wishmaster.presenter.LoadDataView;
+import com.koresuniku.wishmaster.presenter.view_interface.LoadDataView;
+import com.koresuniku.wishmaster.presenter.PermissionManager;
+import com.koresuniku.wishmaster.presenter.view_interface.SaveFileView;
 import com.koresuniku.wishmaster.ui.adapter.BoardsExpandableListViewAdapter;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
@@ -40,12 +43,14 @@ import com.koresuniku.wishmaster.util.Constants;
 import com.koresuniku.wishmaster.ui.UiUtils;
 import com.koresuniku.wishmaster.util.DeviceUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LoadDataView {
+        implements NavigationView.OnNavigationItemSelectedListener, LoadDataView, SaveFileView {
     private final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private MainActivity mActivity;
@@ -76,10 +81,12 @@ public class MainActivity extends AppCompatActivity
         setupDefaultPreferences();
         mDataLoader = new DataLoader(this);
         mDataLoader.collectBoardsData();
-    }
 
-    private Proxy setProxy() {
-        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("188.165.243.106", 9050));
+        if (!PermissionManager.INSTANCE.checkWriteExternalStoragePermission(this)) {
+            Log.d(LOG_TAG, "needa request permission");
+            PermissionManager.INSTANCE.requestWriteExternalStoragePermission(this);
+        }
+
     }
 
     @Override
@@ -376,5 +383,10 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @NotNull
+    @Override
+    public Context getContext() {
+        return this.getContext();
+    }
 
 }

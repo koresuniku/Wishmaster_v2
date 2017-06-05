@@ -143,7 +143,7 @@ public class ThreadsListViewAdapter extends BaseAdapter {
         if (subject.equals("")) mHolder.subject.setVisibility(View.GONE);
         mHolder.comment.setText(Html.fromHtml(comment));
         mHolder.comment.setMovementMethod(LinkMovementMethod.getInstance());
-        mHolder.postsAndFiles.setText(StringUtils.getCorrectPostsAndFilesString(postsCount, filesCount));
+        mHolder.postsAndFiles.setText(StringUtils.getPostsAndFilesString(postsCount, filesCount));
 
         mHolder.comment.setOnClickListener(new View.OnClickListener() {
             @Override

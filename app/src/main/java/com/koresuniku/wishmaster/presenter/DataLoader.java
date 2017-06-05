@@ -7,6 +7,7 @@ import com.koresuniku.wishmaster.http.boards_api.models.BoardsJsonSchema;
 import com.koresuniku.wishmaster.http.single_thread_api.models.Post;
 import com.koresuniku.wishmaster.http.threads_api.ThreadsForPagesAsyncTask;
 import com.koresuniku.wishmaster.http.threads_api.models.ThreadsJsonSchema;
+import com.koresuniku.wishmaster.presenter.view_interface.LoadDataView;
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 
 import java.util.Collections;

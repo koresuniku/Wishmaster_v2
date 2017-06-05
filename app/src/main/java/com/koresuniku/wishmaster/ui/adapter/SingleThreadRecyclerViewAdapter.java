@@ -19,6 +19,7 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -300,7 +301,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private void setCorrectStringForAnswersTextView(final ViewHolder holder, String number, int position) {
         if (mActivity.mAnswersManager.getAnswersMode() == 0) {
             SpannableString answersString = new SpannableString(
-                    StringUtils.getCorrectAnswersString(getAnswersCountForPost(number)));
+                    StringUtils.getAnswersString(getAnswersCountForPost(number)));
             if (answersString.equals(new SpannableString("")))
                 ((FrameLayout)holder.answers.getParent()).setVisibility(View.GONE);
             else ((FrameLayout)holder.answers.getParent()).setVisibility(View.VISIBLE);
@@ -343,7 +344,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private void setCorrectStringForAnswersTextView(final TextView answers, String number, int position) {
         if (mActivity.mAnswersManager.getAnswersMode() == 0) {
             SpannableString answersString = new SpannableString(
-                    StringUtils.getCorrectAnswersString(getAnswersCountForPost(number)));
+                    StringUtils.getAnswersString(getAnswersCountForPost(number)));
             if (answersString.equals(new SpannableString("")))
                 ((FrameLayout)answers.getParent()).setVisibility(View.GONE);
             else answers.setVisibility(View.VISIBLE);
@@ -956,7 +957,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         for (Post post : mActivity.mPosts) {
             SingleThreadActivity.files.addAll(post.getFiles());
         }
-        int currentPosition = SingleThreadActivity.files.indexOf(file);
+        final int currentPosition = SingleThreadActivity.files.indexOf(file);
 
         mActivity.picVidPagerAdapter = new PicVidPagerAdapter(
                 mActivity.getSupportFragmentManager(),
@@ -980,6 +981,20 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         mActivity.picVidToolbarTitleTextView.setTextSize(mActivity.getResources().getDimension(R.dimen.media_toolbar_text_size));
         mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
                 mActivity.picVidToolbarShortInfoTextView, currentPosition, SingleThreadActivity.files));
+
+        mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.d(LOG_TAG, "onMenuItemClick");
+                mActivity.picVidToolbarUrl =
+                        Constants.DVACH_BASE_URL + SingleThreadActivity.files.get(currentPosition).getPath();
+                mActivity.picVidToolbarFilename =
+                        SingleThreadActivity.files.get(currentPosition).getDisplayName();
+                mActivity.mFileSaver.saveFileToExternalStorage(
+                        mActivity.picVidToolbarUrl, mActivity.picVidToolbarFilename);
+                return false;
+            }
+        });
     }
 
     private void setImageViewWidthDependingOnOrientation(
@@ -1000,7 +1015,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     }
 
     public void notifyNewPosts(int before, int after) {
-        String toShow = StringUtils.getCorrectNotifyNewPostsString(after - before);
+        String toShow = StringUtils.getNotifyNewPostsString(after - before);
         if (mActivity.mNewPostsNotifierToast != null) mActivity.mNewPostsNotifierToast.cancel();
         mActivity.mNewPostsNotifierToast = Toast.makeText(mActivity, toShow, Toast.LENGTH_SHORT);
         mActivity.mNewPostsNotifierToast.show();

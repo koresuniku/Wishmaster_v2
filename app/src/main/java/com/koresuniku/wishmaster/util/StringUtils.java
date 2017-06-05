@@ -7,6 +7,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.koresuniku.wishmaster.R;
@@ -15,7 +16,7 @@ import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import java.util.List;
 
 public class StringUtils {
-    public static String getCorrectPostsAndFilesString(String posts, String files) {
+    public static String getPostsAndFilesString(String posts, String files) {
         String result = "Пропущено ";
 
         Integer postsLastNumeral =
@@ -111,7 +112,7 @@ public class StringUtils {
         return result;
     }
 
-    public static String getCorrectNotifyNewPostsString(int count) {
+    public static String getNotifyNewPostsString(int count) {
         if (count == 0) return "Новых постов нет";
 
         int lastNumber;
@@ -137,7 +138,7 @@ public class StringUtils {
         return count + " новых постов";
     }
 
-    public static String getCorrectAnswersString(int count) {
+    public static String getAnswersString(int count) {
         if (count == 0) return "";
 
         int lastNumber;
@@ -231,5 +232,14 @@ public class StringUtils {
         builder.append(mediaToolbarTitleTextView.getContext().getString(R.string.kilobytes_shortened));
 
         return builder.toString();
+    }
+
+    public static String getFilenameString(String name, int counter) {
+        for (int i = name.length() - 1; i >= 0; i--) {
+            if (name.substring(i, i + 1).equals(".")) {
+                return name.substring(0, i) + "(" + counter + ")." + name.substring(i + 1, name.length());
+            } else Log.d("String utils", "char: " + name.substring(i, i + 1));
+        }
+        return name + "(" + counter + ")";
     }
 }

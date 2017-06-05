@@ -3,6 +3,7 @@ package com.koresuniku.wishmaster.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.view.ViewCompat;
@@ -45,7 +47,9 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.presenter.DataLoader;
-import com.koresuniku.wishmaster.presenter.LoadDataView;
+import com.koresuniku.wishmaster.presenter.FileSaver;
+import com.koresuniku.wishmaster.presenter.view_interface.LoadDataView;
+import com.koresuniku.wishmaster.presenter.view_interface.SaveFileView;
 import com.koresuniku.wishmaster.ui.ActionBarUtils;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.R;
@@ -56,7 +60,6 @@ import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
 import com.koresuniku.wishmaster.ui.widget.FixedRecyclerView;
 import com.koresuniku.wishmaster.ui.widget.HackyViewPager;
-import com.koresuniku.wishmaster.ui.widget.SpeedyLinearLayoutManager;
 import com.koresuniku.wishmaster.ui.widget.ThreadsRecyclerViewDividerItemDecoration;
 import com.koresuniku.wishmaster.ui.widget.VerticalSeekBar;
 import com.koresuniku.wishmaster.util.CacheUtils;
@@ -75,15 +78,15 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
+public class ThreadsActivity extends AppCompatActivity implements LoadDataView, SaveFileView {
     private final String LOG_TAG = ThreadsActivity.class.getSimpleName();
 
     private ThreadsActivity mActivity;
@@ -110,6 +113,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
     public ImageView picVidToolbarExitImageView;
     public TextView picVidToolbarTitleTextView;
     public TextView picVidToolbarShortInfoTextView;
+    public MenuItem picVidToolbarMenuItem;
 
     public SwipyRefreshLayout threadsRefreshLayoutTop;
     public SwipyRefreshLayout threadsRefreshLayoutBottom;
@@ -121,7 +125,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
 
     private Parcelable threadsRecyclerViewState;
     public ThreadsRecyclerViewAdapter adapter;
-    private SpeedyLinearLayoutManager linearLayoutManager;
+    private LinearLayoutManager linearLayoutManager;
     public static List<Files> files;
     public static List<String> thumbnails;
     public static List<String> imageCachePaths;
@@ -142,6 +146,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
 
     public ThreadsJsonSchema mSchema;
     private ProgressBarUnit mProgressBarUnit;
+    public FileSaver mFileSaver;
 
 
     @Override
@@ -169,11 +174,8 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
         mDataLoader = new DataLoader(this);
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
         mProgressBarUnit = new ProgressBarUnit(this, (ProgressBar) findViewById(R.id.main_progress_bar));
+        mFileSaver = new FileSaver(this);
 
-    }
-
-    private Proxy setProxy() {
-        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("188.165.243.106", 9050));
     }
 
     @Override
@@ -301,6 +303,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
         picVidToolbarContainer = (LinearLayout) findViewById(R.id.picvid_toolbar_container);
         picVidToolbarTitleTextView = (TextView) findViewById(R.id.picvid_title);
         picVidToolbarShortInfoTextView = (TextView) findViewById(R.id.picvid_short_info);
+        picVidToolbarMenuItem = picVidToolbar.getMenu().findItem(R.id.action_save);
 
     }
 
@@ -448,7 +451,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
 
         threadsRecyclerView.setDrawingCacheEnabled(false);
         threadsRecyclerView.addItemDecoration(new ThreadsRecyclerViewDividerItemDecoration(this));
-        linearLayoutManager = new SpeedyLinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
         threadsRecyclerView.setLayoutManager(linearLayoutManager);
         adapter = new ThreadsRecyclerViewAdapter(this, boardId);
         adapter.setHasStableIds(true);
@@ -685,7 +688,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
     public void onDataLoaded(List schema) {
         dataLoaded = true;
 
-        findViewById(R.id.main_progress_bar).setVisibility(View.GONE);
+        mProgressBarUnit.hideProgressBar();
         mSchema = (ThreadsJsonSchema) schema.get(0);
         Log.d(LOG_TAG, "postLoadData: mSchema: treadsSize: " + mSchema.getThreads().size());
         if (boardName.equals("")) {
@@ -720,6 +723,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
         }
     }
 
+    @NonNull
     @Override
     public Activity getActivity() {
         return this;
@@ -730,5 +734,11 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView {
         if (!threadsRefreshLayoutTop.isRefreshing() && !threadsRefreshLayoutBottom.isRefreshing()) {
             findViewById(R.id.main_progress_bar).setVisibility(View.VISIBLE);
         }
+    }
+
+    @NotNull
+    @Override
+    public Context getContext() {
+        return this;
     }
 }

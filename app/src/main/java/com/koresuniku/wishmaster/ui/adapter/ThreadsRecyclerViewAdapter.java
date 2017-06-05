@@ -7,14 +7,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -223,7 +222,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         if (subject.equals("")) holder.subject.setVisibility(View.GONE);
         holder.comment.setText(Html.fromHtml(comment));
         holder.comment.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
-        holder.postsAndFiles.setText(StringUtils.getCorrectPostsAndFilesString(postsCount, filesCount));
+        holder.postsAndFiles.setText(StringUtils.getPostsAndFilesString(postsCount, filesCount));
 
         String width;
         String height;
@@ -631,6 +630,15 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         mActivity.picVidToolbarTitleTextView.setTextSize((int)mActivity.getResources().getDimension(R.dimen.media_toolbar_text_size));
         mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
                 mActivity.picVidToolbarShortInfoTextView, thumbnailPosition, ThreadsActivity.files));
+        mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                mActivity.mFileSaver.saveFileToExternalStorage(
+                        Constants.DVACH_BASE_URL + ThreadsActivity.files.get(thumbnailPosition).getPath(),
+                        ThreadsActivity.files.get(thumbnailPosition).getDisplayName());
+                return false;
+            }
+        });
     }
 
     private void setImageViewWidthDependingOnOrientation(

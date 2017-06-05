@@ -2,6 +2,7 @@ package com.koresuniku.wishmaster.ui.listener;
 
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.koresuniku.wishmaster.ui.activity.SingleThreadActivity;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
@@ -21,7 +22,7 @@ public class SingleThreadViewPagerOnPageChangeListener implements ViewPager.OnPa
     }
 
     @Override
-    public void onPageSelected(int position) {
+    public void onPageSelected(final int position) {
         Log.d(LOG_TAG, "ViewPager.OnPageChangeListener(): " + position);
 
         String displayName = SingleThreadActivity.files.get(position).getDisplayName();
@@ -50,7 +51,19 @@ public class SingleThreadViewPagerOnPageChangeListener implements ViewPager.OnPa
             } else Log.d(LOG_TAG, "smth wrong");
         }
 
-
+        mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.d(LOG_TAG, "onMenuItemClick");
+                mActivity.picVidToolbarUrl =
+                        Constants.DVACH_BASE_URL + SingleThreadActivity.files.get(position).getPath();
+                mActivity.picVidToolbarFilename =
+                        SingleThreadActivity.files.get(position).getDisplayName();
+                mActivity.mFileSaver.saveFileToExternalStorage(
+                        mActivity.picVidToolbarUrl, mActivity.picVidToolbarFilename);
+                return false;
+            }
+        });
     }
 
     @Override

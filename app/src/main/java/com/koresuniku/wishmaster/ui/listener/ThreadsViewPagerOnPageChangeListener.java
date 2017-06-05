@@ -2,6 +2,7 @@ package com.koresuniku.wishmaster.ui.listener;
 
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.koresuniku.wishmaster.ui.activity.ThreadsActivity;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
@@ -21,7 +22,7 @@ public class ThreadsViewPagerOnPageChangeListener implements ViewPager.OnPageCha
     }
 
     @Override
-    public void onPageSelected(int position) {
+    public void onPageSelected(final int position) {
         Log.d(LOG_TAG, "ViewPager.OnPageChangeListener(): " + position);
 
         String displayName = ThreadsActivity.files.get(position).getDisplayName();
@@ -49,6 +50,16 @@ public class ThreadsViewPagerOnPageChangeListener implements ViewPager.OnPageCha
                 fragment.videoViewUnit.startVideoView();
             } else Log.d(LOG_TAG, "smth wrong");
         }
+
+        mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                mActivity.mFileSaver.saveFileToExternalStorage(
+                        Constants.DVACH_BASE_URL + ThreadsActivity.files.get(position).getPath(),
+                        ThreadsActivity.files.get(position).getDisplayName());
+                return false;
+            }
+        });
 
     }
 

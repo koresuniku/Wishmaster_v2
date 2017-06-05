@@ -18,4 +18,6 @@ public class DeviceUtils {
     public static boolean sdkIsLollipopOrHigher() { return Build.VERSION.SDK_INT >= 20; }
 
     public static boolean sdkIsKitkatOrHigher() { return Build.VERSION.SDK_INT >= 19; }
+
+    public static boolean sdkIsMarshmallowOrHigher() { return Build.VERSION.SDK_INT >= 23; }
 }

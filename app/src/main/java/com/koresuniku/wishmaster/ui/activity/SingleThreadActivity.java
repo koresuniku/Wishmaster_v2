@@ -2,13 +2,16 @@ package com.koresuniku.wishmaster.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.view.ViewCompat;
@@ -44,7 +47,10 @@ import com.koresuniku.wishmaster.App;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.presenter.DataLoader;
-import com.koresuniku.wishmaster.presenter.LoadDataView;
+import com.koresuniku.wishmaster.presenter.FileSaver;
+import com.koresuniku.wishmaster.presenter.PermissionManager;
+import com.koresuniku.wishmaster.presenter.view_interface.LoadDataView;
+import com.koresuniku.wishmaster.presenter.view_interface.SaveFileView;
 import com.koresuniku.wishmaster.ui.ActionBarUtils;
 import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.ui.adapter.SingleThreadRecyclerViewAdapter;
@@ -72,6 +78,8 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -80,7 +88,7 @@ import java.util.Map;
 
 import static android.view.View.GONE;
 
-public class SingleThreadActivity extends AppCompatActivity implements LoadDataView {
+public class SingleThreadActivity extends AppCompatActivity implements LoadDataView, SaveFileView {
     private final String LOG_TAG = SingleThreadActivity.class.getSimpleName();
 
     private SingleThreadActivity mActivity;
@@ -110,6 +118,9 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
     public ImageView picVidToolbarExitImageView;
     public TextView picVidToolbarTitleTextView;
     public TextView picVidToolbarShortInfoTextView;
+    public MenuItem picVidToolbarMenuItem;
+    public String picVidToolbarFilename;
+    public String picVidToolbarUrl;
 
     public SwipyRefreshLayout singleThreadRefreshLayoutTop;
     public SwipyRefreshLayout singleThreadRefreshLayoutBottom;
@@ -146,6 +157,8 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
 
     private DataLoader mDataLoader;
     public List<Post> mPosts;
+    public FileSaver mFileSaver;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -175,6 +188,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
         picVidPager = (HackyViewPager) findViewById(R.id.threads_full_pic_vid_pager);
 
         mDataLoader = new DataLoader(this);
+        mFileSaver = new FileSaver(this);
     }
 
 
@@ -310,7 +324,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
         picVidToolbarContainer = (LinearLayout) findViewById(R.id.picvid_toolbar_container);
         picVidToolbarTitleTextView = (TextView) findViewById(R.id.picvid_title);
         picVidToolbarShortInfoTextView = (TextView) findViewById(R.id.picvid_short_info);
-
+        picVidToolbarMenuItem = picVidToolbar.getMenu().findItem(R.id.action_save);
     }
 
     private void setupSwipeRefreshLayout() {
@@ -654,7 +668,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
     public void onDataLoaded(List schema) {
         dataLoaded = true;
 
-        findViewById(R.id.main_progress_bar).setVisibility(GONE);
+        mProgressBarUnit.hideProgressBar();
         final int beforeCount = mPosts == null ? 0 : mPosts.size();
 
         mPosts = (List<Post>) schema;
@@ -694,5 +708,22 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
         if (!singleThreadRefreshLayoutTop.isRefreshing() && !singleThreadRefreshLayoutBottom.isRefreshing()) {
             findViewById(R.id.main_progress_bar).setVisibility(View.VISIBLE);
         }
+    }
+
+    @NotNull
+    @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == PermissionManager.INSTANCE.getWRITE_EXTERNAL_STORAGE_PERMISSION_CODE()) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mFileSaver.saveFileToExternalStorage(picVidToolbarUrl, picVidToolbarFilename);
+            }
+        }
+
     }
 }

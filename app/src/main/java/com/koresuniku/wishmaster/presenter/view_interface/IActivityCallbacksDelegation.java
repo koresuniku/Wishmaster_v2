@@ -1,4 +1,4 @@
-package com.koresuniku.wishmaster.presenter;
+package com.koresuniku.wishmaster.presenter.view_interface;
 
 public interface IActivityCallbacksDelegation {
     void onCreate();
