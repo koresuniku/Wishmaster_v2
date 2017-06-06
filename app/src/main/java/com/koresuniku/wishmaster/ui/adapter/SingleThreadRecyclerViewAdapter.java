@@ -301,7 +301,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private void setCorrectStringForAnswersTextView(final ViewHolder holder, String number, int position) {
         if (mActivity.mAnswersManager.getAnswersMode() == 0) {
             SpannableString answersString = new SpannableString(
-                    StringUtils.getAnswersString(getAnswersCountForPost(number)));
+                    StringUtils.INSTANCE.getAnswersString(getAnswersCountForPost(number)));
             if (answersString.equals(new SpannableString("")))
                 ((FrameLayout)holder.answers.getParent()).setVisibility(View.GONE);
             else ((FrameLayout)holder.answers.getParent()).setVisibility(View.VISIBLE);
@@ -344,7 +344,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     private void setCorrectStringForAnswersTextView(final TextView answers, String number, int position) {
         if (mActivity.mAnswersManager.getAnswersMode() == 0) {
             SpannableString answersString = new SpannableString(
-                    StringUtils.getAnswersString(getAnswersCountForPost(number)));
+                    StringUtils.INSTANCE.getAnswersString(getAnswersCountForPost(number)));
             if (answersString.equals(new SpannableString("")))
                 ((FrameLayout)answers.getParent()).setVisibility(View.GONE);
             else answers.setVisibility(View.VISIBLE);
@@ -402,7 +402,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         String comment = post.getComment();
         List<Files> files = post.getFiles();
 
-        holder.numberAndTime.setText(StringUtils.getNumberAndTimeString(
+        holder.numberAndTime.setText(StringUtils.INSTANCE.getNumberAndTimeString(
                 mActivity, position, number, op, name, trip, time));
         if (!boardId.equals("b")) holder.subject.setText(Html.fromHtml(subject));
         else holder.subject.setVisibility(View.GONE);
@@ -717,7 +717,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         } else webmImageView.setVisibility(View.GONE);
 
         image.setOnClickListener(thumbnailClickListener);
-        summary.setText(StringUtils.getSummaryString(mActivity, imageOrVideoSize,
+        summary.setText(StringUtils.INSTANCE.getSummaryString(mActivity, imageOrVideoSize,
                 imageOrVideoWidth, imageOrVideoHeight));
     }
 
@@ -856,7 +856,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         String comment = post.getComment();
         List<Files> files = post.getFiles();
 
-        numberAndTimeTextView.setText(StringUtils.getNumberAndTimeString(
+        numberAndTimeTextView.setText(StringUtils.INSTANCE.getNumberAndTimeString(
                 mActivity, position, number, op, name, trip, time));
         if (!boardId.equals("b")) subjectTextView.setText(Html.fromHtml(subject));
         else subjectTextView.setVisibility(View.GONE);
@@ -979,7 +979,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
         }
         mActivity.picVidToolbarTitleTextView.setTypeface(Typeface.DEFAULT_BOLD);
         mActivity.picVidToolbarTitleTextView.setTextSize(mActivity.getResources().getDimension(R.dimen.media_toolbar_text_size));
-        mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
+        mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.INSTANCE.getShortInfoForToolbarString(
                 mActivity.picVidToolbarShortInfoTextView, currentPosition, SingleThreadActivity.files));
 
         mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -1015,7 +1015,7 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
     }
 
     public void notifyNewPosts(int before, int after) {
-        String toShow = StringUtils.getNotifyNewPostsString(after - before);
+        String toShow = StringUtils.INSTANCE.getNotifyNewPostsString(after - before);
         if (mActivity.mNewPostsNotifierToast != null) mActivity.mNewPostsNotifierToast.cancel();
         mActivity.mNewPostsNotifierToast = Toast.makeText(mActivity, toShow, Toast.LENGTH_SHORT);
         mActivity.mNewPostsNotifierToast.show();

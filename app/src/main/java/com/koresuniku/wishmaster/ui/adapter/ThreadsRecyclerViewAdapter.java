@@ -216,13 +216,13 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         String filesCount = thread.getFilesCount();
         List<Files> files = thread.getFiles();
 
-        holder.numberAndTime.setText(StringUtils.getNumberAndTimeString(number, name, trip, time));
+        holder.numberAndTime.setText(StringUtils.INSTANCE.getNumberAndTimeString(number, name, trip, time));
         if (!boardId.equals("b")) holder.subject.setText(Html.fromHtml(subject));
         else holder.subject.setVisibility(View.GONE);
         if (subject.equals("")) holder.subject.setVisibility(View.GONE);
         holder.comment.setText(Html.fromHtml(comment));
         holder.comment.setMovementMethod(CommentLinkMovementMethod.getInstance(mActivity, position));
-        holder.postsAndFiles.setText(StringUtils.getPostsAndFilesString(postsCount, filesCount));
+        holder.postsAndFiles.setText(StringUtils.INSTANCE.getPostsAndFilesString(postsCount, filesCount));
 
         String width;
         String height;
@@ -522,7 +522,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         } else webmImageView.setVisibility(View.GONE);
 
         image.setOnClickListener(thumbnailOnClickListener);
-        summary.setText(StringUtils.getSummaryString(mActivity, imageOrVideoSize,
+        summary.setText(StringUtils.INSTANCE.getSummaryString(mActivity, imageOrVideoSize,
                 imageOrVideoWidth, imageOrVideoHeight));
     }
 
@@ -628,7 +628,7 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         }
         mActivity.picVidToolbarTitleTextView.setTypeface(Typeface.DEFAULT_BOLD);
         mActivity.picVidToolbarTitleTextView.setTextSize((int)mActivity.getResources().getDimension(R.dimen.media_toolbar_text_size));
-        mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.getShortInfoForToolbarString(
+        mActivity.picVidToolbarShortInfoTextView.setText(StringUtils.INSTANCE.getShortInfoForToolbarString(
                 mActivity.picVidToolbarShortInfoTextView, thumbnailPosition, ThreadsActivity.files));
         mActivity.picVidToolbarMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
