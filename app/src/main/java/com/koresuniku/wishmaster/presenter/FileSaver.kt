@@ -3,6 +3,7 @@ package com.koresuniku.wishmaster.presenter
 import android.os.Environment
 import android.util.Log
 import com.koresuniku.wishmaster.R
+import com.koresuniku.wishmaster.http.HttpClient
 import com.koresuniku.wishmaster.presenter.view_interface.SaveFileView
 import com.koresuniku.wishmaster.util.StringUtils
 import org.jetbrains.anko.custom.async
@@ -22,8 +23,6 @@ class FileSaver(val view: SaveFileView) {
         }
 
         async {
-
-
             try {
                 val dir: File = File(Environment.getExternalStorageDirectory().absolutePath
                         + "/" + view.getContext().getString(R.string.download_dir)
@@ -37,13 +36,10 @@ class FileSaver(val view: SaveFileView) {
                     file = File(dir, StringUtils.getFilenameString(fileName, ++counter))
                 }
 
-
-                val url = URL(urlString)
-                val connection = url.openConnection()
-                connection.connect()
+                val response = HttpClient.getResponseFromUrl(urlString)
+                val totalSize = response!!.contentLength()
+                val inputStream = response.byteStream()
                 val fileOutput = FileOutputStream(file)
-                val inputStream = connection.getInputStream()
-                val totalSize = connection.contentLength
                 var downloadedSize = 0
                 val buffer = ByteArray(1024)
                 var bufferLength = inputStream.read(buffer)
@@ -54,8 +50,6 @@ class FileSaver(val view: SaveFileView) {
                     bufferLength = inputStream.read(buffer)
                 }
                 Log.d(LOG_TAG, "file created")
-
-
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.d(LOG_TAG, "exception")

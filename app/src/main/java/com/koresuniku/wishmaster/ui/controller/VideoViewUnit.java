@@ -112,7 +112,7 @@ public class VideoViewUnit implements OnPreparedListener{
         videoView.setControls(null);
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         OkHttpDataSourceFactory dataSourceFactory =
-                new OkHttpDataSourceFactory(HttpClient.client,
+                new OkHttpDataSourceFactory(HttpClient.INSTANCE.getClient(),
                         Util.getUserAgent(mFragment.mActivity, mFragment.mActivity.getString(R.string.app_name)),
                         (TransferListener<? super DataSource>) bandwidthMeter);
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();

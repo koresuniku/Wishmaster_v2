@@ -5,9 +5,9 @@ import android.widget.ProgressBar
 
 import com.koresuniku.wishmaster.http.IBaseJsonSchema
 
-interface LoadDataView<in T : IBaseJsonSchema> {
+interface LoadDataView {
 
-    fun onDataLoaded(schema: List<T>)
+    fun onDataLoaded(schema: List<IBaseJsonSchema>)
 
     val activity: Activity
 

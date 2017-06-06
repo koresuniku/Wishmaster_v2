@@ -205,7 +205,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod implements IAl
                     end -= 5;
                 }
                 if (String.valueOf(mBuffer.subSequence(locations.get(0) + 2, end)).equals(number)) {
-                    //Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen " + locations.get(0) + ", " + locations.get(1));
+                    //Log.d(TAG, "setForegroundSpanForParticularLocation: needa spanen " + locations.getByteInputStreamFromUrl(0) + ", " + locations.getByteInputStreamFromUrl(1));
                     mBuffer.setSpan(((SingleThreadActivity)mActivity).adapter.foregroundColorSpan, locations.get(0),
                             locations.get(1), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     List<Integer> locationsToAdd;
@@ -216,7 +216,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod implements IAl
                     locationsToAdd.add(locations.get(1));
                     ((SingleThreadActivity)mActivity).adapter.mCommentAnswersSpansLocations.add(mPosition, locationsToAdd);
                 } else {
-                    //Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
+                    //Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.getByteInputStreamFromUrl(0) + 2, end) + " != " + number);
                 }
             }
 

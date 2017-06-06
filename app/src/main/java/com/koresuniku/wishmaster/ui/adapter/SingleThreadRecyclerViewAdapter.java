@@ -264,11 +264,11 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     private SpannableString setAnswersBackgroundSpansIfNeeded(
             SpannableString spannableAnswersString, int position) {
-//        List<Integer> spansAnswers = mAnswersSpansLocations.get(position);
+//        List<Integer> spansAnswers = mAnswersSpansLocations.getByteInputStreamFromUrl(position);
 //        Log.d(LOG_TAG, "spansLocations: " + spansAnswers);
 //        if (spansAnswers.size() != 0) {
 //            spannableAnswersString.setSpan(foregroundColorSpan,
-//                    spansAnswers.get(0), spansAnswers.get(1),
+//                    spansAnswers.getByteInputStreamFromUrl(0), spansAnswers.getByteInputStreamFromUrl(1),
 //                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 //        }
         return spannableAnswersString;
@@ -276,10 +276,10 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
 
     private SpannableString setCommentAnswersBackgroundSpansIfNeeded(
             SpannableString spannableAnswersString, int position) {
-//        List<Integer> spansCommentLocations = mCommentAnswersSpansLocations.get(position);
+//        List<Integer> spansCommentLocations = mCommentAnswersSpansLocations.getByteInputStreamFromUrl(position);
 //        if (spansCommentLocations.size() != 0) {
 //            spannableAnswersString.setSpan(foregroundColorSpan,
-//                    spansCommentLocations.get(0), spansCommentLocations.get(1),
+//                    spansCommentLocations.getByteInputStreamFromUrl(0), spansCommentLocations.getByteInputStreamFromUrl(1),
 //                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 //        }
         return spannableAnswersString;

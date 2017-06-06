@@ -52,13 +52,13 @@ public class ThreadsForPagesAsyncTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        Call<ThreadsJsonSchema> callMainSchema = HttpClient.threadsService.getThreads(mBoardId);
+        Call<ThreadsJsonSchema> callMainSchema = HttpClient.INSTANCE.getThreadsService().getThreads(mBoardId);
         try {
             mActivity.mSchema = callMainSchema.execute().body();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Call<ThreadsForPagesJsonSchema> call = HttpClient.threadsService.getThreadsForPages(mBoardId, "index");
+        Call<ThreadsForPagesJsonSchema> call = HttpClient.INSTANCE.getThreadsService().getThreadsForPages(mBoardId, "index");
 
         call.enqueue(new Callback<ThreadsForPagesJsonSchema>() {
             @Override
@@ -72,7 +72,7 @@ public class ThreadsForPagesAsyncTask extends AsyncTask<Void, Void, Void> {
                     final int iCopy = i;
                     Log.d(LOG_TAG, "loading page " + i);
                     final Call<ThreadsForPagesJsonSchema> callForPage
-                            = HttpClient.threadsService.getThreadsForPages(mBoardId, String.valueOf(i));
+                            = HttpClient.INSTANCE.getThreadsService().getThreadsForPages(mBoardId, String.valueOf(i));
                         callForPage.enqueue(new Callback<ThreadsForPagesJsonSchema>() {
                             @Override
                             public void onResponse(Call<ThreadsForPagesJsonSchema> call, final Response<ThreadsForPagesJsonSchema> response) {

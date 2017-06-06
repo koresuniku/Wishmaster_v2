@@ -14,9 +14,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="ActionBarStyle" parent="Widget.AppCompat.Light.ActionBar">
-        <item name="colorControlNormal">@color/background_dark_color</item>
-    </style>
+
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

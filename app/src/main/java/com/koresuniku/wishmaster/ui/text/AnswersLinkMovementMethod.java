@@ -120,7 +120,7 @@ public class AnswersLinkMovementMethod extends LinkMovementMethod implements IAl
                     locationsToAdd.add(locations.get(1));
                     mActivity.adapter.mAnswersSpansLocations.add(mPosition, locationsToAdd);
                 } else {
-                    //Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.get(0) + 2, end) + " != " + number);
+                    //Log.d(TAG, "setForegroundSpanForParticularLocation: " + mBuffer.subSequence(locations.getByteInputStreamFromUrl(0) + 2, end) + " != " + number);
                 }
             }
         }

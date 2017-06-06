@@ -187,7 +187,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
         super.onStart();
         App.mSettingsContentObserver.switchActivity(this);
         if (!dataLoaded) {
-            mDataLoader.loadData(boardId);
+            mDataLoader.loadThreadsData(boardId);
         }
     }
 
@@ -305,6 +305,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
             }
         });
         picVidToolbarContainer = (LinearLayout) findViewById(R.id.picvid_toolbar_container);
+        picVidToolbarContainer.setBackgroundColor(getActivity().getResources().getColor(android.R.color.transparent));
         picVidToolbarTitleTextView = (TextView) findViewById(R.id.picvid_title);
         picVidToolbarShortInfoTextView = (TextView) findViewById(R.id.picvid_short_info);
         picVidToolbarMenuItem = picVidToolbar.getMenu().findItem(R.id.action_save);
@@ -328,7 +329,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
                         threadsRefreshLayoutTop.setRefreshing(true);
                     }
                 });
-                mDataLoader.loadData(boardId);
+                mDataLoader.loadThreadsData(boardId);
             }
         });
         threadsRefreshLayoutBottom.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
@@ -341,7 +342,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
                         threadsRefreshLayoutBottom.setRefreshing(true);
                     }
                 });
-                mDataLoader.loadData(boardId);
+                mDataLoader.loadThreadsData(boardId);
             }
         });
 
@@ -441,7 +442,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mActivity)
                 .imageDownloader(new BaseImageDownloader(mActivity, 50 * 1000, 20 * 1000)).build();
-        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.client));
+        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.INSTANCE.getClient()));
         ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
 
@@ -542,7 +543,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
                 return true;
             case R.id.action_refresh: {
                 threadsRefreshLayoutTop.setRefreshing(true);
-                mDataLoader.loadData(boardId);
+                mDataLoader.loadThreadsData(boardId);
 
             }
         }

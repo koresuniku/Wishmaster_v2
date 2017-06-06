@@ -163,13 +163,13 @@ public class AnswersController {
             return;
         }
         mActivity.mAnswerViews.remove(mActivity.mAnswerViews.size() - 1);
-//        if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+//        if (((TextView)mAnswerViews.getByteInputStreamFromUrl(mAnswerViews.size() - 1).getByteInputStreamFromUrl(0)
 //                .findViewById(R.id.answers)).getMovementMethod() instanceof AnswersLinkMovementMethod) {
-//            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+//            ((AnswersLinkMovementMethod) ((TextView)mAnswerViews.getByteInputStreamFromUrl(mAnswerViews.size() - 1).getByteInputStreamFromUrl(0)
 //                    .findViewById(R.id.answers)).getMovementMethod()).allowActionCancel = true;
-//        } else if (((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(mAnswerViews.size() - 1)
+//        } else if (((TextView)mAnswerViews.getByteInputStreamFromUrl(mAnswerViews.size() - 1).getByteInputStreamFromUrl(mAnswerViews.size() - 1)
 //                .findViewById(R.id.post_comment)).getMovementMethod() instanceof CommentLinkMovementMethod) {
-//            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.get(mAnswerViews.size() - 1).get(0)
+//            ((CommentLinkMovementMethod) ((TextView)mAnswerViews.getByteInputStreamFromUrl(mAnswerViews.size() - 1).getByteInputStreamFromUrl(0)
 //                    .findViewById(R.id.post_comment)).getMovementMethod()).allowActionCancel = true;
 //        }
 

@@ -46,7 +46,7 @@ public class App extends Application {
 //            Field _mContext = clazz.getDeclaredField("mContext");
 //            _mContext.setAccessible(true);
 //
-//            Object sGestureBoostManager = _sGestureBoostManager.get(null);
+//            Object sGestureBoostManager = _sGestureBoostManager.getByteInputStreamFromUrl(null);
 //            if (sGestureBoostManager != null) {
 //                _mContext.set(sGestureBoostManager, context);
 //            }

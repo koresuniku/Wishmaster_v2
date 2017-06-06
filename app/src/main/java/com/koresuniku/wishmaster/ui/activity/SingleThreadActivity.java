@@ -197,8 +197,8 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
         super.onStart();
         App.mSettingsContentObserver.switchActivity(this);
         if (!dataLoaded) {
-            //loadData();
-            mDataLoader.loadData(boardId, threadNumber);
+            //loadSingleThreadData();
+            mDataLoader.loadSingleThreadData(boardId, threadNumber);
         }
     }
 
@@ -344,8 +344,8 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
                         singleThreadRefreshLayoutTop.setRefreshing(true);
                     }
                 });
-                //loadData();
-                mDataLoader.loadData(boardId, threadNumber);
+                //loadSingleThreadData();
+                mDataLoader.loadSingleThreadData(boardId, threadNumber);
             }
         });
         singleThreadRefreshLayoutBottom.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
@@ -358,8 +358,8 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
                         singleThreadRefreshLayoutBottom.setRefreshing(true);
                     }
                 });
-                //loadData();
-                mDataLoader.loadData(boardId, threadNumber);
+                //loadSingleThreadData();
+                mDataLoader.loadSingleThreadData(boardId, threadNumber);
             }
         });
 
@@ -423,7 +423,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
                 .imageDownloader(new BaseImageDownloader(mActivity, 50 * 1000, 200 * 1000)).build();
         ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
-        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.client));
+        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.INSTANCE.getClient()));
         singleThreadRecyclerView.setItemViewCacheSize(0);
         singleThreadRecyclerView.addItemDecoration(new ThreadsRecyclerViewDividerItemDecoration(this));
         linearLayoutManager = new LinearLayoutManager(this);
@@ -583,8 +583,8 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
                 return true;
             case R.id.action_refresh: {
                 singleThreadRefreshLayoutTop.setRefreshing(true);
-               // loadData();
-                mDataLoader.loadData(boardId, threadNumber);
+               // loadSingleThreadData();
+                mDataLoader.loadSingleThreadData(boardId, threadNumber);
             }
         }
         return true;
