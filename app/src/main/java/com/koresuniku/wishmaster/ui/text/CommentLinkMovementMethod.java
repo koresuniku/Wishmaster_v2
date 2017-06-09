@@ -93,9 +93,9 @@ public class CommentLinkMovementMethod extends LinkMovementMethod implements IAl
                 if (!isAnswerFound) {
 
                     if (mActivity instanceof ThreadsActivity) {
-                        buffer.setSpan(((ThreadsActivity)mActivity).adapter.backgroundColorSpan,
-                                buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]),
-                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//                        buffer.setSpan(((ThreadsActivity)mActivity).adapter.backgroundColorSpan,
+//                                buffer.getSpanStart(link[0]), buffer.getSpanEnd(link[0]),
+//                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                     if (mActivity instanceof SingleThreadActivity) {
                         buffer.setSpan(((SingleThreadActivity)mActivity).adapter.backgroundColorSpan,
@@ -109,7 +109,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod implements IAl
 
         if (action == MotionEvent.ACTION_UP) {
             if (mActivity instanceof ThreadsActivity) {
-                buffer.removeSpan(((ThreadsActivity)mActivity).adapter.backgroundColorSpan);
+                //buffer.removeSpan(((ThreadsActivity)mActivity).adapter.backgroundColorSpan);
             }
             if (mActivity instanceof SingleThreadActivity) {
                 buffer.removeSpan(((SingleThreadActivity)mActivity).adapter.backgroundColorSpan);
@@ -127,7 +127,7 @@ public class CommentLinkMovementMethod extends LinkMovementMethod implements IAl
         if (action == MotionEvent.ACTION_CANCEL) {
             Log.d(TAG, "actioncancel:");
             if (mActivity instanceof ThreadsActivity) {
-                buffer.removeSpan(((ThreadsActivity)mActivity).adapter.backgroundColorSpan);
+                buffer.removeSpan(((ThreadsActivity)mActivity).mRecyclerViewUnit.getMRecyclerViewAdapter().backgroundColorSpan);
             }
             if (mActivity instanceof SingleThreadActivity) {
                 buffer.removeSpan(((SingleThreadActivity)mActivity).adapter.backgroundColorSpan);

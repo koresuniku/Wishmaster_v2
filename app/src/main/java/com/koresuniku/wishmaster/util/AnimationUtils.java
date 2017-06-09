@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 public class AnimationUtils {
     public static final String LOG_TAG = AnimationUtils.class.getSimpleName();
 
-    public static final long THUMBNAIL_ANIMATION_DURATION = 200;
+    public static final long THUMBNAIL_ANIMATION_DURATION = 100;
 
     public static Animation expand(final View v, final boolean expand) {
         try {

@@ -6,10 +6,15 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.util.Log;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.github.piasy.biv.BigImageViewer;
 import com.github.piasy.biv.loader.glide.GlideImageLoader;
+import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.ui.listener.SettingsContentObserver;
 
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.concurrent.TimeUnit;
@@ -93,6 +98,7 @@ public class App extends Application {
 
         Log.d("Application: ", "App");
         BigImageViewer.initialize(GlideImageLoader.with(this));
+        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.INSTANCE.getClient()));
         AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         App.soundVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
         setupContentObserver();

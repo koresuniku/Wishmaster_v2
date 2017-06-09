@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
 
         setupDefaultPreferences();
         mDataLoader = new DataLoader(this);
-        mDataLoader.loadBoardsData();
+        mDataLoader.loadData();
 
         if (!PermissionManager.INSTANCE.checkWriteExternalStoragePermission(this)) {
             Log.d(LOG_TAG, "needa request permission");
@@ -311,6 +311,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
         if (id == R.id.action_search) {
@@ -322,6 +323,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.home) {
             Log.d(LOG_TAG, "home clicked");
         }
+
 
         return super.onOptionsItemSelected(item);
     }

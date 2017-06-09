@@ -55,72 +55,28 @@
         </android.support.design.widget.AppBarLayout>
 
 
+
+
+
+
+
+
         <com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout
-            android:id="@+id/threads_refresh_layout_top"
+            android:id="@+id/threads_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             app:srl_direction="top">
 
-            <com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout
-                android:id="@+id/threads_refresh_layout_bottom"
+            <com.koresuniku.wishmaster.ui.widget.FixedRecyclerView
+                android:id="@+id/threads_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                app:srl_direction="bottom">
+                android:layout_height="match_parent"
+                android:background="@color/common_background_color"
+                android:clipToPadding="false"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <com.koresuniku.wishmaster.ui.widget.FixedRecyclerView
-                    android:id="@+id/threads_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/common_background_color"
-                    android:clipToPadding="false">
-
-                </com.koresuniku.wishmaster.ui.widget.FixedRecyclerView>
-
-
-                <!--<com.l4digital.fastscroll.FastScrollRecyclerView-->
-                <!--android:id="@+id/threads_recycler_view"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--app:bubbleColor="#00bb00"-->
-                <!--app:bubbleTextColor="#ffffff"-->
-                <!--app:handleColor="#999999"-->
-                <!--app:trackColor="#bbbbbb"-->
-                <!--app:hideScrollbar="false"-->
-                <!--app:showTrack="false" />-->
-
-
-                <!--<recyclerview_fastscroll.views.FastScrollRecyclerView-->
-                <!--android:id="@+id/threads_recycler_view"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:clipToPadding="false"-->
-
-                <!--app:fastScrollThumbColor="#a9a9a9"-->
-                <!--app:fastScrollTrackColor="@android:color/transparent"-->
-                <!--app:fastScrollAutoHide="true"-->
-                <!--app:fastScrollAutoHideDelay="200" />-->
-
-                <!--<com.koresuniku.wishmaster.ui.views.AbsoluteScrollableRecyclerView-->
-                <!--android:id="@+id/threads_recycler_view"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent">-->
-
-                <!--</com.koresuniku.wishmaster.ui.views.AbsoluteScrollableRecyclerView>-->
-
-
-                <!--<com.pluscubed.recyclerfastscroll.RecyclerFastScroller-->
-                <!--android:id="@+id/fast_scroller"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:layout_gravity="end">-->
-
-                <!--</com.pluscubed.recyclerfastscroll.RecyclerFastScroller>-->
-
-
-            </com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout>
-
+            </com.koresuniku.wishmaster.ui.widget.FixedRecyclerView>
 
         </com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout>
 

@@ -19,7 +19,7 @@ import retrofit2.Response
 class DataLoader(private val view: LoadDataView) {
     private val LOG_TAG = DataLoader::class.java.simpleName
 
-    fun loadBoardsData() {
+    fun loadData() {
         val call = HttpClient.boardsService.getBoards("get_boards")
         call.enqueue(object : Callback<BoardsJsonSchema> {
             override fun onResponse(call: Call<BoardsJsonSchema>, response: Response<BoardsJsonSchema>) {
@@ -34,7 +34,7 @@ class DataLoader(private val view: LoadDataView) {
         })
     }
 
-    fun loadThreadsData(boardId: String) {
+    fun loadData(boardId: String) {
         view.showProgressBar()
         if (boardId == "d" || boardId == "d") {
             ThreadsForPagesAsyncTask(view.activity as ThreadsActivity, boardId).execute()
@@ -54,7 +54,7 @@ class DataLoader(private val view: LoadDataView) {
         }
     }
 
-    fun loadSingleThreadData(boardId: String, threadNumber: String) {
+    fun loadData(boardId: String, threadNumber: String) {
         Log.d(LOG_TAG, "loadSingleThreadData:")
         view.showProgressBar()
 

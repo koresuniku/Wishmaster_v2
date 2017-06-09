@@ -14,7 +14,7 @@ import com.koresuniku.wishmaster.http.threads_api.models.Files
 
 object StringUtils {
     fun getPostsAndFilesString(posts: String, files: String): String {
-        var result = "Пропущено "
+        var result = ""
 
         val postsLastNumeral = Integer.parseInt(posts.substring(posts.length - 1, posts.length))
         val filesLastNumeral = Integer.parseInt(files.substring(files.length - 1, files.length))

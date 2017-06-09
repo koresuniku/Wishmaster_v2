@@ -41,20 +41,20 @@ public class ThreadsListViewAdapter extends BaseAdapter {
     private void inflateViews() {
         for (Thread thread : mActivity.mSchema.getThreads()) {
             if (thread.getFiles().size() <= 1) {
-                mViews.add(mLayoutInflater.inflate(R.layout.thread_item_single_image_redesign, null, false));
+                mViews.add(mLayoutInflater.inflate(R.layout.thread_item_single_image, null, false));
             }
             if (thread.getFiles().size() > 1) {
-                mViews.add(mLayoutInflater.inflate(R.layout.thread_item_mltiple_images_redesign, null, false));
+                mViews.add(mLayoutInflater.inflate(R.layout.thread_item_mltiple_images, null, false));
             }
         }
     }
 
     public void inflateSingleImageItemView() {
-        mSingleImageItemView = mLayoutInflater.inflate(R.layout.thread_item_single_image_redesign, null, false);
+        mSingleImageItemView = mLayoutInflater.inflate(R.layout.thread_item_single_image, null, false);
     }
 
     public void inflateMultipleImagesItemView() {
-        mMultipleImagesItemView = mLayoutInflater.inflate(R.layout.thread_item_mltiple_images_redesign, null, false);
+        mMultipleImagesItemView = mLayoutInflater.inflate(R.layout.thread_item_mltiple_images, null, false);
     }
 
     @Override

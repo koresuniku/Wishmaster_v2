@@ -132,16 +132,6 @@
             app:cardCornerRadius="4dp"
             app:cardElevation="12dp" />
 
-        <!--<com.koresuniku.wishmaster.ui.views.RoundedCornerLayout-->
-        <!--android:id="@+id/answer_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="center"-->
-
-        <!--android:elevation="16dp"-->
-        <!--android:outlineProvider="bounds">-->
-
-        <!--</com.koresuniku.wishmaster.ui.views.RoundedCornerLayout>-->
     </FrameLayout>
 
     <include

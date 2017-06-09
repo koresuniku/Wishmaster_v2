@@ -26,7 +26,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/thread_subject"
-        android:text="number and time" />
+        android:text="number and time"
+        android:visibility="gone" />
 
 
     <RelativeLayout
@@ -433,7 +434,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/imagies_and_summaries_container"
-        android:lines="6"
+        android:maxLines="6"
         android:text="comment"
         android:textAppearance="@style/TextAppearance.AppCompat" />
 

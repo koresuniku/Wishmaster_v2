@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
@@ -35,7 +36,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -121,18 +122,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_settings);
         setupActionBar();
     }
+
+
 
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
     private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Show the Up button in the action bar.
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        //ActionBar actionBar = getSupportActionBar();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.activity_settings_toolbar);
+        //setSupportActionBar(toolbar);
+//        if (actionBar != null) {
+//            // Show the Up button in the action bar.
+//            actionBar.setDisplayHomeAsUpEnabled(true);
+//        }
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
@@ -203,6 +210,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
             addPreferencesFromResource(R.xml.pref_notification);
             setHasOptionsMenu(true);
 

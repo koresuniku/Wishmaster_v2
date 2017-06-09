@@ -198,7 +198,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
         App.mSettingsContentObserver.switchActivity(this);
         if (!dataLoaded) {
             //loadSingleThreadData();
-            mDataLoader.loadSingleThreadData(boardId, threadNumber);
+            mDataLoader.loadData(boardId, threadNumber);
         }
     }
 
@@ -345,7 +345,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
                     }
                 });
                 //loadSingleThreadData();
-                mDataLoader.loadSingleThreadData(boardId, threadNumber);
+                mDataLoader.loadData(boardId, threadNumber);
             }
         });
         singleThreadRefreshLayoutBottom.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
@@ -359,7 +359,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
                     }
                 });
                 //loadSingleThreadData();
-                mDataLoader.loadSingleThreadData(boardId, threadNumber);
+                mDataLoader.loadData(boardId, threadNumber);
             }
         });
 
@@ -584,7 +584,7 @@ public class SingleThreadActivity extends AppCompatActivity implements LoadDataV
             case R.id.action_refresh: {
                 singleThreadRefreshLayoutTop.setRefreshing(true);
                // loadSingleThreadData();
-                mDataLoader.loadSingleThreadData(boardId, threadNumber);
+                mDataLoader.loadData(boardId, threadNumber);
             }
         }
         return true;

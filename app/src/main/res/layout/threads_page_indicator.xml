@@ -9,7 +9,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@color/background_dark_color" />
+        app:srcCompat="@drawable/recycler_view_divider" />
 
     <TextView
         android:id="@+id/page_indicator_textview"

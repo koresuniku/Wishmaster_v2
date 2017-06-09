@@ -23,7 +23,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/thread_subject"
-            android:text="number and time" />
+            android:text="number and time"
+            android:visibility="gone" />
 
         <FrameLayout
             android:id="@+id/image_container_1"
@@ -84,7 +85,7 @@
             android:layout_marginTop="@dimen/item_margin_images_top_divider"
             android:layout_toEndOf="@+id/image_container_1"
             android:layout_toRightOf="@+id/image_container_1"
-            android:lines="6"
+            android:maxLines="6"
             android:text="comment"
             android:textAppearance="@style/TextAppearance.AppCompat" />
     </RelativeLayout>

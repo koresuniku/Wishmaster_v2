@@ -11,12 +11,10 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,10 +41,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
-import com.bumptech.glide.load.model.GlideUrl;
 import com.koresuniku.wishmaster.App;
-import com.koresuniku.wishmaster.http.HttpClient;
 import com.koresuniku.wishmaster.presenter.DataLoader;
 import com.koresuniku.wishmaster.presenter.FileSaver;
 import com.koresuniku.wishmaster.presenter.PermissionManager;
@@ -57,6 +52,8 @@ import com.koresuniku.wishmaster.ui.adapter.PicVidPagerAdapter;
 import com.koresuniku.wishmaster.R;
 import com.koresuniku.wishmaster.ui.adapter.ThreadsListViewAdapter;
 import com.koresuniku.wishmaster.ui.controller.ProgressBarUnit;
+import com.koresuniku.wishmaster.ui.controller.RecyclerViewUnit;
+import com.koresuniku.wishmaster.ui.controller.SwipyRefreshLayoutUnit;
 import com.koresuniku.wishmaster.ui.fragment.GalleryFragment;
 import com.koresuniku.wishmaster.http.threads_api.models.Files;
 import com.koresuniku.wishmaster.ui.ScrollbarUtils;
@@ -75,15 +72,10 @@ import com.koresuniku.wishmaster.ui.listener.AnimationListenerDown;
 import com.koresuniku.wishmaster.ui.listener.AnimationListenerUp;
 import com.koresuniku.wishmaster.ui.listener.ThreadsViewPagerOnPageChangeListener;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
-import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
-import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,8 +111,8 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     public String picVidToolbarFilename;
     public String picVidToolbarUrl;
 
-    public SwipyRefreshLayout threadsRefreshLayoutTop;
-    public SwipyRefreshLayout threadsRefreshLayoutBottom;
+    //public SwipyRefreshLayout threadsRefreshLayoutTop;
+    //public SwipyRefreshLayout threadsRefreshLayoutBottom;
     public FixedRecyclerView threadsRecyclerView;
     public VerticalSeekBar mFastScrollSeekbar;
     public ListView mListView;
@@ -136,12 +128,15 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     public static Map<Integer, GalleryFragment> galleryFragments;
     public ImageLoader imageLoader;
 
+    public RecyclerViewUnit mRecyclerViewUnit;
+    public SwipyRefreshLayoutUnit mSwipyRefreshLayoutUnit;
+
     public FrameLayout fullPicVidContainer;
     public HackyViewPager picVidPager;
     public PicVidPagerAdapter picVidPagerAdapter;
     public ThreadsViewPagerOnPageChangeListener threadsViewPagerOnPageChangeListener;
 
-    private DataLoader mDataLoader;
+    public DataLoader mDataLoader;
 
     public boolean dataLoaded = false;
     public boolean fullPicVidOpened = false;
@@ -171,7 +166,8 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
         setupActionBar();
         setupAnimations();
         setupPicVidToolbar();
-        setupSwipeRefreshLayout();
+        //setupSwipeRefreshLayout();
+        mSwipyRefreshLayoutUnit = new SwipyRefreshLayoutUnit(this);
         setupFullscreenMode();
         setupOrientationFeatures();
 
@@ -187,7 +183,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
         super.onStart();
         App.mSettingsContentObserver.switchActivity(this);
         if (!dataLoaded) {
-            mDataLoader.loadThreadsData(boardId);
+            mDataLoader.loadData(boardId);
         }
     }
 
@@ -226,14 +222,17 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
         }
 
         setupActionBar();
-        ScrollbarUtils.setScrollbarSize(mActivity,
-                (FrameLayout) findViewById(R.id.fast_scroll_seekbar_container),
-                newConfig);
+
+        if (mRecyclerViewUnit != null) mRecyclerViewUnit.onConfigurationChanged(newConfig);
 
         fixCoordinatorLayout(newConfig);
-        defineIfNeedToEnableRefreshLayout();
 
         if (adapter != null) adapter.notifyDataSetChanged();
+    }
+
+    public int getItemCount() {
+        if (mSchema != null) return mSchema.getThreads().size();
+        return 0;
     }
 
     private void setupAppBarLayout() {
@@ -250,6 +249,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
                 }
             }
         });
+
         toolbar = (Toolbar) findViewById(R.id.activity_toolbar);
     }
 
@@ -312,41 +312,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
 
     }
 
-    private void setupSwipeRefreshLayout() {
-        threadsRefreshLayoutTop = (SwipyRefreshLayout) findViewById(R.id.threads_refresh_layout_top);
-        threadsRefreshLayoutBottom = (SwipyRefreshLayout) findViewById(R.id.threads_refresh_layout_bottom);
-
-        threadsRefreshLayoutTop.setDistanceToTriggerSync(75);
-        threadsRefreshLayoutBottom.setDistanceToTriggerSync(75);
-
-        threadsRefreshLayoutTop.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh(SwipyRefreshLayoutDirection direction) {
-                Log.d(LOG_TAG, "refreshing epta");
-                threadsRefreshLayoutTop.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        threadsRefreshLayoutTop.setRefreshing(true);
-                    }
-                });
-                mDataLoader.loadThreadsData(boardId);
-            }
-        });
-        threadsRefreshLayoutBottom.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh(SwipyRefreshLayoutDirection direction) {
-                Log.d(LOG_TAG, "refreshing epta");
-                threadsRefreshLayoutBottom.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        threadsRefreshLayoutBottom.setRefreshing(true);
-                    }
-                });
-                mDataLoader.loadThreadsData(boardId);
-            }
-        });
-
-    }
 
     private void setupListView() {
         mListView = (ListView) findViewById(R.id.activity_threads_listview);
@@ -429,8 +394,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                //if (findViewById(R.id.fast_scroll_seekbar_container).getVisibility() == View.VISIBLE) {
-
 
             }
         });
@@ -438,21 +401,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
 
     private void setupThreadsRecyclerView() {
         threadsRecyclerView = (FixedRecyclerView) findViewById(R.id.threads_recycler_view);
-        //threadsRecyclerView.setAutoHideDelay(0);
-
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mActivity)
-                .imageDownloader(new BaseImageDownloader(mActivity, 50 * 1000, 20 * 1000)).build();
-        Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(HttpClient.INSTANCE.getClient()));
-        ImageLoader.getInstance().init(config);
-        imageLoader = ImageLoader.getInstance();
-
-        threadsRecyclerView.setViewCacheExtension(new RecyclerView.ViewCacheExtension() {
-            @Override
-            public View getViewForPositionAndType(RecyclerView.Recycler recycler, int position, int type) {
-                recycler.clear();
-                return null;
-            }
-        });
 
         threadsRecyclerView.setDrawingCacheEnabled(false);
         threadsRecyclerView.addItemDecoration(new ThreadsRecyclerViewDividerItemDecoration(this));
@@ -510,7 +458,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
         threadsRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                defineIfNeedToEnableRefreshLayout();
                 fastScrollSeekbarTouchedFromUser = false;
 
                 return false;
@@ -542,8 +489,8 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
                 onBackPressed();
                 return true;
             case R.id.action_refresh: {
-                threadsRefreshLayoutTop.setRefreshing(true);
-                mDataLoader.loadThreadsData(boardId);
+                //threadsRefreshLayoutTop.setRefreshing(true);
+                mDataLoader.loadData(boardId);
 
             }
         }
@@ -570,7 +517,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
             files = null;
             thumbnails = null;
             galleryFragments = new HashMap<>();
-            //App.fixLeakCanary696(getApplicationContext());
+
             System.gc();
 
             UiUtils.setBarsTranslucent(this, false);
@@ -580,7 +527,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
                     Log.d(LOG_TAG, "im here, bars arent shown");
                     UiUtils.showSystemUI(mActivity);
                     mActivity.fullPicVidOpenedAndFullScreenModeIsOn = false;
-                    //appBarLayout.startAnimation(animExpandActionBar);
+
                 }
                 UiUtils.barsAreShown = true;
             }
@@ -592,7 +539,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
             return;
         }
 
-        //imageLoader.clearMemoryCache();
 
         super.onBackPressed();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -602,67 +548,13 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     }
 
 
-    private void fixCoordinatorLayout(Configuration configuration) {
+    public void fixCoordinatorLayout(Configuration configuration) {
         if (DeviceUtils.deviceHasNavigationBar(this)) {
             if (configuration == null) configuration = getResources().getConfiguration();
             if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 findViewById(R.id.coordinator).setPadding(
                         0, 0, 0, (int) getResources().getDimension(R.dimen.navigation_bar_height));
             } else findViewById(R.id.coordinator).setPadding(0, 0, 0, 0);
-        }
-    }
-
-    private void defineIfNeedToEnableRefreshLayout() {
-        if (threadsRecyclerView != null) {
-            if (((LinearLayoutManager)threadsRecyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition() == -1
-                    && ((LinearLayoutManager)threadsRecyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition() == -1) {
-                if (!threadsRecyclerView.canScrollVertically(-1) && appBarVerticalOffSet == 0) {
-                    threadsRecyclerView.setEnabled(false);
-                    threadsRecyclerView.setEnabled(true);
-                    return;
-                }
-                if (!threadsRecyclerView.canScrollVertically(1) && (appBarVerticalOffSet * - 1) == appBarLayout.getTotalScrollRange()) {
-                    threadsRecyclerView.setEnabled(true);
-                    threadsRecyclerView.setEnabled(false);
-                    return;
-                }
-            }
-            if (((LinearLayoutManager)threadsRecyclerView.getLayoutManager())
-                    .findFirstCompletelyVisibleItemPosition() == 0
-                    && ((LinearLayoutManager)threadsRecyclerView.getLayoutManager())
-                    .findLastCompletelyVisibleItemPosition() == threadsRecyclerView.getChildCount() - 1) {
-                Log.d(LOG_TAG, "buzzfeezz 0");
-                if (appBarVerticalOffSet == 0) {
-                    threadsRefreshLayoutBottom.setEnabled(false);
-                    threadsRefreshLayoutTop.setEnabled(true);
-                    return;
-                }
-                if ((appBarVerticalOffSet * - 1) == appBarLayout.getTotalScrollRange()) {
-                    threadsRefreshLayoutBottom.setEnabled(true);
-                    threadsRefreshLayoutTop.setEnabled(false);
-                    return;
-                }
-            }
-            if (appBarVerticalOffSet == 0
-                    && ((LinearLayoutManager)threadsRecyclerView.getLayoutManager())
-                    .findFirstCompletelyVisibleItemPosition() == 0) {
-                //Log.d(LOG_TAG, "enabling top");
-                threadsRefreshLayoutBottom.setEnabled(false);
-                threadsRefreshLayoutTop.setEnabled(true);
-                return;
-            }
-            if ((appBarVerticalOffSet * - 1) == appBarLayout.getTotalScrollRange()
-                    && ViewCompat.canScrollVertically(threadsRecyclerView, -1)) {
-                //Log.d(LOG_TAG, "enabling bottom");
-                threadsRefreshLayoutBottom.setEnabled(true);
-                threadsRefreshLayoutTop.setEnabled(false);
-                return;
-            }
-
-            Log.d(LOG_TAG, "disabling refresh layouts");
-            threadsRefreshLayoutTop.setEnabled(false);
-            threadsRefreshLayoutBottom.setEnabled(false);
-
         }
     }
 
@@ -700,31 +592,10 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
             boardName = mSchema.getBoardName();
             ((TextView)toolbar.findViewById(R.id.title)).setText("/" + boardId + "/ - " + boardName);
         }
-        if (threadsRecyclerView == null) {
-            setupThreadsRecyclerView();
+        if (mRecyclerViewUnit == null) {
+            mRecyclerViewUnit = new RecyclerViewUnit(this, (AppBarLayout) findViewById(R.id.threads_appbar));
         } else {
-            if (adapter == null) {
-                adapter = new ThreadsRecyclerViewAdapter(mActivity, boardId);
-                threadsRecyclerView.setAdapter(adapter);
-                if (threadsRefreshLayoutTop.isEnabled())
-                    threadsRefreshLayoutTop.setRefreshing(false);
-                if (threadsRefreshLayoutBottom.isEnabled())
-                    threadsRefreshLayoutBottom.setRefreshing(false);
-            } else {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-                if (threadsRefreshLayoutTop.isEnabled() || threadsRefreshLayoutTop.isRefreshing())
-                    threadsRefreshLayoutTop.setRefreshing(false);
-                if (threadsRefreshLayoutBottom.isEnabled())
-                    threadsRefreshLayoutBottom.setRefreshing(false);
-                appBarLayout.setExpanded(true);
-                threadsRecyclerView.scrollToPosition(0);
-                Log.d(LOG_TAG, "adapter.size " + adapter.getItemCount());
-            }
+            mRecyclerViewUnit.threadsActivityOnDataLoaded();
         }
     }
 
@@ -736,7 +607,7 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
 
     @Override
     public void showProgressBar() {
-        if (!threadsRefreshLayoutTop.isRefreshing() && !threadsRefreshLayoutBottom.isRefreshing()) {
+        if (!mSwipyRefreshLayoutUnit.getRefreshing()) {
             findViewById(R.id.main_progress_bar).setVisibility(View.VISIBLE);
         }
     }

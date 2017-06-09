@@ -188,14 +188,14 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.thread_item_single_image_redesign, parent, false);
+                        .inflate(R.layout.thread_item_single_image, parent, false);
                 return new ViewHolder(view);
             }
             case Constants.ITEM_MULTIPLE_IMAGES: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.thread_item_multiple_images_redesign, parent, false);
+                        .inflate(R.layout.thread_item_multiple_images, parent, false);
                 return new ViewHolder(view);
             }
         }
@@ -285,8 +285,8 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
         holder.threadItemContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.imageLoader.clearMemoryCache();
-                mActivity.imageLoader.clearDiskCache();
+//                mActivity.imageLoader.clearMemoryCache();
+//                mActivity.imageLoader.clearDiskCache();
                 Intent intent = new Intent(mActivity, SingleThreadActivity.class);
 
                 intent.putExtra(Constants.BOARD_ID, mActivity.boardId);
@@ -547,12 +547,12 @@ public class ThreadsRecyclerViewAdapter extends RecyclerView.Adapter<ThreadsRecy
             public boolean onResourceReady(final Bitmap resource, Uri model,
                                            Target<Bitmap> target, boolean isFromMemoryCache,
                                            boolean isFirstResource) {
-                Log.d(LOG_TAG, "onResourceReady: ");
+                //Log.d(LOG_TAG, "onResourceReady: ");
                 int widthInt = Integer.parseInt(width);
                 int heightInt = Integer.parseInt(height);
                 float aspectRatio = ((float) widthInt / (float) heightInt);
                 final int finalHeight = Math.round(image.getLayoutParams().width / aspectRatio);
-                Log.d(LOG_TAG, "aspect ratio: " + aspectRatio);
+                //Log.d(LOG_TAG, "aspect ratio: " + aspectRatio);
 
                 image.post(new Runnable() {
                     @Override

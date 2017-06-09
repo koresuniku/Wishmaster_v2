@@ -198,21 +198,21 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.post_item_no_images_redesign, parent, false);
+                        .inflate(R.layout.post_item_no_images, parent, false);
                 return new ViewHolder(view);
             }
             case Constants.ITEM_SINGLE_IMAGE: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.post_item_single_image_redesign, parent, false);
+                        .inflate(R.layout.post_item_single_image, parent, false);
                 return new ViewHolder(view);
             }
             case Constants.ITEM_MULTIPLE_IMAGES: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.post_item_multiple_images_redesign, parent, false);
+                        .inflate(R.layout.post_item_multiple_images, parent, false);
                 return new ViewHolder(view);
             }
         }
@@ -226,21 +226,21 @@ public class SingleThreadRecyclerViewAdapter extends RecyclerView.Adapter<Single
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(mActivity)
-                        .inflate(R.layout.post_item_no_images_redesign, null, false);
+                        .inflate(R.layout.post_item_no_images, null, false);
                 return view;
             }
             case Constants.ITEM_SINGLE_IMAGE: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(mActivity)
-                        .inflate(R.layout.post_item_single_image_redesign, null, false);
+                        .inflate(R.layout.post_item_single_image, null, false);
                 return view;
             }
             case Constants.ITEM_MULTIPLE_IMAGES: {
                 mViewType = viewType;
                 view = LayoutInflater
                         .from(mActivity)
-                        .inflate(R.layout.post_item_multiple_images_redesign, null, false);
+                        .inflate(R.layout.post_item_multiple_images, null, false);
                 return view;
             }
         }

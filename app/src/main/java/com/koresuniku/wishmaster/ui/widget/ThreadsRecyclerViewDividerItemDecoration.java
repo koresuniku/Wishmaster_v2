@@ -13,7 +13,7 @@ public class ThreadsRecyclerViewDividerItemDecoration extends RecyclerView.ItemD
         private Drawable mDivider;
 
         public ThreadsRecyclerViewDividerItemDecoration(Activity activity) {
-            mDivider = activity.getResources().getDrawable(R.drawable.line_divider);
+            mDivider = activity.getResources().getDrawable(R.drawable.recycler_view_divider);
 //            mDivider.setColorFilter(activity.getResources().getColor(
 //                    android.R.color.background_light), PorterDuff.Mode.SRC_ATOP);
         }
