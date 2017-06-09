@@ -2,6 +2,7 @@ package com.koresuniku.wishmaster.ui.controller
 
 import android.content.res.Configuration
 import android.os.Handler
+import android.os.Parcelable
 import android.support.design.widget.AppBarLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -21,6 +22,7 @@ class RecyclerViewUnit(val mActivity: ThreadsActivity, val mAppBarLayout: AppBar
     var mRecyclerView: FixedRecyclerView = mActivity.findViewById(R.id.threads_recycler_view) as FixedRecyclerView
     var mLinearLayoutManager: LinearLayoutManager? = null
     var mRecyclerViewAdapter: ThreadsRecyclerViewAdapter = ThreadsRecyclerViewAdapter(mActivity, mActivity.boardId)
+    internal var mRecyclerViewState: Parcelable? = null
 
     var mFastScrollSeekBarUnit: FastScrollSeekBarUnit? = null
 
@@ -30,7 +32,7 @@ class RecyclerViewUnit(val mActivity: ThreadsActivity, val mAppBarLayout: AppBar
     init {
         initAppBarLayout()
         initRecyclerView()
-
+        initFastScrollSeekBar()
     }
     
     fun initAppBarLayout() {
@@ -53,11 +55,10 @@ class RecyclerViewUnit(val mActivity: ThreadsActivity, val mAppBarLayout: AppBar
         mRecyclerView.setOnScrollListener(OnScrollListener())
         mRecyclerView.onTouch { v, event -> kotlin.run {
             checkRefreshAvailability()
-            //Log.d(LOG_TAG, "y: " + event.y)
             }
         }
 
-        initFastScrollSeekBar()
+
 
         mActivity.fixCoordinatorLayout(mActivity.resources.configuration)
     }
@@ -123,6 +124,15 @@ class RecyclerViewUnit(val mActivity: ThreadsActivity, val mAppBarLayout: AppBar
     fun onConfigurationChanged(configuration: Configuration) {
         mFastScrollSeekBarUnit!!.onConfigurationChanged(configuration)
         appBarLayoutExpandedValue = mAppBarLayout.totalScrollRange
+        mRecyclerViewAdapter.notifyDataSetChanged()
+    }
+
+    fun onSaveInstanceState() {
+        mRecyclerViewState = mLinearLayoutManager!!.onSaveInstanceState()
+    }
+
+    fun onRestoreInstanceState() {
+        mLinearLayoutManager!!.onRestoreInstanceState(mRecyclerViewState)
     }
 
 }

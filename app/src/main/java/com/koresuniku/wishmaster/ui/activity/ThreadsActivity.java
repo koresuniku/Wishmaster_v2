@@ -111,22 +111,13 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     public String picVidToolbarFilename;
     public String picVidToolbarUrl;
 
-    //public SwipyRefreshLayout threadsRefreshLayoutTop;
-    //public SwipyRefreshLayout threadsRefreshLayoutBottom;
-    public FixedRecyclerView threadsRecyclerView;
-    public VerticalSeekBar mFastScrollSeekbar;
-    public ListView mListView;
-    public ThreadsListViewAdapter mListViewAdapter;
-    private boolean fastScrollSeekbarTouchedFromUser;
 
-    private Parcelable threadsRecyclerViewState;
-    public ThreadsRecyclerViewAdapter adapter;
-    private LinearLayoutManager linearLayoutManager;
+
+
     public static List<Files> files;
     public static List<String> thumbnails;
     public static List<String> imageCachePaths;
     public static Map<Integer, GalleryFragment> galleryFragments;
-    public ImageLoader imageLoader;
 
     public RecyclerViewUnit mRecyclerViewUnit;
     public SwipyRefreshLayoutUnit mSwipyRefreshLayoutUnit;
@@ -227,7 +218,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
 
         fixCoordinatorLayout(newConfig);
 
-        if (adapter != null) adapter.notifyDataSetChanged();
     }
 
     public int getItemCount() {
@@ -281,12 +271,6 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
         animCollapseActionBar.setDuration(250);
         animExpandActionBar.setAnimationListener(animationListenerUpActionBar);
         animCollapseActionBar.setAnimationListener(animationListenerDownActionBar);
-        fadeOut = new AlphaAnimation(1, 0);
-        fadeOut.setInterpolator(new AccelerateInterpolator());
-        fadeOut.setDuration(200);
-        fadeIn = new AlphaAnimation(0, 1);
-        fadeIn.setInterpolator(new DecelerateInterpolator()); //add this
-        fadeIn.setDuration(200);
     }
 
     private void setupPicVidToolbar() {
@@ -313,163 +297,8 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     }
 
 
-    private void setupListView() {
-        mListView = (ListView) findViewById(R.id.activity_threads_listview);
-        mListViewAdapter = new ThreadsListViewAdapter(mActivity);
-        mListView.setAdapter(mListViewAdapter);
-        mListView.setFriction(ViewConfiguration.getScrollFriction() * 2);
-        mListView.setVerticalScrollBarEnabled(false);
-        mListView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                fastScrollSeekbarTouchedFromUser = false;
-                return false;
-            }
-        });
-        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
 
-            }
 
-            @Override
-            public void onScroll(AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (mFastScrollSeekbar != null && !fastScrollSeekbarTouchedFromUser) {
-                    Log.d(LOG_TAG, "firstVisibleItem: " + firstVisibleItem);
-                    if (firstVisibleItem + visibleItemCount >= totalItemCount) {
-                        mFastScrollSeekbar.setProgress(totalItemCount);
-                    } else {
-                        mFastScrollSeekbar.setProgress(firstVisibleItem);
-                    }
-                    mFastScrollSeekbar.updateThumb();
-
-                }
-            }
-        });
-        setupFastScrollSeekBar();
-    }
-
-    private void setupFastScrollSeekBar() {
-        mFastScrollSeekbar = (VerticalSeekBar) findViewById(R.id.scroll_seekBar);
-        ScrollbarUtils.setScrollbarSize(mActivity,
-                (FrameLayout) findViewById(R.id.fast_scroll_seekbar_container),
-                getResources().getConfiguration());
-        mFastScrollSeekbar.setMax(adapter.getItemCount() - 1);
-        findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.GONE);
-        mFastScrollSeekbar.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.d(LOG_TAG, "onTouchSeekbar: ");
-                fastScrollSeekbarTouchedFromUser = true;
-                findViewById(R.id.fast_scroll_seekbar_container).clearAnimation();
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeOut);
-                            findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.GONE);
-                        }
-                    }, 750);
-                }
-                return false;
-            }
-        });
-        mFastScrollSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.d(LOG_TAG, "onProgressChanged: progress: " + progress);
-                Log.d(LOG_TAG, "adapter count: " + adapter.getItemCount());
-                if (fastScrollSeekbarTouchedFromUser) {
-                   if (progress == adapter.getItemCount())
-                       linearLayoutManager.scrollToPositionWithOffset(progress, Integer.MAX_VALUE);
-                   else linearLayoutManager.scrollToPositionWithOffset(progress, 0);
-                    mFastScrollSeekbar.updateThumb();
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-    }
-
-    private void setupThreadsRecyclerView() {
-        threadsRecyclerView = (FixedRecyclerView) findViewById(R.id.threads_recycler_view);
-
-        threadsRecyclerView.setDrawingCacheEnabled(false);
-        threadsRecyclerView.addItemDecoration(new ThreadsRecyclerViewDividerItemDecoration(this));
-        linearLayoutManager = new LinearLayoutManager(this);
-        threadsRecyclerView.setLayoutManager(linearLayoutManager);
-        adapter = new ThreadsRecyclerViewAdapter(this, boardId);
-        adapter.setHasStableIds(true);
-
-        threadsRecyclerView.setAdapter(adapter);
-        final boolean[] touchedAgain = {false};
-        threadsRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    //imageLoader.pause();
-                    if (getActivity() != null) Glide.with(mActivity).pauseRequests();
-                } else {
-                    //imageLoader.resume();
-                    if (getActivity() != null) Glide.with(mActivity).resumeRequests();
-                }
-                if (!fastScrollSeekbarTouchedFromUser) {
-                    if (newState != 0) {
-                        touchedAgain[0] = true;
-                        if (findViewById(R.id.fast_scroll_seekbar_container).getVisibility() == View.GONE) {
-                            findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.VISIBLE);
-                            findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeIn);
-                        }
-                    } else {
-                        touchedAgain[0] = false;
-                        if (findViewById(R.id.fast_scroll_seekbar_container).getVisibility() == View.VISIBLE) {
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!fastScrollSeekbarTouchedFromUser && !touchedAgain[0]) {
-                                        findViewById(R.id.fast_scroll_seekbar_container).startAnimation(fadeOut);
-                                        findViewById(R.id.fast_scroll_seekbar_container).setVisibility(View.GONE);
-                                    }
-                                }
-                            }, 750);
-                        }
-                    }
-                }
-            }
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (linearLayoutManager.findLastCompletelyVisibleItemPosition()
-                        == adapter.getItemCount() - 1) {
-                    mFastScrollSeekbar.setProgress(linearLayoutManager.findLastCompletelyVisibleItemPosition());
-                } else {
-                    mFastScrollSeekbar.setProgress(linearLayoutManager.findFirstVisibleItemPosition());
-                }
-                mFastScrollSeekbar.updateThumb();
-            }
-        });
-        threadsRecyclerView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                fastScrollSeekbarTouchedFromUser = false;
-
-                return false;
-            }
-        });
-
-        onRestoreInstanceState(null);
-        fixCoordinatorLayout(null);
-
-        setupFastScrollSeekBar();
-
-    }
 
     private void setupFullscreenMode() {
         if (DeviceUtils.sdkIsKitkatOrHigher()) UiUtils.showSystemUI(this);
@@ -568,17 +397,13 @@ public class ThreadsActivity extends AppCompatActivity implements LoadDataView, 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         Log.d(LOG_TAG, "onRestoreInstanceState: ");
-        if (threadsRecyclerViewState != null) {
-            threadsRecyclerView.getLayoutManager().onRestoreInstanceState(threadsRecyclerViewState);
-        }
+        if (mRecyclerViewUnit != null) mRecyclerViewUnit.onRestoreInstanceState();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(LOG_TAG, "onSaveInstanceState: ");
-        if (threadsRecyclerView != null)
-            threadsRecyclerViewState = threadsRecyclerView.getLayoutManager().onSaveInstanceState();
-        super.onSaveInstanceState(outState);
+        if (mRecyclerViewUnit != null) mRecyclerViewUnit.onSaveInstanceState();
     }
 
     @Override
